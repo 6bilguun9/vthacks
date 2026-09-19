@@ -13,13 +13,15 @@ npm run dev
 
 Open <http://localhost:3000>. The default API origin is `http://localhost:3001`. To change it, copy `.env.example` to `.env.local`, edit `NEXT_PUBLIC_API_BASE_URL`, and restart Next.js. This variable is public and is embedded at build time for production.
 
-The landing page is a development starter. It makes a real health request, shows connected/unavailable states, and lets you retry. It contains no pretend balances or working financial screens. You can run it while the backend is offline; only the connection indicator is affected.
+The landing page integrates the Hokie Wallet dashboard and Neha’s ChatPanel. Balances, spending, savings illustrations, and chat replies are explicitly synthetic, fixed September 2026 examples; they do not establish affordability or connect to accounts or AI. The separate live health check still makes a real request, shows connected/unavailable states, and lets you retry. Backend availability never switches the dashboard’s data source.
+
+Sample data lives in `src/features/dashboard/demo-data.ts`, shared by the dashboard and chat. Monetary fields use integer USD cents and are converted to dollars only for display. Campus restricted funds remain separate from bank cash; savings allocations are included in bank cash. Financial summaries and contribution illustrations are fixed mocks pending backend calculations. The imported UI uses existing dependencies, so package versions and configuration are unchanged.
 
 ## Layout
 
 - `src/app/`: pages, global styles, and layout. Coordinate edits to shared files with the other frontend developer.
 - `src/components/ui/`: reusable visual primitives.
-- `src/features/`: feature-specific UI; overview, goals, and chat can be added independently.
+- `src/features/`: feature-specific UI, including the dashboard, shared demo data, scripted chat, and live system status.
 - `src/lib/api.ts`: all browser-to-backend requests; validates the health response with Zod and uses a five-second timeout.
 - `tests/`: API-client error handling and shared-contract checks.
 
