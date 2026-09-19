@@ -25,11 +25,26 @@ Docs: [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs),
 1. **Nessie:** obtain the team's sandbox credentials and current HTTPS API base URL. Read a configured sample customer's accounts and transaction resources; validate actual shapes and balance/status semantics. The public portal returned 403 in the planning environment, so live access is not verified. Keep runtime banking calls read-only.
 2. **ARC:** create a personal key through the documented VT interface and store it only in backend environment configuration. Test a small `/chat/completions` request and constrained JSON parsing. Default to `gpt-oss-120b` with low reasoning effort; model availability and limits can change. Verify app-mediated public guest usage with ARC; personal access documentation alone does not establish unrestricted proxy permission. Until confirmed, limit AI to the authorized presenter while keeping the deterministic public demo available.
 3. **Supabase:** provision the project, implement migrations and RLS, enable anonymous sessions, and test two-user isolation. No executable migrations ship in this starter. Public signup needs server-verified Turnstile and limits before release.
-4. **GoDaddy ANS:** establish a domain the team controls and the correct registration credentials. Current public docs show both PAT and legacy key guidance, so verify the issued credential type with the actual endpoint. Never guess credentials or fall back across unrelated services.
+4. **GoDaddy ANS:** establish a domain the team controls and install the ANS CLI. The checked-in wrappers point it at `https://api.godaddy.com/` (production), not the CLI's default OTE environment. Store only the complete `ANS_API_KEY=KEY:SECRET` pair in backend deployment secrets or ignored `backend/.env`; a key without its matching secret cannot authenticate the CLI.
 
 ## ANS topology
 
-Use `coach.<team-domain>` and `planner.<team-domain>` as distinct registered hosts, both attached to the backend deployment. Implement their HTTP-API endpoints before registration. Complete the domain challenge and required certificate steps, then verify active registry status and resolution. Keep private signing keys out of Git.
+Use `coach.<team-domain>` and `planner.<team-domain>` as distinct registered hosts, both attached to the backend deployment. Route both FQDNs to this backend with valid HTTPS before registration. The starter exposes their safe `GET /api/v1/agents/:agentId` descriptors now; request handling intentionally remains unimplemented for the owning backend teammates.
+
+From `backend/`, set `ANS_BASE_URL=https://api.godaddy.com/`, `ANS_API_KEY=KEY:SECRET`, `COACH_AGENT_HOST`, and `PLANNER_AGENT_HOST` in ignored `.env`, then run this sequence independently for each identity:
+
+```sh
+npm run ans:csr -- coach coach.example.com
+npm run ans:register -- coach
+# Create the emitted ACME TXT record, wait for it to propagate, then:
+npm run ans:verify-acme -- <agent-id>
+# Publish the emitted _ans and _ans-badge TXT records, then:
+npm run ans:verify-dns -- <agent-id>
+npm run ans:status -- <agent-id>
+npm run ans:resolve -- coach
+```
+
+Repeat for `planner`. CSR keys stay in ignored `.ans/`; the registration command's output is the source of truth for the exact agent ID and DNS records. Publish both required ANS TXT records (`_ans` and `_ans-badge`) before the DNS verification step. Complete validation, confirm `ACTIVE`, and verify resolution before using ANS in the coach runtime.
 
 The coach must actually use the resolved planner URL. Restrict destinations to configured HTTPS hosts, disable arbitrary redirects, and authenticate bounded requests. Expose only non-sensitive registration and call-status information in the UI. Registration is not a certification of financial correctness.
 

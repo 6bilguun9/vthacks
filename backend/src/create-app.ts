@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { readConfig, type AppConfig } from "./config/env.js";
+import { agentRoutes } from "./routes/agents.js";
 import { healthRoutes } from "./routes/health.js";
 
 export function createApp(config: AppConfig = readConfig()) {
@@ -27,6 +28,7 @@ export function createApp(config: AppConfig = readConfig()) {
   });
 
   app.register(healthRoutes, { prefix: "/api/v1" });
+  app.register(agentRoutes, { prefix: "/api/v1", config });
 
   app.setNotFoundHandler((_request, reply) => {
     return reply.code(404).send({

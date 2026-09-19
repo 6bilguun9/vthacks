@@ -12,6 +12,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "ans:csr": "node --env-file-if-exists=.env --import tsx scripts/ans-create-csrs.ts",
+    "ans:register": "node --env-file-if-exists=.env --import tsx scripts/ans-register.ts",
+    "ans:verify-acme": "node --env-file-if-exists=.env --import tsx scripts/ans-verify.ts acme",
+    "ans:verify-dns": "node --env-file-if-exists=.env --import tsx scripts/ans-verify.ts dns",
+    "ans:status": "node --env-file-if-exists=.env --import tsx scripts/ans-status.ts",
+    "ans:resolve": "node --env-file-if-exists=.env --import tsx scripts/ans-resolve.ts",
     "check": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
