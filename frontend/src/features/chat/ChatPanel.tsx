@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
-import { demoChatExamples as examples } from "@/features/dashboard/demo-data";
+import { ArrowUpRight, MessageSquare } from "lucide-react";
+import { getDemoReply, suggestedQuestions } from "./demo-replies";
 
 type Message = {
   role: "user" | "assistant";
@@ -13,8 +14,8 @@ export default function ChatPanel() {
   // State remembers values between renders and updates the screen when they change.
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { role: "user", text: examples[0].question },
-    { role: "assistant", text: examples[0].answer },
+    { role: "user", text: suggestedQuestions[1].question },
+    { role: "assistant", text: suggestedQuestions[1].answer },
   ]);
   const [isThinking, setIsThinking] = useState(false);
   const id = useId();
@@ -37,6 +38,7 @@ export default function ChatPanel() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); // Keep submitting the form from refreshing the page.
     const question = input.trim();
+    // A ref updates immediately, so rapid Enter presses cannot start two replies.
     if (!question || timerRef.current !== null) return;
 
     setMessages((previous) => [...previous, { role: "user", text: question }]);
@@ -46,11 +48,7 @@ export default function ChatPanel() {
 
     // This delay imitates a response; it never calls an API or reads bank data.
     timerRef.current = setTimeout(() => {
-      const example = examples.find(
-        (item) => item.question.toLowerCase() === question.toLowerCase(),
-      );
-      const answer = example?.answer ??
-        "This is a demo, so I can’t analyze that question yet. Try one of the example prompts to explore a sample savings or spending plan. No real account data is connected.";
+      const answer = getDemoReply(question);
       setMessages((previous) => [
         ...previous,
         { role: "assistant", text: answer },
@@ -67,22 +65,27 @@ export default function ChatPanel() {
     <section
       id="finbot"
       aria-labelledby={`${id}-title`}
-      className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white text-stone-900 shadow-sm"
+      className="finbot-chat flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e5e1df] bg-[#fffdfb] text-stone-900"
     >
       <header className="border-b border-stone-200 p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id={`${id}-title`} className="text-2xl font-semibold tracking-tight">
-            Ask FinBot
-          </h2>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">
-            Demo · mock data
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-[#f6eaf0] text-[#861f41]">
+              <MessageSquare aria-hidden="true" />
+            </span>
+            <h2 id={`${id}-title`} className="text-xl font-semibold tracking-tight">
+              Ask FinBot
+            </h2>
+          </div>
+          <span className="rounded-md border border-[#e7d8c8] bg-[#fbf4e9] px-2 py-1 text-[10px] font-medium text-[#775331]">
+            Sample replies
           </span>
         </div>
         <p className="mt-2 text-sm leading-6 text-stone-600">
-          Make room for life at VT. Explore a spending or savings plan.
+          Good questions. Clearer choices.
         </p>
         <p id={`${id}-disclaimer`} className="mt-2 text-xs leading-5 text-stone-600">
-          Sample conversation and scripted replies. No bank accounts are connected.
+          Scripted answers from the sample profile. No accounts are connected.
         </p>
       </header>
 
@@ -93,7 +96,7 @@ export default function ChatPanel() {
         aria-live="polite"
         aria-relevant="additions"
         tabIndex={0}
-        className={`max-h-96 space-y-5 overflow-y-auto overscroll-contain p-5 sm:p-6 ${focusStyle}`}
+        className={`max-h-[28rem] min-h-64 flex-1 space-y-5 overflow-y-auto overscroll-contain bg-white p-5 sm:p-6 ${focusStyle}`}
       >
         {messages.map((message, index) => (
           <div
@@ -114,25 +117,41 @@ export default function ChatPanel() {
             </p>
           </div>
         ))}
+        {isThinking && (
+          // The status below announces loading; hide this visual copy from screen readers.
+          <div aria-hidden="true" className="max-w-[95%]">
+            <p className="mb-1.5 text-xs font-semibold text-stone-600">FinBot · demo</p>
+            <p className="rounded-2xl rounded-tl-sm border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-600">
+              Preparing a sample response…
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-stone-200 p-5 sm:p-6">
-        <p role="status" className="mb-3 min-h-5 text-xs font-medium text-stone-600">
-          {isThinking ? "FinBot is thinking… (simulated)" : "Ready for your next question."}
+        <p id={`${id}-status`} role="status" className="mb-4 min-h-5 text-xs text-stone-600">
+          {isThinking
+            ? "FinBot is preparing a sample response. You can draft your next question."
+            : messages.length > 2 ? "Ready for your next question." : "Where would you like to start?"}
         </p>
-        <div className="mb-5 flex flex-wrap gap-2" aria-label="Example prompts">
-          {examples.map((example) => (
+        <p id={`${id}-suggestions`} className="mb-2 text-[10px] font-semibold tracking-widest text-stone-600">
+          EXPLORE THE SAMPLE
+        </p>
+        <div role="group" className="mb-5 flex flex-wrap gap-2" aria-labelledby={`${id}-suggestions`}>
+          {suggestedQuestions.map((example) => (
             <button
               key={example.label}
+              aria-label={example.question}
+              title={example.question}
               type="button"
               disabled={isThinking}
               onClick={() => {
                 setInput(example.question);
                 inputRef.current?.focus();
               }}
-              className={`min-h-11 rounded-lg border border-stone-300 px-3 py-2 text-xs font-medium hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50 ${focusStyle}`}
+              className={`flex min-h-11 flex-1 items-center justify-between gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-[#704053] hover:border-[#cba1b1] hover:bg-[#f9f1f4] disabled:cursor-not-allowed disabled:opacity-50 ${focusStyle}`}
             >
-              {example.label}
+              {example.label}<ArrowUpRight className="size-3.5" aria-hidden="true" />
             </button>
           ))}
         </div>
@@ -147,8 +166,8 @@ export default function ChatPanel() {
               type="text"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              aria-describedby={`${id}-disclaimer`}
-              placeholder="Ask about spending or saving…"
+              aria-describedby={`${id}-disclaimer ${id}-status`}
+              placeholder="What’s on your mind?"
               maxLength={1000}
               autoComplete="off"
               className={`min-h-12 min-w-0 flex-1 rounded-lg border border-stone-400 bg-white px-3 py-3 text-base text-stone-900 placeholder:text-stone-500 ${focusStyle}`}
@@ -158,10 +177,13 @@ export default function ChatPanel() {
               disabled={isThinking || !input.trim()}
               className={`min-h-12 rounded-lg bg-[#861f41] px-6 py-3 text-sm font-semibold text-white hover:bg-[#671832] disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-600 ${focusStyle}`}
             >
-              {isThinking ? "Thinking…" : "Send"}
+              {isThinking ? "Preparing…" : "Send"}
             </button>
           </div>
         </form>
+        <p className="mt-3 text-[11px] leading-5 text-stone-500">
+          Demo conversation · History resets when you refresh or leave.
+        </p>
       </div>
     </section>
   );

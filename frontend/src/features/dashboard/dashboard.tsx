@@ -1,18 +1,23 @@
-import ChatPanel from "@/features/chat/ChatPanel";
+import {
+  ArrowRight, ArrowUpRight, BookOpen, Bus, CalendarDays, ChartPie,
+  Coffee, FlaskConical, Landmark, LayoutDashboard, MessageSquare,
+  ReceiptText, Target, Utensils, Wallet,
+} from "lucide-react";
 import Link from "next/link";
+import ChatPanel from "@/features/chat/ChatPanel";
 import { ApiStatus } from "@/features/system/api-status";
+import { demoData, demoSummary, formatMoney as money } from "./demo-data";
 import "./dashboard.css";
 
-import { demoData, demoSummary, formatMoney as money } from "./demo-data";
-
 const { spending, recentTransactions: transactions, savingsGoal: goal } = demoData;
+const transactionIcons = { coffee: Coffee, books: BookOpen, transit: Bus };
 
 function Balance({ amount }: { amount: number }) {
   const [whole, cents] = money(amount).split(".");
   return <h2>{whole}<span>.{cents}</span></h2>;
 }
 
-// Each chart segment follows its category's share of the sample spending.
+// Chart proportions visualize the fixed sample totals, without projecting finances.
 let chartPosition = 0;
 const chartSegments = spending.map((item) => {
   const start = chartPosition;
@@ -29,36 +34,111 @@ export default function Dashboard() {
     <div className="dashboard">
       <a className="skip-link" href="#main">Skip to dashboard</a>
       <aside className="sidebar">
-        <a className="brand" href="#main"><span className="brand-icon">hw<span>•</span></span><span>hokie<span className="brand-light">wallet</span></span></a>
-        <p className="nav-label">YOUR MONEY, SIMPLIFIED</p>
+        <a className="brand" href="#main" aria-label="Hokie Wallet home">
+          <span className="brand-icon" aria-hidden="true">hw<span>•</span></span>
+          <span>hokie<span className="brand-light">wallet</span></span>
+        </a>
+        <p className="nav-label">YOUR WORKSPACE</p>
         <nav aria-label="Main navigation">
-          <a className="nav-active" href="#main" aria-current="page"><span aria-hidden="true">◫</span> Overview</a>
-          <a href="#activity"><span aria-hidden="true">⇄</span> Recent activity</a>
-          <a href="#savings"><span aria-hidden="true">◎</span> Savings goal</a>
-          <a href="#finbot"><span aria-hidden="true">✧</span> Ask FinBot</a>
-          <Link href="/dining"><span aria-hidden="true">♨</span> Dining planner</Link>
+          <a className="nav-active" href="#main" aria-current="page"><LayoutDashboard aria-hidden="true" />Overview</a>
+          <a href="#activity"><ReceiptText aria-hidden="true" />Recent activity</a>
+          <a href="#savings"><Target aria-hidden="true" />Savings goal</a>
+          <a href="#finbot"><MessageSquare aria-hidden="true" />Ask FinBot</a>
+          <Link href="/dining"><Utensils aria-hidden="true" />Dining planner<ArrowUpRight className="nav-arrow" aria-hidden="true" /></Link>
         </nav>
-        <div className="sidebar-note"><span className="little-star" aria-hidden="true">✳</span><h3>Small steps.<br />Big possibilities.</h3><p>A little clarity goes a long way. Make room for what matters.</p><span className="hokie-tag">MADE FOR HOKIES</span></div>
-        <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>
+        <div className="sidebar-note">
+          <span className="note-mark" aria-hidden="true">✳</span>
+          <h3>Small steps.<br />More possibilities.</h3>
+          <p>A little clarity for everything college brings.</p>
+          <span className="hokie-tag">MADE FOR HOKIES</span>
+        </div>
+        <div className="profile"><span className="avatar" aria-hidden="true">H</span><div><strong>Hokie student</strong><small>Sample profile</small></div></div>
       </aside>
+
       <main id="main">
-        <header className="topbar"><span>My workspace <span className="breadcrumb">/ Overview</span></span><span className="demo-badge"><span /> Demo · Sample data</span></header>
+        <header className="topbar">
+          <span>My workspace <span className="breadcrumb">/ <strong>Overview</strong></span></span>
+          <span className="demo-badge"><FlaskConical aria-hidden="true" />Demo workspace</span>
+        </header>
         <div className="content">
-          <section className="welcome"><div><p className="eyebrow">A LITTLE CLARITY FOR YOUR EVERYDAY</p><h1>Good to see you, Hokie <span className="wave" aria-hidden="true">✳</span></h1><p>Explore a synthetic student profile. No accounts are connected.</p></div><span className="date-label">{demoData.month} {demoData.year}</span></section>
-          <section className="balance-grid" aria-label="Account overview">
-            <article className="balance-card"><div className="card-label">Bank balance <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> Sample checking cash · includes goal allocation</p></article>
-            <article className="balance-card wallet-card"><div className="card-label">Hokie Wallet <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>Restricted campus funds · not bank cash <span aria-hidden="true">↗</span></p></article>
-            <article className="balance-card"><div className="card-label">Spent this month <span className="card-icon" aria-hidden="true">↗</span></div><Balance amount={demoSummary.totalSpentCents} /><p>Of your {money(demoData.monthlyBudgetCents, 0)} monthly budget</p><div className="budget-track" role="progressbar" aria-label="Monthly budget spent" aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${money(demoSummary.totalSpentCents)} spent of ${money(demoData.monthlyBudgetCents)}`}><span style={{ width: `${demoSummary.budgetPercent}%` }} /></div></article>
+          <section className="welcome">
+            <div>
+              <p className="eyebrow">LESS MONEY STRESS. MORE STUDENT LIFE.</p>
+              <h1>A little clarity,<br className="mobile-break" /> Hokie.</h1>
+              <p>Your everyday money, with the bigger picture in view.</p>
+            </div>
+            <a className="welcome-action" href="#finbot">Let’s talk money<MessageSquare aria-hidden="true" /></a>
           </section>
-          <p className="sample-notice">Sample data only · Fixed September 2026 snapshot. Goal allocations are reserved within bank cash. Campus funds are restricted. Illustrations do not establish affordability.</p>
-          <div className="detail-grid">
-            <section className="panel spending-panel"><div className="section-heading"><div><p className="eyebrow">THE BIG PICTURE</p><h2>A month in spending</h2></div><span className="subtle-pill">{demoData.month}</span></div><div className="spending-content"><div className="donut" role="img" style={{ background: chartBackground }} aria-label={`Total spending: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${item.name}: ${money(item.amountCents)}`).join(", ")}`}><div><span>Total spent</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>this month</small></div></div><div className="legend">{spending.map((item) => <div className="legend-row" key={item.name}><span className="legend-dot" style={{ background: item.color }} /><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}<p className="budget-note">{demoSummary.budgetRemainingCents >= 0 ? <>You have <strong>{money(demoSummary.budgetRemainingCents)}</strong> left in your budget.</> : <>You are <strong>{money(Math.abs(demoSummary.budgetRemainingCents))}</strong> over your budget.</>}</p></div></div></section>
-            <section className="panel savings-panel" id="savings"><div className="section-heading"><div><p className="eyebrow">LOOKING AHEAD</p><h2>A little closer every day</h2></div><span className="goal-icon" aria-hidden="true">◎</span></div><p className="goal-name">{goal.name} <span>Savings goal</span></p><div className="goal-amount"><strong>{money(goal.savedCents, 0)}</strong><span>of {money(goal.targetCents, 0)}</span><b>{demoSummary.savingsPercent}%</b></div><progress value={goal.savedCents} max={goal.targetCents} aria-label={`${goal.name}: ${money(goal.savedCents)} of ${money(goal.targetCents)}`} /><p className="goal-caption">{demoSummary.savingsRemainingCents > 0 ? <>Just <strong>{money(demoSummary.savingsRemainingCents, 0)} to go.</strong> Future you says thanks.</> : "Goal reached. Future you says thanks!"}</p><div className="savings-tip"><span aria-hidden="true">✧</span><p>Little by little adds up.<br /><strong>{demoSummary.savingsIllustration}</strong></p></div></section>
-            <section className="panel" id="activity"><div className="section-heading"><div><p className="eyebrow">THE EVERYDAY DETAILS</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div><ul className="transactions">{transactions.map((item) => <li key={item.id}><span className="transaction-icon" aria-hidden="true">{item.icon}</span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category} · {item.date}</span></div><strong>{money(item.amountCents)}</strong></li>)}</ul><p className="activity-note">A snapshot of your latest sample purchases.</p></section>
-            <ChatPanel />
+
+          <div className="snapshot-heading">
+            <h2>Your money at a glance</h2>
+            <span><CalendarDays aria-hidden="true" />{demoData.month} {demoData.year} · sample</span>
           </div>
-          <div className="api-connection"><ApiStatus /></div>
-          <footer><span><strong>hokiewallet</strong> · More clarity. Less money stress.</span><span>Built for student life <span aria-hidden="true">↗</span></span></footer>
+          <section className="balance-grid" aria-label="Account overview">
+            <article className="balance-card bank-card">
+              <div className="card-label">Bank balance<Landmark aria-hidden="true" /></div>
+              <Balance amount={demoData.bankBalanceCents} />
+              <p>Checking cash · includes savings allocation</p>
+              <span className="balance-footnote">SAMPLE BANK ACCOUNT</span>
+            </article>
+            <article className="balance-card wallet-card">
+              <div className="card-label">Hokie Wallet<Wallet aria-hidden="true" /></div>
+              <Balance amount={demoData.walletBalanceCents} />
+              <p>Restricted campus funds · separate from bank cash</p>
+              <Link className="balance-link" href="/dining">Explore dining planner<ArrowRight aria-hidden="true" /></Link>
+            </article>
+            <article className="balance-card spending-card">
+              <div className="card-label">Spent this month<ChartPie aria-hidden="true" /></div>
+              <Balance amount={demoSummary.totalSpentCents} />
+              <p>Of a {money(demoData.monthlyBudgetCents, 0)} sample monthly budget</p>
+              <div className="budget-track" role="progressbar" aria-label="Monthly budget spent" aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${money(demoSummary.totalSpentCents)} spent of ${money(demoData.monthlyBudgetCents)}`}>
+                <span style={{ width: `${demoSummary.budgetPercent}%` }} />
+              </div>
+            </article>
+          </section>
+          <p className="sample-notice"><FlaskConical aria-hidden="true" /><span><strong>A sample, not your account.</strong> Fixed September 2026 data. No accounts are connected; illustrations do not establish affordability.</span></p>
+
+          <div className="detail-grid">
+            <section className="panel spending-panel">
+              <div className="section-heading"><div><p className="eyebrow">THE EVERYDAY PICTURE</p><h2>Where it’s going</h2></div><span className="subtle-pill">{demoData.month}</span></div>
+              <div className="spending-content">
+                <div className="donut" role="img" style={{ background: chartBackground }} aria-label={`Total spending: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${item.name}: ${money(item.amountCents)}`).join(", ")}`}>
+                  <div><span>Total spent</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>sample spending</small></div>
+                </div>
+                <div className="legend">
+                  {spending.map((item) => <div className="legend-row" key={item.name}><span className="legend-dot" style={{ background: item.color }} aria-hidden="true" /><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}
+                </div>
+              </div>
+              <p className="budget-note">{demoSummary.budgetRemainingCents >= 0 ? <><strong>{money(demoSummary.budgetRemainingCents)}</strong> remaining in the sample monthly budget.</> : <><strong>{money(Math.abs(demoSummary.budgetRemainingCents))}</strong> over the sample monthly budget.</>}</p>
+            </section>
+
+            <section className="panel savings-panel" id="savings">
+              <div className="section-heading"><div><p className="eyebrow">A LITTLE CLOSER</p><h2>{goal.name}</h2></div><span className="goal-icon"><Target aria-hidden="true" /></span></div>
+              <div className="goal-amount"><strong>{money(goal.savedCents, 0)}</strong><span>of {money(goal.targetCents, 0)}</span><b>{demoSummary.savingsPercent}%</b></div>
+              <progress value={goal.savedCents} max={goal.targetCents} aria-label={`${goal.name}: ${money(goal.savedCents)} of ${money(goal.targetCents)}`} />
+              <p className="goal-caption">{demoSummary.savingsRemainingCents > 0 ? <><strong>{money(demoSummary.savingsRemainingCents, 0)} to go.</strong> Sample allocation, already included in bank cash.</> : "Sample goal reached. Allocation is included in bank cash."}</p>
+              <div className="savings-tip"><span aria-hidden="true">↗</span><p>{demoSummary.savingsIllustration}</p></div>
+            </section>
+
+            <ChatPanel />
+
+            <section className="panel activity-panel" id="activity">
+              <div className="section-heading"><div><p className="eyebrow">THE SMALL THINGS ADD UP</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div>
+              <ul className="transactions">
+                {transactions.map((item) => {
+                  const Icon = transactionIcons[item.id];
+                  return <li key={item.id}><span className="transaction-icon"><Icon aria-hidden="true" /></span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category}</span></div><time className="transaction-date" dateTime={`${demoData.year}-09-${item.date.split(" ")[1]}`}>{item.date}</time><strong className="transaction-amount">{money(item.amountCents)}</strong></li>;
+                })}
+              </ul>
+              <p className="activity-note">A few sample purchases. Monthly totals include the full sample spending breakdown above.</p>
+            </section>
+          </div>
+
+          <details className="api-connection">
+            <summary><span>Workspace connection</span><span className="connection-hint">View live API health</span></summary>
+            <ApiStatus />
+          </details>
+          <footer><span><strong>hokiewallet</strong> · Made for your next chapter.</span><span>Built for student life at Virginia Tech<ArrowUpRight aria-hidden="true" /></span></footer>
         </div>
       </main>
     </div>
