@@ -13,7 +13,7 @@ npm run dev
 
 Open <http://localhost:3000>. The default API origin is `http://localhost:3001`. To change it, copy `.env.example` to `.env.local`, edit `NEXT_PUBLIC_API_BASE_URL`, and restart Next.js. This variable is public and is embedded at build time for production.
 
-The landing page is a development starter. It makes a real health request, shows connected/unavailable states, and lets you retry. It contains no pretend balances or working financial screens. You can run it while the backend is offline; only the connection indicator is affected.
+The landing page contains the live dining-planner form and calendar. `/demo` renders an explicitly labeled synthetic plan without an API call. Live plans require the backend and its ARC credential.
 
 ## Layout
 

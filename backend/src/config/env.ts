@@ -44,6 +44,10 @@ const environmentSchema = z.object({
   COACH_AGENT_HOST: agentHost.optional(),
   PLANNER_AGENT_HOST: agentHost.optional(),
   ANS_AGENT_VERSION: semver.default("0.1.0"),
+  ARC_BASE_URL: z.string().url().default("https://llm-api.arc.vt.edu/api/v1"),
+  ARC_API_KEY: z.string().optional(),
+  llm_arc_api_key: z.string().optional(),
+  ARC_MODEL: z.string().min(1).default("gpt-oss-120b"),
 });
 
 export type AppConfig = z.infer<typeof environmentSchema>;
