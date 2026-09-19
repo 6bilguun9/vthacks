@@ -117,3 +117,195 @@ footer strong { color: #7d828c; font-weight: 500; }
 }
 
 @layer components { .dashboard .sample-notice { margin: 0 0 24px; font-size: 12px; line-height: 1.7; color: #646872; } .dashboard .api-connection { margin-top: 24px; } }
+
+/* Campus journal: warm paper surfaces, an editorial heading, and clear money hierarchy.
+   Scoped to dashboard-owned elements so the chat team can evolve its component independently. */
+@layer components {
+  .dashboard {
+    --dashboard-muted: #68616a;
+    background: #f7f5f0;
+    color: #30282c;
+    font-variant-numeric: tabular-nums;
+
+    .sidebar { background: #451c2d; color: #fff4ee; border: 0; width: 230px; }
+    .brand { font-size: 23px; }
+    .brand-icon { background: #f5e9df; color: #451c2d; border-radius: 10px; }
+    .brand-icon span { color: #a83f19; }
+    .nav-label { color: #d6b9c4; font-size: 10px; letter-spacing: 1.2px; }
+    nav a { color: #e0cbd3; min-height: 46px; font-size: 14px; transition: background 150ms ease, color 150ms ease; }
+    nav a:hover { background: #603246; color: white; }
+    nav .nav-active { background: #fff2e8; color: #67263f; }
+    .sidebar-note { padding-top: 70px; }
+    .sidebar-note h3 { font-family: Georgia, serif; font-size: 30px; font-weight: 400; }
+    .sidebar-note p, .profile small { color: #d9c3cb; }
+    .hokie-tag { color: #f4b78c; }
+    .profile { border-color: #704959; }
+    .avatar { background: #704959; color: #fff2e8; }
+    .topbar { height: 72px; background: #f7f5f0; border-color: #e3ddd6; }
+    .breadcrumb { color: #716b70; }
+    .demo-badge { font-size: 12px; color: #715327; background: #fff8e9; border-color: #e9d9bc; }
+    .content { max-width: 1450px; padding-top: 42px; }
+    .welcome { align-items: flex-end; margin-bottom: 32px; }
+    .welcome .eyebrow { color: #8b3d54; font-size: 10px; letter-spacing: 1.8px; margin-bottom: 18px; }
+    h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(34px, 3.8vw, 57px); font-weight: 400; line-height: 1.08; letter-spacing: -1.9px; max-width: 660px; }
+    .welcome > div > p:last-child { font-size: 14px; line-height: 1.7; }
+    .welcome-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; flex-shrink: 0; }
+    .date-label { color: #6d6269; font-size: 12px; }
+    .coach-link { display: inline-flex; align-items: center; gap: 16px; min-height: 44px; padding: 11px 16px; background: #861f41; color: white; border-radius: 8px; font-size: 12px; font-weight: 600; transition: background 150ms ease; }
+    .coach-link:hover { background: #611a32; }
+    .balance-grid { gap: 18px; margin-bottom: 16px; }
+    .balance-card { border-color: #dfd9d2; border-radius: 12px; padding: 25px; box-shadow: 0 3px 0 #e9e3dc66; }
+    .card-label { color: #655c64; font-size: 14px; }
+    .card-icon { color: #816c74; }
+    .balance-card h2 { font-size: clamp(34px, 3.3vw, 46px); margin: 25px 0 17px; letter-spacing: -1.8px; }
+    .balance-card h2 span { font-size: .62em; font-weight: 400; }
+    .balance-card p { font-size: 12px; line-height: 1.7; color: #6c636b; }
+    .wallet-card { background: #861f41; border-color: #861f41; box-shadow: 0 3px 0 #6d1634; }
+    .wallet-card .card-label, .wallet-card .card-icon, .wallet-card p { color: #ffe8ef; }
+    .budget-track { height: 5px; }
+    .sample-notice { font-size: 11px; color: #6c6269; margin-bottom: 26px; }
+    .milestone-strip { display: flex; align-items: center; gap: 18px; border-block: 1px solid #dacfc2; padding: 22px 8px; margin-bottom: 28px; }
+    .milestone-mark { width: 46px; height: 46px; display: grid; place-items: center; background: #ecdfcd; color: #79502e; border-radius: 50%; font-size: 30px; flex-shrink: 0; }
+    .milestone-strip .eyebrow { color: #776044; font-size: 10px; margin-bottom: 6px; }
+    .milestone-strip p { font-size: 14px; }
+    .milestone-strip a { margin-left: auto; padding: 12px; color: #782f46; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .milestone-strip a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .detail-grid { gap: 22px; align-items: start; }
+    .panel { border-color: #dfd9d2; border-radius: 12px; padding: 27px; }
+    .eyebrow { font-size: 10px; color: #776970; letter-spacing: 1.5px; }
+    .section-heading h2 { font-size: 20px; letter-spacing: -.6px; }
+    .subtle-pill { font-size: 11px; color: #6a6067; background: #f7f5f0; border-color: #e6dfd8; }
+    .spending-content { padding-block: 30px 12px; gap: 24px; }
+    .donut { width: 172px; height: 172px; }
+    .donut > div { width: 140px; height: 140px; }
+    .donut span, .donut small { font-size: 12px; color: #6b6169; }
+    .donut strong { font-size: 28px; }
+    .legend-row { font-size: 12px; color: #675c65; margin-block: 21px; }
+    .legend-dot { width: 8px; height: 8px; }
+    .budget-note { font-size: 12px; color: #716670; }
+    .goal-name { font-size: 14px; margin-top: 31px; }
+    .goal-name span, .goal-amount span { color: #756b73; font-size: 12px; }
+    .goal-amount strong { font-size: 37px; }
+    .goal-caption { font-size: 12px; color: #756b73; line-height: 1.7; }
+    .savings-tip { background: #f5efe4; padding: 14px; }
+    .savings-tip p { color: #71604f; font-size: 12px; }
+    .transactions li { padding-block: 20px; font-size: 14px; }
+    .transaction-icon { width: 42px; height: 42px; }
+    .transaction-name span { font-size: 12px; color: #746a72; }
+    .activity-note { font-size: 12px; color: #746a72; line-height: 1.7; }
+    footer { font-size: 11px; color: #71656d; padding-block: 28px; }
+    footer strong { color: #5b424e; }
+    a:focus-visible { outline: 3px solid #e87722; outline-offset: 4px; }
+    #savings, #activity, #finbot { scroll-margin-top: 24px; }
+
+    @media (max-width: 1200px) {
+      .sidebar { width: 205px; }
+      .welcome { align-items: flex-start; flex-direction: column; gap: 22px; }
+      .welcome-actions { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
+      .legend { width: 100%; }
+    }
+    @media (max-width: 800px) {
+      .sidebar { width: 100%; padding: 20px 22px 14px; }
+      .brand { font-size: 23px; }
+      nav { gap: 6px; }
+      nav a { min-height: 44px; font-size: 12px; padding: 10px; }
+      .content { padding-top: 30px; }
+      .date-label { display: block; }
+      .balance-grid { grid-template-columns: 1fr; }
+      .balance-card { padding: 22px; }
+      .balance-card h2 { margin-block: 16px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .spending-content { flex-direction: row; }
+      .panel { padding: 24px; }
+    }
+    @media (max-width: 580px) {
+      h1 { font-size: 41px; letter-spacing: -1.4px; }
+      .welcome-actions { align-items: flex-start; flex-direction: column; gap: 12px; }
+      .milestone-strip { flex-wrap: wrap; gap: 12px; }
+      .milestone-strip > div { flex: 1; }
+      .milestone-strip a { margin-left: 50px; }
+      .section-heading { flex-wrap: wrap; }
+      .spending-content { flex-direction: column; }
+      .legend-row { font-size: 13px; }
+      .transaction-name { min-width: 0; }
+      .transactions li { gap: 9px; font-size: 12px; }
+      .transaction-name span { font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      nav a, .coach-link { transition: none; }
+    }
+  }
+}
+
+@keyframes wallet-view-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@layer components {
+  .dashboard {
+    [hidden] { display: none !important; }
+    .topbar-actions { display: flex; gap: 12px; align-items: center; }
+    .theme-toggle { min-height: 44px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; border: 1px solid #d9cec7; border-radius: 9px; background: #fffaf3; color: #63354a; font-size: 12px; }
+    .theme-toggle span { font-size: 20px; }
+    .theme-toggle:hover { background: #f0e3dd; }
+    .theme-toggle:focus-visible { outline: 3px solid #e87722; outline-offset: 3px; }
+    .view-heading, .view-panel:not([hidden]) { animation: wallet-view-enter 260ms cubic-bezier(.2,.7,.2,1) both; }
+    .detail-grid:not(.view-main) { display: block; max-width: 950px; margin-inline: auto; }
+    .chat-view { width: 100%; }
+    .activity-panel .transactions li { padding-block: 26px; }
+    .savings-panel { min-height: 340px; }
+    .next-step h2 { font-family: Georgia, serif; font-size: 30px; line-height: 1.2; margin: 20px 0; max-width: 350px; }
+    .next-step > p:not(.eyebrow) { color: #716670; line-height: 1.8; font-size: 14px; }
+    .next-step a { display: flex; justify-content: space-between; padding-block: 16px; border-bottom: 1px solid #e5dcd5; color: #782f46; font-weight: 600; }
+    .next-step a:hover { color: #b64963; }
+    &[data-view="finbot"] .coach-link { display: none; }
+    &[data-theme="dark"] {
+      color-scheme: dark;
+      background: #19171c;
+      color: #f1e8e6;
+      --dashboard-muted: #c4b8bf;
+      --maroon: #e694af;
+      --foreground: #f1e8e6;
+      --card: #252129;
+      --border: #4a3c48;
+      .sidebar { background: #26151e; }
+      .topbar { background: #19171c; border-color: #43363e; color: #d4c4cd; }
+      .balance-card, .panel { background: #252129; border-color: #4a3c48; box-shadow: none; }
+      .wallet-card { background: #74253f; border-color: #a75570; }
+      .card-label, .card-icon, .balance-card p, .eyebrow, .welcome .eyebrow, .date-label, .breadcrumb, .sample-notice, .goal-name span, .goal-amount span, .goal-caption, .activity-note, .transaction-name span, .legend-row, .budget-note, footer, footer strong, .next-step > p:not(.eyebrow) { color: #cabbc5; }
+      .wallet-card .card-label, .wallet-card p { color: #ffe4ed; }
+      .legend-row strong, .budget-note strong, .goal-caption strong { color: #f7eaef; }
+      .theme-toggle, .subtle-pill { background: #362934; color: #f2c6d5; border-color: #654554; }
+      .theme-toggle:hover { background: #503545; }
+      .demo-badge { background: #372e22; color: #edd3a5; border-color: #5b4b34; }
+      .milestone-strip, .transactions li, .budget-note, .next-step a { border-color: #4a3c48; }
+      .milestone-mark, .transaction-icon { background: #3d3030; color: #e4bc92; }
+      .milestone-strip .eyebrow { color: #dabf9d; }
+      .milestone-strip a, .next-step a { color: #f3b2c8; }
+      .donut > div { background: #252129; }
+      .donut span, .donut small { color: #cabbc5; }
+      .savings-tip { background: #372d27; }
+      .savings-tip p, .savings-tip strong { color: #e4cdb5; }
+      progress, progress::-webkit-progress-bar, .budget-track { background: #493644; }
+      .chat-view {
+        /* Adapt the existing chat palette without editing the chat team's component. */
+        section, header, input { background-color: #252129; color: #f1e8e6; border-color: #604b59; }
+        [class*="bg-white"], [class*="bg-stone-50"], [class*="bg-stone-100"] { background-color: #342c36; }
+        [class*="text-stone-"] { color: #ded0d8; }
+        [class*="border-stone-"] { border-color: #604b59; }
+        input::placeholder { color: #b9aab4; }
+        button:hover:not(:disabled) { background-color: #653b51; color: white; }
+        button:disabled { background-color: #463d46; color: #c1b1bc; }
+      }
+    }
+    @media (max-width: 580px) {
+      .topbar { height: auto; min-height: 72px; padding-block: 12px; gap: 12px; flex-wrap: wrap; }
+      .topbar-actions { gap: 8px; }
+      .theme-toggle { font-size: 11px; }
+      .demo-badge { font-size: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .view-heading, .view-panel:not([hidden]) { animation: none; }
+    }
+  }
+}
