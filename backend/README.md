@@ -23,7 +23,7 @@ For overrides, copy `.env.example` to `.env`. Node loads it using `--env-file-if
 - Unimplemented routes return a structured 404, not fabricated financial data.
 - Request bodies are limited to 64 KiB. Internal errors and raw query strings are not exposed in responses/logs.
 
-Only the health route is registered. Authentication, rate limits, database access, provider adapters, and agent endpoints still need implementation before exposing financial features publicly.
+The health route and ARC-backed `POST /api/v1/dining-plans` route are registered. Dining responses are schema-validated before release. Authentication, rate limits, database access, and the remaining financial/agent endpoints still need implementation before a public release.
 
 ## Layout
 

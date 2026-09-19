@@ -1,4 +1,5 @@
 import ChatPanel from "@/features/chat/ChatPanel";
+import Link from "next/link";
 import { ApiStatus } from "@/features/system/api-status";
 import "./dashboard.css";
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
           <a href="#activity"><span aria-hidden="true">⇄</span> Recent activity</a>
           <a href="#savings"><span aria-hidden="true">◎</span> Savings goal</a>
           <a href="#finbot"><span aria-hidden="true">✧</span> Ask FinBot</a>
+          <Link href="/dining"><span aria-hidden="true">♨</span> Dining planner</Link>
         </nav>
         <div className="sidebar-note"><span className="little-star" aria-hidden="true">✳</span><h3>Small steps.<br />Big possibilities.</h3><p>A little clarity goes a long way. Make room for what matters.</p><span className="hokie-tag">MADE FOR HOKIES</span></div>
         <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>

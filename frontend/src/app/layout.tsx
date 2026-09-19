@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Student Savings Planner · VTHacks",
-  description: "A shared development starter for a Virginia Tech student savings planner.",
+  title: "Dining Planner · VT Student Savings Planner",
+  description: "Plan a Virginia Tech dining week around your schedule, preferences, and campus balances.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

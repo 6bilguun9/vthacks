@@ -17,6 +17,8 @@ The landing page integrates the Hokie Wallet dashboard and Neha’s ChatPanel. B
 
 Sample data lives in `src/features/dashboard/demo-data.ts`, shared by the dashboard and chat. Monetary fields use integer USD cents and are converted to dollars only for display. Campus restricted funds remain separate from bank cash; savings allocations are included in bank cash. Financial summaries and contribution illustrations are fixed mocks pending backend calculations. The imported UI uses existing dependencies, so package versions and configuration are unchanged.
 
+The live dining planner is available at `/dining`; `/demo` renders an explicitly labeled synthetic dining calendar without an API call. Live dining plans require the backend and its server-only ARC credential.
+
 ## Layout
 
 - `src/app/`: pages, global styles, and layout. Coordinate edits to shared files with the other frontend developer.

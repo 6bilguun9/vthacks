@@ -185,6 +185,30 @@
         "planVersion": { "type": "integer", "minimum": 1 }, "selectedGoalId": { "type": ["string", "null"] }
       }
     },
+    "DiningPlanRequest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["diningPlan", "studentStatus", "diningBalanceCents", "hokiePassportBalanceCents", "weeksRemaining", "preferences", "allowHokiePassport"],
+      "properties": {
+        "diningPlan": { "enum": ["Unlimited", "Unlimited Plus", "Maroon", "Maroon Plus", "Orange", "Orange Plus", "Dining Dollars only"] },
+        "studentStatus": { "enum": ["First-year, on campus", "Upper-year, on campus", "Off campus"] },
+        "diningBalanceCents": { "$ref": "#/$defs/Money" }, "hokiePassportBalanceCents": { "$ref": "#/$defs/Money" },
+        "weeksRemaining": { "type": "integer", "minimum": 1, "maximum": 36 }, "preferences": { "type": "string", "minLength": 3, "maxLength": 2000 }, "allowHokiePassport": { "type": "boolean" }
+      }
+    },
+    "DiningMeal": {
+      "type": "object", "additionalProperties": false, "required": ["label", "venue", "suggestion", "payment", "estimatedCostCents"],
+      "properties": { "label": { "enum": ["Breakfast", "Lunch", "Dinner"] }, "venue": { "type": "string" }, "suggestion": { "type": "string" }, "payment": { "enum": ["swipe", "meal_exchange", "dining_balance", "hokie_passport", "other"] }, "estimatedCostCents": { "$ref": "#/$defs/Money" } }
+    },
+    "DiningPlanResponse": {
+      "type": "object", "additionalProperties": false,
+      "required": ["strategy", "days", "weeklyDiningSpendCents", "projectedDiningSpendCents", "remainingDiningBalanceCents", "assumptions", "warnings", "hoursUrl", "source", "model"],
+      "properties": {
+        "strategy": { "type": "string" }, "days": { "type": "array", "minItems": 7, "maxItems": 7, "items": { "type": "object", "additionalProperties": false, "required": ["day", "meals"], "properties": { "day": { "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] }, "meals": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "$ref": "#/$defs/DiningMeal" } } } } },
+        "weeklyDiningSpendCents": { "$ref": "#/$defs/Money" }, "projectedDiningSpendCents": { "$ref": "#/$defs/Money" }, "remainingDiningBalanceCents": { "$ref": "#/$defs/SignedMoney" },
+        "assumptions": { "type": "array", "items": { "type": "string" } }, "warnings": { "type": "array", "items": { "type": "string" } },
+        "hoursUrl": { "const": "https://apps.students.vt.edu/hours/#/" }, "source": { "const": "vt_arc" }, "model": { "type": "string" }
+      }
+    },
     "ChatResponse": {
       "type": "object", "additionalProperties": false, "required": ["kind", "text", "comparison"],
       "properties": {
