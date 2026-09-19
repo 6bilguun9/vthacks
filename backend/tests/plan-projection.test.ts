@@ -53,6 +53,15 @@ describe("projectPlan", () => {
     });
   });
 
+  it("accepts the public contract's essential cash-flow label and normalizes it for simulation", () => {
+    const result = projectPlan({
+      ...laptopPlan,
+      cashFlows: [{ id: "rent", kind: "essential", amountCents: 5_000, cadence: "once", nextDate: "2026-09-20", certainty: "confirmed" }],
+    });
+
+    expect(result.cashFlow!.events.find((event) => event.id === "rent")).toMatchObject({ kind: "essential_expense", deltaCents: -5_000 });
+  });
+
   it("returns needs_information instead of making up a starting balance", () => {
     const result = projectPlan({ ...laptopPlan, startingEligibleCashCents: null });
 
@@ -83,6 +92,39 @@ describe("projectPlan", () => {
       "Cash flow side-job is estimated, not guaranteed.",
       "Goal laptop has no confirmed weekly contribution.",
     ]));
+  });
+
+  it("keeps modeling contributions within the horizon when a goal cannot be completed there", () => {
+    const result = projectPlan({
+      asOfDate: "2026-09-19",
+      horizonEndDate: "2026-10-03",
+      startingEligibleCashCents: 100_000,
+      cashBufferCents: 0,
+      goals: [{
+        id: "long-term",
+        targetCents: 1_000_000,
+        allocatedCents: 0,
+        weeklyContributionCents: 10_000,
+        contributionStartDate: "2026-09-19",
+        targetDate: null,
+      }],
+      cashFlows: [],
+    });
+
+    expect(result.goals[0]!.projection.completionStatus).toBe("not_reached_in_horizon");
+    expect(result.cashFlow!.events.filter((event) => event.kind === "goal_contribution")).toHaveLength(3);
+    expect(result.cashFlow!.endingEligibleCashCents).toBe(70_000);
+  });
+
+  it("models an exact smaller final contribution instead of over-reserving cash", () => {
+    const result = projectPlan({
+      ...laptopPlan,
+      cashBufferCents: 0,
+      goals: [{ ...laptopPlan.goals[0]!, targetCents: 50_100, allocatedCents: 0, weeklyContributionCents: 20_000 }],
+    });
+
+    expect(result.cashFlow!.events.filter((event) => event.kind === "goal_contribution").map((event) => event.amountCents))
+      .toEqual([20_000, 20_000, 10_100]);
   });
 
   it("rejects duplicate goal identifiers", () => {

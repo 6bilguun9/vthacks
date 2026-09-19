@@ -12,7 +12,8 @@ export interface PlanGoalInput {
 
 export interface PlanCashFlowInput {
   readonly id: string;
-  readonly kind: "income" | "essential_expense";
+  /** Matches the public Plan.cashFlows contract; the engine normalizes it internally. */
+  readonly kind: "income" | "essential";
   readonly amountCents: number;
   readonly cadence: CashFlowCadence;
   readonly nextDate: IsoDate;
@@ -120,10 +121,12 @@ function goalContributionFlows(goals: readonly PlanGoalInput[], projections: rea
 
   for (const goal of goals) {
     const projection = byGoalId.get(goal.id);
-    if (!projection?.nextContributionDate || !projection.contributionCount || goal.weeklyContributionCents === 0) continue;
+    if (!projection?.nextContributionDate || goal.weeklyContributionCents === 0) continue;
 
     const remainingCents = goal.targetCents - goal.allocatedCents;
-    for (let occurrence = 0; occurrence < projection.contributionCount; occurrence += 1) {
+    const contributionsInHorizon = Math.floor(dayDifference(projection.nextContributionDate, projection.horizonEndDate) / 7) + 1;
+    const contributionCount = projection.contributionCount ?? contributionsInHorizon;
+    for (let occurrence = 0; occurrence < contributionCount; occurrence += 1) {
       const alreadyContributedCents = safeMultiply(goal.weeklyContributionCents, occurrence, `${goal.id} contribution total`);
       const amountCents = Math.min(goal.weeklyContributionCents, remainingCents - alreadyContributedCents);
       flows.push({
@@ -197,7 +200,7 @@ export function projectPlan(input: PlanProjectionInput): PlanProjection {
 
   const knownFlows: PlannedCashFlow[] = input.cashFlows.map((flow) => ({
     id: flow.id,
-    kind: flow.kind,
+    kind: flow.kind === "essential" ? "essential_expense" : "income",
     amountCents: flow.amountCents,
     cadence: flow.cadence,
     nextDate: flow.nextDate,
