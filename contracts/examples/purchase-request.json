@@ -1,0 +1,4 @@
+{
+  "snapshotId": "fixture-funded-001", "planVersion": 1, "kind": "purchase",
+  "amountCents": 15000, "date": "2026-09-21", "cadence": "once", "goalId": null
+}

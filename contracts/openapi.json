@@ -1,0 +1,52 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "VT Student Savings Planner API",
+    "version": "0.1.0",
+    "description": "Only GET /api/v1/health is implemented. Other paths are agreed draft interfaces for parallel development and return 404 in this starter. All financial examples are synthetic."
+  },
+  "servers": [{ "url": "http://localhost:3001", "description": "Local backend" }],
+  "security": [{ "guestBearer": [] }],
+  "paths": {
+    "/api/v1/health": { "get": {
+      "operationId": "getHealth", "summary": "Check backend liveness only", "x-implementation-status": "implemented", "security": [],
+      "responses": { "200": { "description": "API is running; external integrations are not checked", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/HealthResponse" } } } } }
+    } },
+    "/api/v1/overview": { "get": {
+      "operationId": "getOverview", "summary": "Read the authorized guest's snapshot, plan, and projection", "x-implementation-status": "planned",
+      "responses": { "200": { "description": "Overview", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/OverviewResponse" } } } }, "default": { "$ref": "#/components/responses/Error" } }
+    } },
+    "/api/v1/data/refresh": { "post": {
+      "operationId": "refreshData", "summary": "Refresh the authorized sample banking snapshot", "x-implementation-status": "planned",
+      "responses": { "200": { "description": "Refreshed or explicitly stale snapshot", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/FinancialSnapshot" } } } }, "default": { "$ref": "#/components/responses/Error" } }
+    } },
+    "/api/v1/plan/preview": { "post": {
+      "operationId": "previewPlan", "summary": "Preview full plan edits, including goal creation, without saving", "x-implementation-status": "planned",
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/PlanPreviewRequest" } } } },
+      "responses": { "200": { "description": "Validated proposed plan and projection", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/PlanPreviewResponse" } } } }, "default": { "$ref": "#/components/responses/Error" } }
+    } },
+    "/api/v1/scenarios": { "post": {
+      "operationId": "previewScenario", "summary": "Compare a hypothetical purchase or extra contribution", "x-implementation-status": "planned",
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/ScenarioRequest" } } } },
+      "responses": { "200": { "description": "Calculated comparison; no saved state changes", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/ScenarioComparison" } } } }, "default": { "$ref": "#/components/responses/Error" } }
+    } },
+    "/api/v1/chat": { "post": {
+      "operationId": "chat", "summary": "Interpret a question and explain calculated results", "x-implementation-status": "planned",
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/ChatRequest" } } } },
+      "responses": { "200": { "description": "Clarification, explanation, or comparison", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/ChatResponse" } } } }, "default": { "$ref": "#/components/responses/Error" } }
+    } },
+    "/api/v1/plan/commit": { "post": {
+      "operationId": "commitPlan", "summary": "Recalculate and atomically save an explicitly selected revision", "x-implementation-status": "planned",
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/PlanCommitRequest" } } } },
+      "responses": {
+        "200": { "description": "Saved plan with incremented version", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/Plan" } } } },
+        "409": { "description": "The snapshot, plan version, or idempotency payload conflicts", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/ErrorResponse" } } } },
+        "default": { "$ref": "#/components/responses/Error" }
+      }
+    } }
+  },
+  "components": {
+    "securitySchemes": { "guestBearer": { "type": "http", "scheme": "bearer", "bearerFormat": "Supabase guest access token (planned)" } },
+    "responses": { "Error": { "description": "401 unauthorized, 403 forbidden, 404 unimplemented, 409 stale state, 422 invalid inputs, 429 rate limited, or 503 provider unavailable", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/ErrorResponse" } } } } }
+  }
+}

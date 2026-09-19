@@ -1,0 +1,8 @@
+[
+  { "file": "health.json", "schema": "HealthResponse" },
+  { "file": "overview.json", "schema": "OverviewResponse" },
+  { "file": "purchase-request.json", "schema": "ScenarioRequest" },
+  { "file": "scenario-no-delay.json", "schema": "ScenarioComparison" },
+  { "file": "scenario-goal-delay.json", "schema": "ScenarioComparison" },
+  { "file": "chat-clarification.json", "schema": "ChatResponse" }
+]
