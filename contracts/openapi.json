@@ -3,7 +3,7 @@
   "info": {
     "title": "VT Student Savings Planner API",
     "version": "0.1.0",
-    "description": "Only GET /api/v1/health is implemented. Other paths are agreed draft interfaces for parallel development and return 404 in this starter. All financial examples are synthetic."
+    "description": "Health and ARC-backed dining planning are implemented. Other paths remain planned. All demo financial examples are synthetic."
   },
   "servers": [{ "url": "http://localhost:3001", "description": "Local backend" }],
   "security": [{ "guestBearer": [] }],
@@ -11,6 +11,11 @@
     "/api/v1/health": { "get": {
       "operationId": "getHealth", "summary": "Check backend liveness only", "x-implementation-status": "implemented", "security": [],
       "responses": { "200": { "description": "API is running; external integrations are not checked", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/HealthResponse" } } } } }
+    } },
+    "/api/v1/dining-plans": { "post": {
+      "operationId": "createDiningPlan", "summary": "Create a representative dining week with VT ARC", "x-implementation-status": "implemented", "security": [],
+      "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/DiningPlanRequest" } } } },
+      "responses": { "200": { "description": "Validated meal calendar and restricted-fund projection", "content": { "application/json": { "schema": { "$ref": "./schemas.json#/$defs/DiningPlanResponse" } } } }, "default": { "$ref": "#/components/responses/Error" } }
     } },
     "/api/v1/overview": { "get": {
       "operationId": "getOverview", "summary": "Read the authorized guest's snapshot, plan, and projection", "x-implementation-status": "planned",

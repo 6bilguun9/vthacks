@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore, type MouseEvent } from "react";
 import ChatPanel from "@/features/chat/ChatPanel";
+import Link from "next/link";
 import "./dashboard.css";
 
 import { demoData, demoSummary, formatMoney as money } from "./demo-data";
@@ -91,6 +92,7 @@ export default function Dashboard() {
               <span aria-hidden="true">{views[key].icon}</span> {views[key].label}
             </a>
           ))}
+          <Link href="/dining"><span aria-hidden="true">♨</span> Dining planner</Link>
         </nav>
         <div className="sidebar-note"><span className="little-star" aria-hidden="true">✳</span><h3>Small steps.<br />Big possibilities.</h3><p>A little clarity goes a long way. Make room for what matters.</p><span className="hokie-tag">MADE FOR HOKIES</span></div>
         <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>
