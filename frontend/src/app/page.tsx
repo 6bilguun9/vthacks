@@ -1,6 +1,5 @@
-import { Sprout } from "lucide-react";
-import Link from "next/link";
-import { DiningPlanner } from "@/features/dining/dining-planner";
+import Dashboard from "@/features/dashboard/dashboard";
 
-export default function Home() { return <Shell><main className="py-12 sm:py-16"><p className="eyebrow">Campus dining meets your budget</p><h1 className="mt-3 max-w-4xl font-serif text-5xl leading-none tracking-tight sm:text-7xl">Make every meal—and dollar—count.</h1><p className="mt-6 max-w-2xl leading-7 text-muted-foreground">Build a school-year meal rhythm around your Virginia Tech plan, schedule, preferences, and restricted campus balances.</p><DiningPlanner/></main></Shell>; }
-export function Shell({ children }: { children: React.ReactNode }) { return <div className="mx-auto min-h-screen max-w-7xl px-5 sm:px-10"><header className="flex items-center justify-between border-b py-6"><Link href="/" className="flex items-center gap-3 font-semibold"><span className="flex size-9 items-center justify-center rounded-xl bg-primary text-white"><Sprout className="size-5"/></span>Student Savings Planner</Link><Link href="/demo" className="text-sm font-semibold text-primary">Quick demo →</Link></header>{children}<footer className="mt-16 flex flex-col justify-between gap-2 border-t py-6 text-xs text-muted-foreground sm:flex-row"><span>Built for students at VTHacks.</span><span>Unofficial project · Verify live dining information</span></footer></div>; }
+export default function Home() {
+  return <Dashboard />;
+}
