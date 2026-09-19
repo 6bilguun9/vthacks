@@ -42,7 +42,7 @@ describe("simulateCashFlow", () => {
       ],
     });
 
-    expect(result).toMatchObject({ status: "feasible", sameDayOrdering: "income_before_essential_expense", endingEligibleCashCents: 1_000 });
+    expect(result).toMatchObject({ status: "feasible", sameDayOrdering: "income_before_outflows", endingEligibleCashCents: 1_000 });
     expect(result.events.map((event) => event.id)).toEqual(["paycheck", "rent"]);
   });
 

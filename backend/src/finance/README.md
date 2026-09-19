@@ -11,12 +11,19 @@ Follow `docs/architecture.md` and the shared contracts. Amounts are integer cent
 - Stop at the two-year horizon instead of inventing a completion date.
 - Compare a hypothetical purchase only against explicit discretionary, unallocated, and goal funding choices. An uncovered purchase returns `needs_information`; it never silently drains a goal.
 
-It intentionally does not decide whether an unallocated balance is safe to spend. The future plan-level cash-flow simulator must check income timing, essential payments, other goal reservations, and the cash buffer before it supplies those funding values.
+It intentionally does not decide whether an unallocated balance is safe to spend. `plan-projection.ts` combines it with income timing, essential payments, other goal reservations, and the cash buffer before a caller can present an affordability result.
 
 `cash-flow.ts` is that plan-level timing primitive:
 
 - It accepts only plan-eligible bank cash; callers must exclude restricted campus balances and goal reservations before supplying the opening balance.
-- It applies known income and essential expenses on their real scheduled dates through an explicit, inclusive horizon.
+- It applies known income, essential expenses, and fixed future goal contributions on their real scheduled dates through an explicit, inclusive horizon.
 - It marks the plan as `buffer_breached` at the opening snapshot or first event that would leave less than the configured buffer. A later paycheck does not erase that timing problem.
-- When flows share a calendar date, it applies income before essential expenses and returns `sameDayOrdering` so the interface can disclose the assumption.
+- When flows share a calendar date, it applies income before outflows and returns `sameDayOrdering` so the interface can disclose the assumption.
 - Monthly schedules remain anchored to their original day (for example, January 31 → February 28 → March 31). No model call, current-time read, or account mutation occurs here.
+
+`plan-projection.ts` composes goals and cash flow without any runtime data access:
+
+- Existing allocations are removed from the opening eligible cash once. Allocations that exceed that cash are an explicit infeasibility, not a second asset pool.
+- Each remaining weekly goal contribution is represented as a dated outflow, with a smaller final contribution when needed.
+- Missing eligible cash yields `needs_information`; it does not produce a discretionary amount or affordability verdict.
+- The horizon is limited to 730 days and estimates stay explicitly labeled as estimates.

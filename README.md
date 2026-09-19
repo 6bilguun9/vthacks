@@ -6,7 +6,7 @@ A hackathon starter for an AI-assisted financial planner for Virginia Tech stude
 
 **Implemented:** independent frontend and backend applications, health checks, an ARC-backed dining-plan calendar, a labeled synthetic demo, API specifications and fixtures, CI, and collaboration documentation.
 
-**Not implemented yet:** the broader deterministic savings engine, goal persistence, guest authentication, banking connections, general AI chat, or an active ANS registration. The backend includes safe ANS CLI tooling and scaffolded coach/planner endpoints, but it does not contact GoDaddy or claim an agent is available unless a backend maintainer deliberately runs the documented commands with a domain and complete ANS `KEY:SECRET` credential pair. The health endpoint verifies only that the backend is running. It does not verify external integrations.
+**Not implemented yet:** the public financial-planning API, goal persistence, guest authentication, banking connections, general AI chat, or an active ANS registration. The backend now has tested internal deterministic goal, cash-flow, and plan-projection calculations, but it does not expose them as a live financial endpoint until an authorized snapshot/persistence workflow exists. It includes safe ANS CLI tooling and scaffolded coach/planner endpoints, but it does not contact GoDaddy or claim an agent is available unless a backend maintainer deliberately runs the documented commands with a domain and complete ANS `KEY:SECRET` credential pair. The health endpoint verifies only that the backend is running. It does not verify external integrations.
 
 ## Start here
 

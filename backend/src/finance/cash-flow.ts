@@ -1,6 +1,6 @@
 import type { IsoDate } from "./goal-projection.js";
 
-export type CashFlowKind = "income" | "essential_expense";
+export type CashFlowKind = "income" | "essential_expense" | "goal_contribution";
 export type CashFlowCadence = "once" | "weekly" | "biweekly" | "monthly";
 
 export interface PlannedCashFlow {
@@ -46,7 +46,7 @@ export interface CashBufferBreach {
 
 export interface CashFlowSimulation {
   readonly status: "feasible" | "buffer_breached";
-  readonly sameDayOrdering: "income_before_essential_expense";
+  readonly sameDayOrdering: "income_before_outflows";
   readonly openingEligibleCashCents: number;
   readonly cashBufferCents: number;
   readonly events: readonly CashFlowEvent[];
@@ -167,7 +167,8 @@ function expandEvents(input: CashFlowSimulationInput): Array<Pick<CashFlowEvent,
   return events.sort((left, right) => {
     const dateDifference = compareDates(left.date, right.date);
     if (dateDifference !== 0) return dateDifference;
-    const kindDifference = (left.kind === "income" ? 0 : 1) - (right.kind === "income" ? 0 : 1);
+    const kindOrder = (kind: CashFlowKind) => kind === "income" ? 0 : kind === "essential_expense" ? 1 : 2;
+    const kindDifference = kindOrder(left.kind) - kindOrder(right.kind);
     return kindDifference !== 0 ? kindDifference : left.id.localeCompare(right.id);
   });
 }
@@ -175,7 +176,7 @@ function expandEvents(input: CashFlowSimulationInput): Array<Pick<CashFlowEvent,
 /**
  * Simulates only known, dated cash flows. It deliberately treats restricted
  * campus balances as out of scope: callers must pass only plan-eligible bank
- * cash. On a shared date income is applied before essential expenses, and the
+ * cash. On a shared date income is applied before all outflows, and the
  * result exposes that assumption for the UI and AI explanation layer.
  */
 export function simulateCashFlow(input: CashFlowSimulationInput): CashFlowSimulation {
@@ -216,7 +217,7 @@ export function simulateCashFlow(input: CashFlowSimulationInput): CashFlowSimula
 
   return {
     status: firstBufferBreach ? "buffer_breached" : "feasible",
-    sameDayOrdering: "income_before_essential_expense",
+    sameDayOrdering: "income_before_outflows",
     openingEligibleCashCents: input.startingEligibleCashCents,
     cashBufferCents: input.cashBufferCents,
     events,
