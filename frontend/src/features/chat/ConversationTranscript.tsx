@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ArrowDown } from "lucide-react";
 import { type Conversation } from "./conversation-history";
 
@@ -30,12 +31,17 @@ export default function ConversationTranscript({ messages, ready, thinking, isVi
       }}>
         {!ready ? <p className="fb-empty-note">Opening your conversations…</p> : messages.length === 0 ? (
           <div className="fb-empty">
-            <h2>Hey, Hokie.</h2>
+            <div className="fb-welcome-mark" aria-hidden="true">
+              <Image src="/finbot/team-logo.png" alt="" width={445} height={473} sizes="88px" />
+              <span className="fb-welcome-wave">Hey, Hokie!</span>
+            </div>
+            <h2>Make room for<br />what matters.</h2>
+            <p>Dining dollars, weekend plans, and everything in between.</p>
           </div>
         ) : messages.map((message, index) => (
           <div key={index} className={`fb-message fb-message-${message.role}`}>
             <p className="fb-message-label">{message.role === "user" ? "You" : "FinBot · sample response"}</p>
-            <p className="fb-message-text">{message.text}</p>
+            <p className="fb-message-text" dir="auto">{message.text}</p>
           </div>
         ))}
         {thinking && <div className="fb-thinking" aria-hidden="true"><span className="fb-pulse" />Preparing a sample response…</div>}

@@ -42,7 +42,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "THE BIG PICTURE", spendingTitle: "A month in spending", totalSpent: "Total spent", thisMonth: "this month",
     categories: { "Food & coffee": "Food & coffee", Shopping: "Shopping", Transportation: "Transportation" },
     remainingBudget: "You have {amount} left in your budget.", overBudget: "You are {amount} over your budget.",
-    diningTitle: "Plan your campus meals", diningLink: "Open dining planner", diningPhotoAlt: "Origami dining venue inside Turner Place at Virginia Tech", footer: "Built by Hokies · VTHacks 14",
+    diningTitle: "Plan your campus meals", diningLink: "Open dining planner", diningPhotoAlt: "Origami dining venue inside Turner Place at Virginia Tech", footer: "Built by sudoWin · VTHacks 14",
   },
   zh: {
     walletName: "霍基钱包", walletWordmark: "霍基钱包", universityName: "弗吉尼亚理工大学",
@@ -52,7 +52,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "总体概览", spendingTitle: "月度支出", totalSpent: "总支出", thisMonth: "本月",
     categories: { "Food & coffee": "餐饮与咖啡", Shopping: "购物", Transportation: "交通" },
     remainingBudget: "你的预算还剩 {amount}。", overBudget: "你已超出预算 {amount}。",
-    diningTitle: "规划校园用餐", diningLink: "打开餐饮规划", diningPhotoAlt: "弗吉尼亚理工大学的 Turner Place 内的 Origami 餐厅", footer: "由 Hokies 打造 · VTHacks 14",
+    diningTitle: "规划校园用餐", diningLink: "打开餐饮规划", diningPhotoAlt: "弗吉尼亚理工大学的 Turner Place 内的 Origami 餐厅", footer: "由 sudoWin 打造 · VTHacks 14",
   },
   hi: {
     walletName: "होकी वॉलेट", walletWordmark: "होकी वॉलेट", universityName: "वर्जीनिया टेक",
@@ -62,7 +62,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "पूरी तस्वीर", spendingTitle: "एक महीने का खर्च", totalSpent: "कुल खर्च", thisMonth: "इस महीने",
     categories: { "Food & coffee": "खाना और कॉफ़ी", Shopping: "खरीदारी", Transportation: "परिवहन" },
     remainingBudget: "आपके बजट में {amount} बाकी हैं।", overBudget: "आपने बजट से {amount} अधिक खर्च किए हैं।",
-    diningTitle: "कैंपस में भोजन की योजना बनाएँ", diningLink: "भोजन योजनाकार खोलें", diningPhotoAlt: "वर्जीनिया टेक के Turner Place में Origami भोजन स्थल", footer: "Hokies द्वारा निर्मित · VTHacks 14",
+    diningTitle: "कैंपस में भोजन की योजना बनाएँ", diningLink: "भोजन योजनाकार खोलें", diningPhotoAlt: "वर्जीनिया टेक के Turner Place में Origami भोजन स्थल", footer: "sudoWin द्वारा निर्मित · VTHacks 14",
   },
   es: {
     walletName: "Billetera Hokie", walletWordmark: "Billetera Hokie", universityName: "Tecnológico de Virginia",
@@ -72,7 +72,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "VISTA GENERAL", spendingTitle: "Un mes de gastos", totalSpent: "Total gastado", thisMonth: "este mes",
     categories: { "Food & coffee": "Comida y café", Shopping: "Compras", Transportation: "Transporte" },
     remainingBudget: "Te quedan {amount} en tu presupuesto.", overBudget: "Has superado tu presupuesto en {amount}.",
-    diningTitle: "Planifica tus comidas en el campus", diningLink: "Abrir planificador de comidas", diningPhotoAlt: "Restaurante Origami dentro de Turner Place en el Tecnológico de Virginia", footer: "Creado por Hokies · VTHacks 14",
+    diningTitle: "Planifica tus comidas en el campus", diningLink: "Abrir planificador de comidas", diningPhotoAlt: "Restaurante Origami dentro de Turner Place en el Tecnológico de Virginia", footer: "Creado por sudoWin · VTHacks 14",
   },
   ar: {
     walletName: "محفظة هوكي", walletWordmark: "محفظة هوكي", universityName: "فيرجينيا تك",
@@ -82,7 +82,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "الصورة العامة", spendingTitle: "الإنفاق خلال الشهر", totalSpent: "إجمالي الإنفاق", thisMonth: "هذا الشهر",
     categories: { "Food & coffee": "الطعام والقهوة", Shopping: "التسوق", Transportation: "المواصلات" },
     remainingBudget: "تبقى لديك {amount} في ميزانيتك.", overBudget: "تجاوزت ميزانيتك بمقدار {amount}.",
-    diningTitle: "خطط لوجباتك في الحرم الجامعي", diningLink: "افتح مخطط الوجبات", diningPhotoAlt: "مطعم Origami داخل Turner Place في فيرجينيا تك", footer: "من صنع Hokies · VTHacks 14",
+    diningTitle: "خطط لوجباتك في الحرم الجامعي", diningLink: "افتح مخطط الوجبات", diningPhotoAlt: "مطعم Origami داخل Turner Place في فيرجينيا تك", footer: "من صنع sudoWin · VTHacks 14",
   },
   fr: {
     walletName: "Portefeuille Hokie", walletWordmark: "Portefeuille Hokie", universityName: "Institut technologique de Virginie",
@@ -92,7 +92,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "VUE D’ENSEMBLE", spendingTitle: "Un mois de dépenses", totalSpent: "Total dépensé", thisMonth: "ce mois-ci",
     categories: { "Food & coffee": "Repas et café", Shopping: "Achats", Transportation: "Transports" },
     remainingBudget: "Il vous reste {amount} dans votre budget.", overBudget: "Vous avez dépassé votre budget de {amount}.",
-    diningTitle: "Planifiez vos repas sur le campus", diningLink: "Ouvrir le planificateur de repas", diningPhotoAlt: "Restaurant Origami dans Turner Place à l’Institut technologique de Virginie", footer: "Créé par des Hokies · VTHacks 14",
+    diningTitle: "Planifiez vos repas sur le campus", diningLink: "Ouvrir le planificateur de repas", diningPhotoAlt: "Restaurant Origami dans Turner Place à l’Institut technologique de Virginie", footer: "Créé par sudoWin · VTHacks 14",
   },
   bn: {
     walletName: "হোকি ওয়ালেট", walletWordmark: "হোকি ওয়ালেট", universityName: "ভার্জিনিয়া টেক",
@@ -102,7 +102,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "সামগ্রিক চিত্র", spendingTitle: "এক মাসের খরচ", totalSpent: "মোট খরচ", thisMonth: "এই মাসে",
     categories: { "Food & coffee": "খাবার ও কফি", Shopping: "কেনাকাটা", Transportation: "যাতায়াত" },
     remainingBudget: "আপনার বাজেটে {amount} বাকি আছে।", overBudget: "আপনি বাজেটের চেয়ে {amount} বেশি খরচ করেছেন।",
-    diningTitle: "ক্যাম্পাসে খাবারের পরিকল্পনা করুন", diningLink: "খাবার পরিকল্পনাকারী খুলুন", diningPhotoAlt: "ভার্জিনিয়া টেক-এর Turner Place-এর ভেতরে Origami খাবারের স্থান", footer: "Hokies-এর তৈরি · VTHacks 14",
+    diningTitle: "ক্যাম্পাসে খাবারের পরিকল্পনা করুন", diningLink: "খাবার পরিকল্পনাকারী খুলুন", diningPhotoAlt: "ভার্জিনিয়া টেক-এর Turner Place-এর ভেতরে Origami খাবারের স্থান", footer: "sudoWin-এর তৈরি · VTHacks 14",
   },
   pt: {
     walletName: "Carteira Hokie", walletWordmark: "Carteira Hokie", universityName: "Instituto Tecnológico da Virgínia",
@@ -112,7 +112,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "VISÃO GERAL", spendingTitle: "Um mês de gastos", totalSpent: "Total gasto", thisMonth: "neste mês",
     categories: { "Food & coffee": "Alimentação e café", Shopping: "Compras", Transportation: "Transporte" },
     remainingBudget: "Você ainda tem {amount} no seu orçamento.", overBudget: "Você ultrapassou seu orçamento em {amount}.",
-    diningTitle: "Planeje suas refeições no campus", diningLink: "Abrir planejador de refeições", diningPhotoAlt: "Restaurante Origami dentro do Turner Place no Instituto Tecnológico da Virgínia", footer: "Criado por Hokies · VTHacks 14",
+    diningTitle: "Planeje suas refeições no campus", diningLink: "Abrir planejador de refeições", diningPhotoAlt: "Restaurante Origami dentro do Turner Place no Instituto Tecnológico da Virgínia", footer: "Criado por sudoWin · VTHacks 14",
   },
   ru: {
     walletName: "Кошелёк Хоки", walletWordmark: "Кошелёк Хоки", universityName: "Вирджиния Тек",
@@ -122,7 +122,7 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "ОБЩАЯ КАРТИНА", spendingTitle: "Расходы за месяц", totalSpent: "Всего потрачено", thisMonth: "за этот месяц",
     categories: { "Food & coffee": "Еда и кофе", Shopping: "Покупки", Transportation: "Транспорт" },
     remainingBudget: "В вашем бюджете осталось {amount}.", overBudget: "Вы превысили бюджет на {amount}.",
-    diningTitle: "Планируйте питание в кампусе", diningLink: "Открыть план питания", diningPhotoAlt: "Ресторан Origami в Turner Place университета Вирджиния Тек", footer: "Создано Hokies · VTHacks 14",
+    diningTitle: "Планируйте питание в кампусе", diningLink: "Открыть план питания", diningPhotoAlt: "Ресторан Origami в Turner Place университета Вирджиния Тек", footer: "Создано sudoWin · VTHacks 14",
   },
   ur: {
     walletName: "ہوکی والیٹ", walletWordmark: "ہوکی والیٹ", universityName: "ورجینیا ٹیک",
@@ -132,6 +132,6 @@ export const overviewTranslations: Record<LanguageCode, OverviewCopy> = {
     spendingEyebrow: "مجموعی تصویر", spendingTitle: "ایک ماہ کے اخراجات", totalSpent: "کل خرچ", thisMonth: "اس ماہ",
     categories: { "Food & coffee": "کھانا اور کافی", Shopping: "خریداری", Transportation: "آمدورفت" },
     remainingBudget: "آپ کے بجٹ میں {amount} باقی ہیں۔", overBudget: "آپ نے بجٹ سے {amount} زیادہ خرچ کیے ہیں۔",
-    diningTitle: "کیمپس میں اپنے کھانوں کی منصوبہ بندی کریں", diningLink: "کھانے کا منصوبہ ساز کھولیں", diningPhotoAlt: "ورجینیا ٹیک کے Turner Place میں Origami کھانے کی جگہ", footer: "Hokies کا بنایا ہوا · VTHacks 14",
+    diningTitle: "کیمپس میں اپنے کھانوں کی منصوبہ بندی کریں", diningLink: "کھانے کا منصوبہ ساز کھولیں", diningPhotoAlt: "ورجینیا ٹیک کے Turner Place میں Origami کھانے کی جگہ", footer: "sudoWin کا بنایا ہوا · VTHacks 14",
   },
 };

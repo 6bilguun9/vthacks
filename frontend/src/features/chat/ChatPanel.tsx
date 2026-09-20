@@ -96,20 +96,22 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
   }
 
   return (
-    <section id="finbot" ref={shellRef} data-finbot data-wide={wide} className="finbot-chat" aria-labelledby={`${id}-title`}>
+    <section id="finbot" ref={shellRef} data-finbot data-wide={wide} data-empty={messages.length === 0} className="finbot-chat" lang="en" dir="ltr" aria-labelledby={`${id}-title`}>
       <header className="fb-header">
         <div className="fb-brand">
           <Image className="fb-logo" src="/finbot/team-logo.png" alt="Our team’s orange robot logo" width={445} height={473} sizes="60px" />
           <div><h1 id={`${id}-title`}>FinBot</h1><p id={`${id}-disclaimer`} className="fb-disclaimer">Sample replies · No accounts connected.</p></div>
         </div>
-        <span className="fb-date">{demoData.month} {demoData.year}</span>
+        <div className="fb-header-tools">
+          <span className="fb-date">{demoData.month} {demoData.year}</span>
+          <div className="fb-toolbar">
+            <button ref={historyButtonRef} className="fb-history-toggle" type="button" hidden={wide} aria-expanded={showHistory} aria-controls={`${id}-history`} onClick={() => setHistoryOpen((open) => !open)}>
+              {showHistory ? <PanelLeftClose aria-hidden="true" /> : <History aria-hidden="true" />}History<span className="fb-count">{history.conversations.length}</span>
+            </button>
+            <button className="fb-new-chat" type="button" onClick={newChat} disabled={!ready}><MessageSquarePlus aria-hidden="true" />New chat</button>
+          </div>
+        </div>
       </header>
-      <div className="fb-toolbar">
-        <button ref={historyButtonRef} className="fb-history-toggle" type="button" hidden={wide} aria-expanded={showHistory} aria-controls={`${id}-history`} onClick={() => setHistoryOpen((open) => !open)}>
-          {showHistory ? <PanelLeftClose aria-hidden="true" /> : <History aria-hidden="true" />}History<span className="fb-count">{history.conversations.length}</span>
-        </button>
-        <button className="fb-new-chat" type="button" onClick={newChat} disabled={!ready}><MessageSquarePlus aria-hidden="true" />New chat</button>
-      </div>
       <div className="fb-workspace">
         <aside id={`${id}-history`} className="fb-history" hidden={!showHistory} aria-label="FinBot chat history" onKeyDown={(event) => {
           if (event.key === "Escape" && !wide) { setHistoryOpen(false); historyButtonRef.current?.focus(); }
@@ -131,15 +133,18 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
               if (activeChat && !pendingRef.current) prepareReply(activeChat.id, messages.at(-1)!.text, messages.length - 1);
             }}>Resume sample reply</button>}
             <form onSubmit={handleSubmit}>
-              <label htmlFor={`${id}-input`}>Message FinBot</label>
               <div className="fb-input-row">
-                <textarea ref={inputRef} id={`${id}-input`} rows={2} value={input} onChange={(event) => { const value = event.target.value; setDrafts((previous) => ({ ...previous, [draftKey]: value })); }} onKeyDown={(event) => {
+                <label htmlFor={`${id}-input`}>Message FinBot</label>
+                <textarea ref={inputRef} id={`${id}-input`} dir="auto" rows={2} value={input} onChange={(event) => { const value = event.target.value; setDrafts((previous) => ({ ...previous, [draftKey]: value })); }} onKeyDown={(event) => {
                   if (shouldSendOnEnter({ key: event.key, shiftKey: event.shiftKey, isComposing: event.nativeEvent.isComposing, keyCode: event.nativeEvent.keyCode })) {
                     event.preventDefault();
                     event.currentTarget.form?.requestSubmit();
                   }
                 }} aria-describedby={`${id}-disclaimer ${id}-input-help ${id}-count`} aria-invalid={overLimit || undefined} aria-keyshortcuts="Enter" placeholder="Ask about your money…" autoComplete="off" />
-                <button className="fb-send" type="submit" disabled={!ready || pendingId !== null || interrupted || !canSendQuestion(input)}><span>{thinkingHere ? "Preparing…" : "Send"}</span><ArrowUp aria-hidden="true" /></button>
+                <div className="fb-composer-actions">
+                  <span className="fb-composer-signature" aria-hidden="true">One step at a time.</span>
+                  <button className="fb-send" type="submit" disabled={!ready || pendingId !== null || interrupted || !canSendQuestion(input)}><span>{thinkingHere ? "Preparing…" : "Send"}</span><ArrowUp aria-hidden="true" /></button>
+                </div>
               </div>
               <div className="fb-input-help">
                 <p id={`${id}-input-help`}>Enter to send · Shift+Enter for a new line</p>

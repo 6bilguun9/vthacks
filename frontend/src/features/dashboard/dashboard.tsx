@@ -5,6 +5,7 @@ import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
 import Image from "next/image";
 import CampusSidebar from "./CampusSidebar";
+import TransactionIcon from "./TransactionIcon";
 import NotificationBell from "@/features/notifications/NotificationBell";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
 import { getInterfaceCopy, isRtlLanguage } from "./interface-language";
@@ -119,7 +120,7 @@ export default function Dashboard() {
               </div>
             </section>
             <section hidden={view !== "savings"} className="panel savings-panel view-panel"><div className="section-heading"><div><p className="eyebrow">LOOKING AHEAD</p><h2>A little closer every day</h2></div><span className="goal-icon" aria-hidden="true">◎</span></div><p className="goal-name">{goal.name} <span>Savings goal</span></p><div className="goal-amount"><strong>{money(goal.savedCents, 0)}</strong><span>of {money(goal.targetCents, 0)}</span><b>{demoSummary.savingsPercent}%</b></div><progress value={goal.savedCents} max={goal.targetCents} aria-label={`${goal.name}: ${money(goal.savedCents)} of ${money(goal.targetCents)}`} /><p className="goal-caption">{demoSummary.savingsRemainingCents > 0 ? <>Just <strong>{money(demoSummary.savingsRemainingCents, 0)} to go.</strong> Future you says thanks.</> : "Goal reached. Future you says thanks!"}</p><div className="savings-tip"><span aria-hidden="true">✧</span><p>Little by little adds up.<br /><strong>{demoSummary.savingsIllustration}</strong></p></div></section>
-            <section hidden={view !== "activity"} className="panel activity-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE EVERYDAY DETAILS</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div><ul className="transactions">{transactions.map((item) => <li key={item.id}><span className="transaction-icon" aria-hidden="true">{item.icon}</span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category} · {item.date}</span></div><strong>{money(item.amountCents)}</strong></li>)}</ul><p className="activity-note">A snapshot of your latest sample purchases.</p></section>
+            <section hidden={view !== "activity"} className="panel activity-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE EVERYDAY DETAILS</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div><ul className="transactions">{transactions.map((item) => <li key={item.id}><span className="transaction-icon" aria-hidden="true"><TransactionIcon name={item.name} category={item.category} /></span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category} · {item.date}</span></div><strong>{money(item.amountCents)}</strong></li>)}</ul><p className="activity-note">A snapshot of your latest sample purchases.</p></section>
             <div hidden={view !== "finbot"} className="chat-view view-panel"><ChatPanel isVisible={view === "finbot"} /></div>
             <section hidden={view !== "main"} className="panel campus-dining-card view-panel" aria-labelledby="campus-dining-title">
               <Image src="/campus/origami.png" alt={overview.diningPhotoAlt} width={600} height={400} sizes="(max-width: 800px) 100vw, 450px" />
