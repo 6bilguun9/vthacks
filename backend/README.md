@@ -27,6 +27,25 @@ The health route and ARC-backed `POST /api/v1/dining-plans` route are registered
 
 `src/integrations/nessie.ts` is a tested, read-only sandbox adapter. It is not wired to a public route yet: add `NESSIE_API_KEY` only to ignored backend configuration, use its customer-account and account-purchase reads through an authorized service, then normalize records into immutable snapshots. It converts provider dollars to exact integer cents and rejects unknown/invalid shapes rather than treating them as spendable data.
 
+## Internal planning pipeline
+
+The following backend modules are implemented and tested, but intentionally are **not** public routes until guest authorization, snapshot persistence, and version checks exist:
+
+```text
+Nessie read-only adapter + manual entries
+        -> financial snapshot (bank / campus / charges remain separate)
+        -> explicit checking/savings account selection
+        -> deterministic plan preview (goals + dated cash flows + buffer)
+        -> hypothetical purchase scenario (before / after / goal impact)
+```
+
+- `src/finance/goal-projection.ts` projects goal dates and required weekly savings in integer cents.
+- `src/finance/cash-flow.ts` simulates dated income, essential expenses, goal contributions, and temporary scenario purchases while protecting the buffer.
+- `src/finance/plan-projection.ts` reserves existing goal allocations once and composes the plan-level simulation.
+- `src/services/financial-snapshot.ts`, `eligible-bank-cash.ts`, `plan-preview.ts`, and `purchase-scenario.ts` are pure orchestration layers. They neither read global time nor mutate accounts or plans.
+
+Use these modules from a future authorized `POST /api/v1/plan/preview` or `/api/v1/scenarios` service. Do not make the browser authoritative for balances, selected accounts, or results; load the persisted snapshot/plan server-side and return the calculated output.
+
 ## Layout
 
 | Location | Responsibility |
@@ -35,9 +54,9 @@ The health route and ARC-backed `POST /api/v1/dining-plans` route are registered
 | `src/create-app.ts` | App factory, CORS, and error boundaries; import this in tests |
 | `src/routes/` | Thin HTTP handlers |
 | `src/config/` | Environment validation |
-| `src/services/` | Future authorized application workflows |
-| `src/finance/` | Future pure deterministic financial engine |
-| `src/integrations/` | Future Nessie, ARC, and ANS adapters |
+| `src/services/` | Snapshot normalization, explicit cash selection, and pure plan/scenario previews; future authorized workflows |
+| `src/finance/` | Pure deterministic goal, cash-flow, and plan calculations |
+| `src/integrations/` | Server-only Nessie, ARC, and ANS adapters |
 | `src/agents/` | Future coach/planner endpoints |
 | `supabase/migrations/` | Future database migrations |
 
