@@ -9,4 +9,4 @@
 - Run `npm run check` in each affected app. Contract changes require both apps' checks.
 - Never commit `.env` files, credentials, or private financial data.
 - Use feature branches for follow-up work. Do not force-push shared branches or discard another teammate's changes.
-- The individual backend work split has not been assigned yet.
+- See `docs/backend-handoff.md` for the backend teammate split and hosted activation gates.

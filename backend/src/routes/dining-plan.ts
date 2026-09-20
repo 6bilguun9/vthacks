@@ -3,6 +3,8 @@ import { z } from "zod";
 import type { AppConfig } from "../config/env.js";
 import { DINING_SYSTEM_PROMPT } from "../agents/dining-prompt.js";
 import { ArcUnavailableError, completeWithArc } from "../integrations/arc.js";
+import { normalizeDiningResult } from "../agents/dining.js";
+import type { FinancialRouteOptions } from "./financial.js";
 
 const requestSchema = z.object({
   diningPlan: z.enum(["Unlimited", "Unlimited Plus", "Maroon", "Maroon Plus", "Orange", "Orange Plus", "Dining Dollars only"]),
@@ -50,15 +52,19 @@ function parseJsonObject(raw: string): unknown {
   throw new SyntaxError("No JSON object found in ARC response");
 }
 
-export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?: typeof completeWithArc }> = async (app, options) => {
+export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?: typeof completeWithArc } & Pick<FinancialRouteOptions, "auth" | "limits" | "clock" | "requireAi">> = async (app, options) => {
   app.post("/dining-plans", async (request, reply) => {
     const parsed = requestSchema.safeParse(request.body);
     if (!parsed.success) return reply.code(422).send({ error: { code: "INVALID_REQUEST", message: "Check the dining-plan fields and try again." } });
     const input = parsed.data;
+    const actor = await options.auth.authenticate(request.headers.authorization, request.ip);
+    options.requireAi(actor);
+    const release = await options.limits.acquire(actor, "ai", options.clock());
+    const deadline = Date.now() + 55_000;
     const prompt = `Create a representative weekly plan for this student. Return JSON with strategy; days; weeklyDiningSpendCents; projectedDiningSpendCents; remainingDiningBalanceCents; assumptions; warnings; hoursUrl; source; model. Each day has day and three meals; each meal has label, venue, suggestion, payment, estimatedCostCents. The payment value must be exactly one of: swipe, meal_exchange, dining_balance, hokie_passport, other.\n\n${JSON.stringify(input)}\n\nThe active ARC model is ${options.config.ARC_MODEL}. Set source to vt_arc and model to that exact value. Current balances, not original plan values, control the budget.`;
     try {
       const complete = options.complete ?? completeWithArc;
-      const raw = await complete(options.config, [{ role: "system", content: DINING_SYSTEM_PROMPT }, { role: "user", content: prompt }]);
+      const raw = await complete(options.config, [{ role: "system", content: DINING_SYSTEM_PROMPT }, { role: "user", content: prompt }], { timeoutMs: Math.max(1, deadline - Date.now()) });
       let result = responseSchema.safeParse(parseJsonObject(raw));
       if (!result.success) {
         const issues = result.error.issues.map(({ path, code }) => ({ path: path.join("."), code }));
@@ -66,15 +72,15 @@ export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?
         const repaired = await complete(options.config, [
           { role: "system", content: DINING_SYSTEM_PROMPT },
           { role: "user", content: `Repair this invalid draft into the exact requested JSON shape. Return only the corrected JSON object. Validation issues: ${JSON.stringify(issues)}\n\nInvalid draft:\n${raw}` },
-        ]);
+        ], { timeoutMs: Math.max(1, deadline - Date.now()) });
         result = responseSchema.safeParse(parseJsonObject(repaired));
       }
       if (!result.success) return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "ARC returned a meal plan that could not be safely validated." } });
-      return reply.header("Cache-Control", "no-store").send(result.data);
+      return reply.header("Cache-Control", "no-store").send(normalizeDiningResult(input, { ...result.data, source: "vt_arc", model: options.config.ARC_MODEL }));
     } catch (error) {
       if (error instanceof ArcUnavailableError) return reply.code(503).send({ error: { code: "ARC_UNAVAILABLE", message: "The meal-planning agent is temporarily unavailable." } });
       request.log.warn("ARC dining response was invalid");
       return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "ARC returned a meal plan that could not be safely validated." } });
-    }
+    } finally { await release(); }
   });
 };

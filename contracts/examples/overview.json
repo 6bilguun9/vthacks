@@ -1,30 +1,103 @@
 {
   "snapshot": {
-    "id": "fixture-snapshot-001", "currency": "USD",
-    "source": { "kind": "fixture", "asOf": "2026-09-21T12:00:00-04:00", "fetchedAt": null, "isStale": false },
+    "id": "fixture-snapshot-001",
+    "currency": "USD",
+    "source": {
+      "kind": "fixture",
+      "asOf": "2026-09-21T12:00:00-04:00",
+      "fetchedAt": null,
+      "isStale": false
+    },
     "accounts": [
-      { "id": "sample-checking", "name": "Sample checking", "type": "checking", "balanceCents": 160000 },
-      { "id": "sample-savings", "name": "Sample savings", "type": "savings", "balanceCents": 40000 }
+      {
+        "id": "sample-checking",
+        "name": "Sample checking",
+        "type": "checking",
+        "balanceCents": 160000
+      },
+      {
+        "id": "sample-savings",
+        "name": "Sample savings",
+        "type": "savings",
+        "balanceCents": 40000
+      }
     ],
-    "campusBalances": [{
-      "id": "sample-dining", "name": "Sample Dining Dollars", "balanceCents": 30000, "restriction": "Dining locations only; not bank cash",
-      "source": { "kind": "fixture", "asOf": "2026-09-21T12:00:00-04:00", "fetchedAt": null, "isStale": false }
-    }],
-    "universityCharges": [{
-      "id": "sample-charge", "name": "Sample university charge", "amountCents": 40000, "dueDate": "2026-10-10", "fundingGoalId": null,
-      "source": { "kind": "fixture", "asOf": "2026-09-21T12:00:00-04:00", "fetchedAt": null, "isStale": false }
-    }]
+    "campusBalances": [
+      {
+        "id": "sample-dining",
+        "name": "Sample Dining Dollars",
+        "balanceCents": 30000,
+        "restriction": "Dining locations only; not bank cash",
+        "source": {
+          "kind": "fixture",
+          "asOf": "2026-09-21T12:00:00-04:00",
+          "fetchedAt": null,
+          "isStale": false
+        }
+      }
+    ],
+    "universityCharges": [
+      {
+        "id": "sample-charge",
+        "name": "Sample university charge",
+        "amountCents": 40000,
+        "dueDate": "2026-10-10",
+        "fundingGoalId": null,
+        "source": {
+          "kind": "fixture",
+          "asOf": "2026-09-21T12:00:00-04:00",
+          "fetchedAt": null,
+          "isStale": false
+        }
+      }
+    ],
+    "transactions": []
   },
   "plan": {
-    "id": "fixture-plan-001", "version": 1, "snapshotId": "fixture-snapshot-001", "timezone": "America/New_York",
-    "cashBufferCents": 20000, "weeklyDiscretionaryCents": 20000, "discretionaryRemainingCents": 20000,
-    "goals": [{ "id": "sample-laptop", "name": "Laptop", "targetCents": 100000, "allocatedCents": 20000, "weeklyContributionCents": 10000, "contributionStartDate": "2026-09-28", "targetDate": "2026-11-16" }],
-    "cashFlows": [], "plannedPurchases": []
+    "id": "fixture-plan-001",
+    "version": 1,
+    "snapshotId": "fixture-snapshot-001",
+    "timezone": "America/New_York",
+    "cashBufferCents": 20000,
+    "weeklyDiscretionaryCents": 20000,
+    "discretionaryRemainingCents": 20000,
+    "goals": [
+      {
+        "id": "sample-laptop",
+        "name": "Laptop",
+        "targetCents": 100000,
+        "allocatedCents": 20000,
+        "weeklyContributionCents": 10000,
+        "contributionStartDate": "2026-09-28",
+        "targetDate": "2026-11-16"
+      }
+    ],
+    "cashFlows": [],
+    "plannedPurchases": [],
+    "selectedBankAccountIds": null,
+    "incomeComplete": false,
+    "expensesComplete": false,
+    "discretionaryPeriodStart": "2026-09-14",
+    "discretionaryConfirmedAt": null,
+    "extraContributions": []
   },
   "projection": {
-    "asOf": "2026-09-21", "horizonEnd": "2028-09-21", "feasibility": "needs_information", "minimumUnallocatedCashCents": null,
-    "goals": [{ "goalId": "sample-laptop", "completionDate": null, "requiredWeeklyCents": 10000 }],
-    "assumptions": ["Synthetic UI example; no real accounts or live calculation."],
-    "warnings": ["Confirm income and essential-expense schedules before projecting affordability."]
+    "asOf": "2026-09-21",
+    "horizonEnd": "2028-09-21",
+    "feasibility": "needs_information",
+    "minimumUnallocatedCashCents": null,
+    "goals": [
+      {
+        "goalId": "sample-laptop",
+        "completionDate": null,
+        "requiredWeeklyCents": 10000
+      }
+    ],
+    "assumptions": [
+      "Synthetic UI example; no real accounts or live calculation."
+    ],
+    "warnings": [
+      "Confirm income and essential-expense schedules before projecting affordability."
+    ]
   }
 }

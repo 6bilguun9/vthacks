@@ -1,12 +1,12 @@
 # VT Student Savings Planner
 
-A hackathon starter for an AI-assisted financial planner for Virginia Tech students. The product will combine Nessie **sandbox** banking data, manually entered campus balances and charges, deterministic savings calculations, and a VT ARC-powered conversation interface.
+An AI-assisted financial planner for Virginia Tech students, with Nessie **sandbox** banking data, manually entered campus balances and charges, deterministic savings calculations, and a VT ARC-powered conversation interface.
 
 ## Current status
 
-**Implemented:** independent frontend and backend applications, health checks, an ARC-backed dining-plan calendar, a labeled synthetic demo, API specifications and fixtures, CI, and collaboration documentation.
+**Implemented in the backend:** authorized guest-owned plans, Supabase persistence/RLS migrations, deterministic previews and purchase comparisons, explicit versioned saves, read-only Nessie refresh, manual campus data, presenter-restricted ARC chat/dining, signed ANS planner calls, persistent limits, and automated tests. The frontend and backend remain independent applications.
 
-**Not implemented yet:** the public financial-planning API, goal persistence, guest authentication, banking connections, general AI chat, or an active ANS registration. The backend now has tested internal deterministic goal, cash-flow, and plan-projection calculations, but it does not expose them as a live financial endpoint until an authorized snapshot/persistence workflow exists. It includes safe ANS CLI tooling and scaffolded coach/planner endpoints, but it does not contact GoDaddy or claim an agent is available unless a backend maintainer deliberately runs the documented commands with a domain and complete ANS `KEY:SECRET` credential pair. The health endpoint verifies only that the backend is running. It does not verify external integrations.
+**Still required for hosted use:** configure Supabase and apply migrations, wire the frontend guest session and private API requests, select/provision a Nessie sandbox customer, deploy the backend, and validate both ANS identities/DNS. Provider-mocked tests and local PostgreSQL tests do not prove hosted integration readiness. The health endpoint verifies only that the backend is running. See the [backend handoff](docs/backend-handoff.md) for the activation checklist and teammate split.
 
 ## Start here
 
@@ -28,7 +28,7 @@ npm ci
 npm run dev
 ```
 
-Open <http://localhost:3000>. The frontend checks <http://localhost:3001/api/v1/health>. Neither app needs credentials for this starter. Optional environment templates are in each app's `.env.example`; setup details are in the app READMEs.
+Open <http://localhost:3000>. The frontend checks <http://localhost:3001/api/v1/health>. Startup and health need no credentials; private financial endpoints require configured Supabase authentication/storage. Environment templates are in each app's `.env.example`; setup details are in the app READMEs.
 
 ## Work boundaries
 
@@ -39,7 +39,7 @@ Open <http://localhost:3000>. The frontend checks <http://localhost:3001/api/v1/
 | `contracts/` | Both teams coordinate changes | API specification, JSON schemas, synthetic examples |
 | `docs/`, root config, `.github/` | Coordinate before editing | Architecture, workflow, deployment instructions, CI |
 
-Each app owns its own `package.json` and `package-lock.json`. Neither application imports the other's source or shared runtime code. The later division of work between the two backend developers is intentionally not assigned here.
+Each app owns its own `package.json` and `package-lock.json`. Neither application imports the other's source or shared runtime code. The [backend handoff](docs/backend-handoff.md#backend-teammate-split) divides the remaining backend integration work between the two developers.
 
 ## Team workflow
 

@@ -1,17 +1,63 @@
 {
-  "scenarioId": "fixture-scenario-goal-delay", "snapshotId": "fixture-goal-funded-001", "planVersion": 1, "status": "requires_goal_change",
+  "scenarioId": "fixture-scenario-goal-delay",
+  "snapshotId": "fixture-goal-funded-001",
+  "planVersion": 1,
+  "status": "requires_goal_change",
   "before": {
-    "asOf": "2026-09-21", "horizonEnd": "2028-09-21", "feasibility": "feasible", "minimumUnallocatedCashCents": 20000,
-    "goals": [{ "goalId": "sample-laptop", "completionDate": "2026-11-16", "requiredWeeklyCents": 10000 }],
-    "assumptions": ["Independent synthetic scenario: $200 allocated to a $1,000 goal; affordable $100 weekly contributions starting September 28.", "Only $50 discretionary remains; no unallocated cash can fund this purchase."], "warnings": []
+    "asOf": "2026-09-21",
+    "horizonEnd": "2028-09-21",
+    "feasibility": "feasible",
+    "minimumUnallocatedCashCents": 20000,
+    "goals": [
+      {
+        "goalId": "sample-laptop",
+        "completionDate": "2026-11-16",
+        "requiredWeeklyCents": 10000
+      }
+    ],
+    "assumptions": [
+      "Independent synthetic scenario: $200 allocated to a $1,000 goal; affordable $100 weekly contributions starting September 28.",
+      "Only $50 discretionary remains; no unallocated cash can fund this purchase."
+    ],
+    "warnings": []
   },
   "after": {
-    "asOf": "2026-09-21", "horizonEnd": "2028-09-21", "feasibility": "feasible", "minimumUnallocatedCashCents": 20000,
-    "goals": [{ "goalId": "sample-laptop", "completionDate": "2026-11-23", "requiredWeeklyCents": 11250 }],
-    "assumptions": ["User selected the laptop goal to fund the remaining $100. Nine $100 contributions are now needed."],
-    "warnings": ["Catch-up requires an extra $100 next week or $12.50 over eight weeks; these alternatives need a separate funding check."]
+    "asOf": "2026-09-21",
+    "horizonEnd": "2028-09-21",
+    "feasibility": "feasible",
+    "minimumUnallocatedCashCents": 20000,
+    "goals": [
+      {
+        "goalId": "sample-laptop",
+        "completionDate": "2026-11-23",
+        "requiredWeeklyCents": 11250
+      }
+    ],
+    "assumptions": [
+      "User selected the laptop goal to fund the remaining $100. Nine $100 contributions are now needed."
+    ],
+    "warnings": [
+      "Catch-up requires an extra $100 next week or $12.50 over eight weeks; these alternatives need a separate funding check."
+    ]
   },
-  "funding": { "discretionaryCents": 5000, "unallocatedCents": 0, "goalCents": 10000 },
-  "goalImpacts": [{ "goalId": "sample-laptop", "originalDate": "2026-11-16", "revisedDate": "2026-11-23", "delayDays": 7, "nextWeekExtraCents": 10000, "remainingWeeklyExtraCents": 1250 }],
-  "assumptions": ["Synthetic UI fixture, not a saved plan or a completed purchase. The baseline differs from the no-delay fixture."]
+  "funding": {
+    "discretionaryCents": 5000,
+    "unallocatedCents": 0,
+    "goalCents": 10000
+  },
+  "goalImpacts": [
+    {
+      "goalId": "sample-laptop",
+      "originalDate": "2026-11-16",
+      "revisedDate": "2026-11-23",
+      "delayDays": 7,
+      "nextWeekExtraCents": 10000,
+      "remainingWeeklyExtraCents": 1250,
+      "nextWeekAffordable": null,
+      "remainingWeeklyAffordable": null
+    }
+  ],
+  "assumptions": [
+    "Synthetic UI fixture, not a saved plan or a completed purchase. The baseline differs from the no-delay fixture."
+  ]
 }
