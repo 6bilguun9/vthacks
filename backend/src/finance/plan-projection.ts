@@ -148,6 +148,24 @@ function sumAllocatedCents(goals: readonly PlanGoalInput[]): number {
   return goals.reduce((total, goal) => safeAdd(total, goal.allocatedCents, "combined goal allocations"), 0);
 }
 
+function validateCashFlows(cashFlows: readonly PlanCashFlowInput[]): void {
+  const ids = new Set<string>();
+  for (const flow of cashFlows) {
+    if (flow.id.trim().length === 0) throw new RangeError("cash-flow id cannot be empty.");
+    if (ids.has(flow.id)) throw new RangeError(`cash-flow id ${flow.id} must be unique.`);
+    ids.add(flow.id);
+    if (flow.kind !== "income" && flow.kind !== "essential") throw new RangeError(`${flow.id}.kind must be income or essential.`);
+    if (!["once", "weekly", "biweekly", "monthly"].includes(flow.cadence)) throw new RangeError(`${flow.id}.cadence is not supported.`);
+    if (flow.certainty !== "confirmed" && flow.certainty !== "estimated") throw new RangeError(`${flow.id}.certainty must be confirmed or estimated.`);
+    assertSafeInteger(flow.amountCents, `${flow.id}.amountCents`, 1);
+    parseIsoDate(flow.nextDate, `${flow.id}.nextDate`);
+    if (flow.endDate) {
+      parseIsoDate(flow.endDate, `${flow.id}.endDate`);
+      if (dayDifference(flow.nextDate, flow.endDate) < 0) throw new RangeError(`${flow.id}.endDate cannot be before nextDate.`);
+    }
+  }
+}
+
 /**
  * Produces a plan-level, read-only projection. Existing goal allocations are
  * removed from the opening bank cash exactly once; scheduled contributions are
@@ -162,6 +180,7 @@ export function projectPlan(input: PlanProjectionInput): PlanProjection {
   if (horizonDays > 730) throw new RangeError("horizonEndDate cannot be more than two years after asOfDate.");
   assertSafeInteger(input.cashBufferCents, "cashBufferCents");
   if (input.startingEligibleCashCents !== null) assertSafeInteger(input.startingEligibleCashCents, "startingEligibleCashCents");
+  validateCashFlows(input.cashFlows);
 
   const goals = projectGoals(input);
   const assumptions = [

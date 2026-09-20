@@ -69,6 +69,14 @@ describe("projectPlan", () => {
     expect(result.warnings[0]).toContain("Eligible bank cash is missing");
   });
 
+  it("still validates supplied cash flows when eligible cash is missing", () => {
+    expect(() => projectPlan({
+      ...laptopPlan,
+      startingEligibleCashCents: null,
+      cashFlows: [{ id: "bad-flow", kind: "income", amountCents: 0, cadence: "once", nextDate: "2026-09-19", certainty: "confirmed" }],
+    })).toThrow("bad-flow.amountCents");
+  });
+
   it("reports an infeasible plan if allocations already exceed eligible cash", () => {
     const result = projectPlan({ ...laptopPlan, startingEligibleCashCents: 10_000 });
 
