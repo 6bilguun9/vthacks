@@ -19,6 +19,10 @@ Sample data lives in `src/features/dashboard/demo-data.ts`, shared by the dashbo
 
 The live dining planner is available at `/dining`; `/demo` renders an explicitly labeled synthetic dining calendar without an API call. Live dining plans require the backend and its server-only ARC credential.
 
+The shared header includes a notification bell. Savings and workspace examples are labeled **Sample**; appearance/accessibility changes create real local system notices. Read status persists in this browser. `publishNotification` in `src/features/notifications/use-notifications.ts` is the future integration point: call it only after a confirmed change, use a stable event ID to avoid duplicates, and supply backend-provided goal values rather than calculating them in the browser. Notifications currently have no API connection or operating-system push permission.
+
+Typography uses locally bundled Lato, with Comic Relief reserved for the HokieBird speech bubble. Font licenses are in `src/app/fonts/`; campus photo sources are documented in `public/campus/README.md`.
+
 ## Layout
 
 - `src/app/`: pages, global styles, and layout. Coordinate edits to shared files with the other frontend developer.

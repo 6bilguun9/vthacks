@@ -2,15 +2,15 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
-import { ArrowUp, ArrowUpRight, Check, FlaskConical, History, MessageSquarePlus, PanelLeftClose, ShieldCheck } from "lucide-react";
+import { ArrowUp, History, MessageSquarePlus, PanelLeftClose } from "lucide-react";
 import ChatHistory from "./ChatHistory";
 import ConversationHeading from "./ConversationHeading";
 import ConversationTranscript from "./ConversationTranscript";
 import { canSendQuestion, QUESTION_LIMIT, shouldSendOnEnter } from "./composer-input";
 import { type Conversation } from "./conversation-history";
-import { getDemoReply, suggestedQuestions } from "./demo-replies";
+import { getDemoReply } from "./demo-replies";
+import { demoData } from "@/features/dashboard/demo-data";
 import { useChatHistory } from "./use-chat-history";
-import "./chat.css";
 
 const noMessages: Conversation["messages"] = [];
 
@@ -80,7 +80,7 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
     dispatch({ type: "new" });
     setDrafts((previous) => ({ ...previous, new: "" }));
     setHistoryOpen(false);
-    setAnnouncement("New conversation. Choose a question or type your own.");
+    setAnnouncement("New chat started.");
     inputRef.current?.focus();
   }
 
@@ -99,17 +99,16 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
     <section id="finbot" ref={shellRef} data-finbot data-wide={wide} className="finbot-chat" aria-labelledby={`${id}-title`}>
       <header className="fb-header">
         <div className="fb-brand">
-          <Image className="fb-logo" src="/finbot/team-logo.png" alt="Our team’s orange robot logo" width={445} height={473} sizes="56px" />
-          <div><p className="fb-kicker">A LITTLE CLARITY GOES A LONG WAY</p><h2 id={`${id}-title`}>Ask FinBot<span aria-hidden="true">.</span></h2></div>
+          <Image className="fb-logo" src="/finbot/team-logo.png" alt="Our team’s orange robot logo" width={445} height={473} sizes="60px" />
+          <div><h1 id={`${id}-title`}>FinBot</h1><p id={`${id}-disclaimer`} className="fb-disclaimer">Sample replies · No accounts connected.</p></div>
         </div>
-        <span className="fb-sample"><FlaskConical aria-hidden="true" />Sample mode</span>
+        <span className="fb-date">{demoData.month} {demoData.year}</span>
       </header>
       <div className="fb-toolbar">
         <button ref={historyButtonRef} className="fb-history-toggle" type="button" hidden={wide} aria-expanded={showHistory} aria-controls={`${id}-history`} onClick={() => setHistoryOpen((open) => !open)}>
           {showHistory ? <PanelLeftClose aria-hidden="true" /> : <History aria-hidden="true" />}History<span className="fb-count">{history.conversations.length}</span>
         </button>
         <button className="fb-new-chat" type="button" onClick={newChat} disabled={!ready}><MessageSquarePlus aria-hidden="true" />New chat</button>
-        <span className="fb-storage"><ShieldCheck aria-hidden="true" />Only on this browser</span>
       </div>
       <div className="fb-workspace">
         <aside id={`${id}-history`} className="fb-history" hidden={!showHistory} aria-label="FinBot chat history" onKeyDown={(event) => {
@@ -118,46 +117,35 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
           <ChatHistory conversations={history.conversations} activeId={history.activeId} onSelect={selectChat} onRemove={removeChat} />
         </aside>
         <div className="fb-conversation">
-          <ConversationHeading key={`heading-${activeChat?.id ?? "new"}`} title={activeChat?.title} onRename={(title) => {
+          {activeChat && <ConversationHeading key={`heading-${activeChat.id}`} title={activeChat.title} onRename={(title) => {
             if (!activeChat) return;
             dispatch({ type: "rename", id: activeChat.id, title });
             setAnnouncement("Chat renamed.");
-          }} />
-          <p id={`${id}-disclaimer`} className="fb-disclaimer">Scripted replies from the sample profile. No accounts connected.</p>
+          }} />}
           <ConversationTranscript key={`transcript-${activeChat?.id ?? "new"}`} messages={messages} ready={ready} thinking={thinkingHere} isVisible={isVisible} />
           <div className="fb-composer">
-            <p className="fb-suggestions-label">{messages.length ? "KEEP EXPLORING" : "TRY A SAMPLE QUESTION"}</p>
-            <div className="fb-suggestions" data-expanded={messages.length === 0} role="group" aria-label="Suggested sample questions">
-              {suggestedQuestions.map((example) => (
-                <button key={example.label} type="button" disabled={!ready || pendingId !== null || interrupted} aria-label={`${example.label}: ${example.question}`} title={example.question} onClick={() => {
-                  setDrafts((previous) => ({ ...previous, [draftKey]: example.question }));
-                  inputRef.current?.focus();
-                }}><span>{messages.length === 0 ? <><strong>{example.label}</strong><span>{example.question}</span></> : example.label}</span><ArrowUpRight aria-hidden="true" /></button>
-              ))}
-            </div>
-            <p id={`${id}-status`} className="fb-status" role="status">
-              {pendingId ? thinkingHere ? "Preparing your sample reply. You can draft your next question." : "Finishing a reply in another chat. You can keep drafting." : interrupted ? "This reply was interrupted. Resume it to keep chatting." : announcement || (messages.length ? "Ready for your next question." : "Choose a topic or ask a question below.")}
+            <p id={`${id}-status`} className={`fb-status${interrupted ? "" : " sr-only"}`} role="status">
+              {pendingId ? thinkingHere ? "Preparing your sample reply…" : "Finishing a reply in another chat…" : interrupted ? "Reply interrupted. Resume to continue." : announcement}
             </p>
             {interrupted && <button className="fb-resume" type="button" onClick={() => {
               if (activeChat && !pendingRef.current) prepareReply(activeChat.id, messages.at(-1)!.text, messages.length - 1);
             }}>Resume sample reply</button>}
             <form onSubmit={handleSubmit}>
-              <label htmlFor={`${id}-input`}>Your question</label>
+              <label htmlFor={`${id}-input`}>Message FinBot</label>
               <div className="fb-input-row">
-                <textarea ref={inputRef} id={`${id}-input`} rows={3} value={input} onChange={(event) => { const value = event.target.value; setDrafts((previous) => ({ ...previous, [draftKey]: value })); }} onKeyDown={(event) => {
+                <textarea ref={inputRef} id={`${id}-input`} rows={2} value={input} onChange={(event) => { const value = event.target.value; setDrafts((previous) => ({ ...previous, [draftKey]: value })); }} onKeyDown={(event) => {
                   if (shouldSendOnEnter({ key: event.key, shiftKey: event.shiftKey, isComposing: event.nativeEvent.isComposing, keyCode: event.nativeEvent.keyCode })) {
                     event.preventDefault();
                     event.currentTarget.form?.requestSubmit();
                   }
-                }} aria-describedby={`${id}-disclaimer ${id}-input-help ${id}-count`} aria-invalid={overLimit || undefined} aria-keyshortcuts="Enter" placeholder="What’s on your mind?" autoComplete="off" />
+                }} aria-describedby={`${id}-disclaimer ${id}-input-help ${id}-count`} aria-invalid={overLimit || undefined} aria-keyshortcuts="Enter" placeholder="Ask about your money…" autoComplete="off" />
                 <button className="fb-send" type="submit" disabled={!ready || pendingId !== null || interrupted || !canSendQuestion(input)}><span>{thinkingHere ? "Preparing…" : "Send"}</span><ArrowUp aria-hidden="true" /></button>
               </div>
               <div className="fb-input-help">
                 <p id={`${id}-input-help`}>Enter to send · Shift+Enter for a new line</p>
-                <p id={`${id}-count`} data-invalid={overLimit}>{overLimit ? `${input.length - QUESTION_LIMIT} ${input.length - QUESTION_LIMIT === 1 ? "character" : "characters"} over limit` : `${QUESTION_LIMIT - input.length} ${QUESTION_LIMIT - input.length === 1 ? "character" : "characters"} left`}</p>
+                <p id={`${id}-count`} className={input.length < 800 ? "sr-only" : undefined} data-invalid={overLimit}>{overLimit ? `${input.length - QUESTION_LIMIT} ${input.length - QUESTION_LIMIT === 1 ? "character" : "characters"} over limit` : `${QUESTION_LIMIT - input.length} ${QUESTION_LIMIT - input.length === 1 ? "character" : "characters"} left`}</p>
               </div>
             </form>
-            {!warning && <p className="fb-save-note"><Check aria-hidden="true" />Conversations stay here after refresh.</p>}
             {warning && <p className="fb-storage-warning" role="alert">{warning}</p>}
           </div>
         </div>

@@ -46,7 +46,7 @@ describe("FinBot scripted replies", () => {
     "Transfer my savings to my bank account",
     " ",
   ])("does not invent a financial answer for %j", (question) => {
-    expect(getDemoReply(question)).toMatch(/try.*suggested question/i);
+    expect(getDemoReply(question)).toContain("What are my balances?");
     expect(getDemoReply(question)).not.toMatch(/\$\d/);
   });
 

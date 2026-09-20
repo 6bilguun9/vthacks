@@ -30,10 +30,7 @@ export default function ConversationTranscript({ messages, ready, thinking, isVi
       }}>
         {!ready ? <p className="fb-empty-note">Opening your conversations…</p> : messages.length === 0 ? (
           <div className="fb-empty">
-            <span className="fb-empty-mark" aria-hidden="true">↗</span>
-            <p className="fb-kicker">YOUR NEXT GOOD QUESTION</p>
-            <h3>Money on your mind?<br />Start here.</h3>
-            <p>Explore your spending, check your balances, or talk through a savings goal.</p>
+            <h2>Hey, Hokie.</h2>
           </div>
         ) : messages.map((message, index) => (
           <div key={index} className={`fb-message fb-message-${message.role}`}>

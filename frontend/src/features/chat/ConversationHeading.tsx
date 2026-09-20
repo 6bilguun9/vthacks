@@ -34,7 +34,6 @@ export default function ConversationHeading({ title, onRename }: { title?: strin
         <>
           <h3>{title ?? "New conversation"}</h3>
           {title && <button ref={renameButton} className="fb-rename" type="button" aria-label="Rename this chat" onClick={() => { setDraft(title); setEditing(true); }}><Pencil aria-hidden="true" /><span>Rename</span></button>}
-          <span className="fb-demo-label">DEMO</span>
         </>
       )}
     </div>

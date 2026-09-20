@@ -1,0 +1,38 @@
+@layer components {
+  .dashboard {
+    .notifications { position: relative; }
+    .notification-trigger { position: relative; display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid color-mix(in srgb, currentColor 35%, transparent); border-radius: 12px; color: inherit; background: transparent; }
+    .notification-trigger svg { width: 21px; height: 21px; }
+    .notification-trigger:hover, .notification-trigger[aria-expanded="true"] { background: color-mix(in srgb, currentColor 8%, transparent); }
+    .notification-count { position: absolute; top: -5px; right: -5px; display: grid; place-items: center; min-width: 21px; height: 21px; padding-inline: 4px; border: 2px solid var(--card); border-radius: 12px; background: #861f41; color: #fff; font-size: 11px; font-weight: 900; }
+    .notifications-panel { position: absolute; top: calc(100% + 12px); right: 0; z-index: 30; width: min(390px, calc(100vw - 32px)); overflow: hidden; border: 1px solid color-mix(in srgb, currentColor 35%, transparent); border-radius: 18px; background: var(--card); color: var(--foreground); box-shadow: 0 16px 48px #0003; text-align: left; }
+    .notifications-panel > header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px 12px; }
+    .notifications-panel h2 { font-size: calc(22px * var(--text-scale, 1)); font-weight: 900; }
+    .notifications-panel header p { margin-top: 2px; font-size: calc(13px * var(--text-scale, 1)); color: var(--dashboard-muted); }
+    .notifications-panel header button { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 50%; background: transparent; color: inherit; }
+    .notifications-panel svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .notification-actions { padding: 0 20px 12px; border-bottom: 1px solid var(--border); }
+    .notification-actions button, .notification-item-actions button, .notification-item-actions a { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 44px; padding: 6px 8px; color: inherit; font-size: calc(13px * var(--text-scale, 1)); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; border-radius: 7px; }
+    .notification-actions button[aria-disabled="true"], .notification-item-actions button[aria-disabled="true"] { opacity: .6; cursor: default; text-decoration: none; }
+    .notifications-panel ul { max-height: min(460px, calc(100dvh - 250px)); overflow-y: auto; overscroll-behavior: contain; list-style: none; margin: 0; padding: 0; }
+    .notifications-panel li { display: flex; align-items: flex-start; gap: 12px; padding: 18px; border-bottom: 1px solid var(--border); }
+    .notifications-panel li:last-child { border-bottom: 0; }
+    .notifications-panel li[data-unread="true"] { background: color-mix(in srgb, var(--maroon) 7%, var(--card)); }
+    .notification-icon { display: grid; place-items: center; flex-shrink: 0; width: 38px; height: 38px; border: 1px solid color-mix(in srgb, var(--maroon) 25%, var(--card)); border-radius: 50%; background: color-mix(in srgb, var(--maroon) 10%, var(--card)); color: var(--maroon); }
+    .notification-content { min-width: 0; flex: 1; }
+    .notification-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: calc(11px * var(--text-scale, 1)); color: var(--dashboard-muted); }
+    .notification-meta strong { margin-left: auto; color: var(--maroon); }
+    .notification-sample { border: 1px solid currentColor; padding: 0 5px; border-radius: 4px; }
+    .notification-content h3 { margin: 7px 0 5px; font-size: calc(16px * var(--text-scale, 1)); line-height: 1.4; font-weight: 900; overflow-wrap: anywhere; }
+    .notification-content p { font-size: calc(14px * var(--text-scale, 1)); line-height: 1.6; overflow-wrap: anywhere; }
+    .notification-content time { display: block; margin-top: 6px; color: var(--dashboard-muted); font-size: calc(11px * var(--text-scale, 1)); }
+    .notification-item-actions { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px -8px -6px; }
+    .notifications :is(button, a):focus-visible { outline: 3px solid var(--maroon); outline-offset: 3px; }
+    &[dir="rtl"] .notifications-panel { right: auto; left: 0; }
+    &[data-contrast="high"] .notifications-panel { border-width: 2px; }
+    @media (max-width: 800px) {
+      .notifications-panel, &[dir="rtl"] .notifications-panel { position: fixed; inset: 16px 16px auto; width: auto; max-height: calc(100dvh - 32px); }
+      .notifications-panel ul { max-height: calc(100dvh - 230px); }
+    }
+  }
+}

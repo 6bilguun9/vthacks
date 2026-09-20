@@ -1,0 +1,129 @@
+/* Shared app styling. Color palettes and accessibility preferences stay in dashboard.css. */
+@layer components {
+  .dashboard {
+    font-family: var(--font-lato), Arial, sans-serif;
+    font-size: calc(16px * var(--text-scale, 1));
+    line-height: 1.5;
+
+    .sidebar { position: sticky; top: 0; height: 100dvh; overflow-y: auto; width: 276px; padding: 24px 20px 20px; }
+    .brand { gap: 12px; font-size: 28px; font-weight: 900; letter-spacing: -.8px; line-height: 1.1; }
+    .brand-icon { width: 50px; height: 54px; flex-shrink: 0; border-radius: 16px; }
+    .brand-icon svg { width: 31px; height: 31px; stroke-width: 2.2; }
+    .brand-light { font-weight: 900; }
+    .brand small { display: block; margin-top: 8px; font-size: 10px; font-weight: 700; letter-spacing: 2px; opacity: .85; }
+    nav { margin-top: 28px; gap: 8px; }
+    nav a { display: flex; min-height: 50px; gap: 12px; padding: 11px 14px; border: 1px solid #ffffff38; border-radius: 13px; font-size: calc(16px * var(--text-scale, 1)); font-weight: 700; }
+    nav a > span { font-size: inherit; line-height: 1.4; }
+    nav a > svg { width: 21px; height: 21px; flex-shrink: 0; stroke-width: 1.9; }
+    nav .nav-active { border-color: currentColor; box-shadow: 0 3px 8px #00000012; font-weight: 900; }
+    nav .nav-chevron { width: 17px; margin-inline-start: auto; }
+    &[dir="rtl"] nav .nav-chevron { transform: rotate(180deg); }
+    .hokie-companion { margin-top: auto; padding-top: 24px; }
+    .hokie-speech { position: relative; z-index: 1; margin: 0 9px -14px; padding: 12px; border: 2px solid #f4c18f; border-radius: 20px 20px 20px 5px; background: #fff7e9; color: #492238; font-family: var(--font-comic), "Comic Sans MS", cursive; font-size: calc(18px * var(--text-scale, 1)); font-weight: 700; line-height: 1.5; text-align: center; transform: rotate(-2deg); }
+    .hokie-speech::after { content: ""; position: absolute; bottom: -12px; right: 32px; width: 20px; height: 20px; border-right: 2px solid #f4c18f; border-bottom: 2px solid #f4c18f; background: #fff7e9; transform: skewY(35deg); }
+    .hokie-companion > img { width: 100%; height: 150px; object-fit: cover; object-position: 50% 28%; border: 1px solid #ffffff55; border-radius: 17px; }
+    .photo-credit { display: block; width: fit-content; margin: 5px 0 0 auto; min-height: 24px; color: inherit; font-size: 11px; text-underline-offset: 3px; }
+    .photo-credit:hover { text-decoration: underline; }
+    .profile { margin-top: 18px; padding-top: 16px; }
+    .profile strong { font-size: calc(14px * var(--text-scale, 1)); font-weight: 700; }
+    .avatar { width: 36px; height: 36px; }
+    .page-location { font-size: calc(17px * var(--text-scale, 1)); font-weight: 900; color: inherit; }
+    .topbar { min-height: 76px; height: auto; gap: 16px; padding-block: 12px; }
+    .topbar-actions { flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
+    .content, .dining-content { padding-top: 28px; }
+    h1 { font-family: inherit; font-size: clamp(calc(28px * var(--text-scale, 1)), 3vw, calc(40px * var(--text-scale, 1))); font-weight: 900; line-height: 1.2; letter-spacing: -.7px; max-width: none; margin: 0; }
+    .welcome { align-items: center; flex-direction: row; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+    .date-label { display: block; font-size: calc(14px * var(--text-scale, 1)); font-weight: 700; white-space: normal; }
+    .balance-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(225px * var(--text-scale, 1))), 1fr)); }
+    .balance-card, .panel, .dining-form { border-width: 1px; border-radius: 18px; }
+    .card-label { font-size: calc(16px * var(--text-scale, 1)); font-weight: 700; }
+    .balance-card h2 { margin-block: 18px 12px; font-weight: 900; font-size: clamp(calc(30px * var(--text-scale, 1)), 3.1vw, calc(42px * var(--text-scale, 1))); letter-spacing: -1px; }
+    .balance-card h2 span { font-size: .7em; font-weight: 700; }
+    .balance-card p, .sample-notice, .legend-row, .budget-note, .goal-caption, .transaction-name span { font-size: calc(13px * var(--text-scale, 1)); }
+    .sample-notice { margin-bottom: 18px; line-height: 1.6; }
+    .section-heading h2 { font-size: calc(23px * var(--text-scale, 1)); font-weight: 900; letter-spacing: -.4px; }
+    .section-heading .eyebrow { display: none; }
+    .milestone-strip { padding-block: 17px; margin-bottom: 24px; }
+    .milestone-strip p { font-size: calc(16px * var(--text-scale, 1)); }
+    .milestone-strip a { font-size: calc(14px * var(--text-scale, 1)); font-weight: 700; }
+    .detail-grid { grid-template-columns: 1.2fr 1fr; }
+    .detail-grid.view-finbot { max-width: none; }
+    .goal-name, .transactions li { font-size: calc(16px * var(--text-scale, 1)); }
+    .transaction-name strong { font-weight: 700; }
+    .goal-amount strong { font-weight: 900; }
+    .savings-tip { border: 1px solid color-mix(in srgb, currentColor 20%, transparent); border-radius: 12px; }
+    .savings-tip p { font-size: calc(14px * var(--text-scale, 1)); }
+    .campus-dining-card { padding: 0; overflow: hidden; }
+    .campus-dining-card > img { display: block; width: 100%; height: 210px; object-fit: cover; }
+    .campus-dining-card > div { padding: 20px 24px; }
+    .campus-caption { color: var(--dashboard-muted); font-size: calc(13px * var(--text-scale, 1)); }
+    .campus-dining-card h2 { margin: 7px 0 12px; font-size: calc(24px * var(--text-scale, 1)); line-height: 1.25; font-weight: 900; }
+    .campus-dining-card a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; color: var(--maroon); font-size: calc(15px * var(--text-scale, 1)); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+    .accessibility-panel-heading h2 { font-family: inherit; font-weight: 900; font-size: 24px; }
+    .theme-toggle, .accessibility-trigger { border-radius: 12px; font-weight: 700; font-size: calc(13px * var(--text-scale, 1)); }
+    .dining-hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 32px; max-width: none; }
+    .dining-hero h1 { margin: 10px 0 16px; font-size: clamp(calc(28px * var(--text-scale, 1)), 3vw, calc(40px * var(--text-scale, 1))); }
+    .dining-hero-copy > p:last-child { max-width: 430px; color: var(--dashboard-muted); font-size: calc(16px * var(--text-scale, 1)); line-height: 1.65; }
+    .dining-photo { overflow: hidden; min-width: 0; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 20px; }
+    .dining-photo img { width: 100%; height: 230px; object-fit: cover; }
+    .dining-photo figcaption { padding: 10px 14px; font-size: calc(13px * var(--text-scale, 1)); font-weight: 700; }
+    .dining-form { margin-top: 28px; padding: 28px; }
+    .dining-field { text-transform: none; letter-spacing: 0; font-size: calc(15px * var(--text-scale, 1)); font-weight: 700; }
+    .dining-field input, .dining-field select, .dining-field textarea { min-width: 0; width: 100%; min-height: 48px; padding: 12px; border-radius: 12px; font-family: inherit; font-size: max(16px, calc(16px * var(--text-scale, 1))); line-height: 1.5; }
+    .dining-field textarea { min-height: 110px; }
+    .dining-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(220px * var(--text-scale, 1))), 1fr)); }
+    .dining-fallback { font-size: calc(15px * var(--text-scale, 1)); line-height: 1.5; }
+    .dining-fallback input { flex-shrink: 0; }
+    .dining-submit { min-height: 48px; border-radius: 12px; font-size: calc(16px * var(--text-scale, 1)); }
+    .dining-demo-link { font-size: calc(15px * var(--text-scale, 1)); }
+    .calendar-grid h3 { font-size: calc(20px * var(--text-scale, 1)); font-weight: 900; }
+    footer { padding-block: 22px 10px; font-size: calc(12px * var(--text-scale, 1)); }
+
+    &[data-contrast="high"] {
+      nav a { border-width: 2px; }
+      .dining-photo, .dining-form { border: 2px solid currentColor; }
+      .campus-caption, .campus-dining-card a { color: inherit; }
+    }
+    @media (max-width: 1100px) {
+      .sidebar { width: 254px; padding-inline: 16px; }
+      .brand { font-size: 26px; gap: 9px; }
+      .brand-icon { width: 46px; height: 50px; }
+      .dining-hero { gap: 22px; }
+      .dining-photo img { height: 220px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .spending-content { flex-direction: row; flex-wrap: wrap; }
+      .legend { min-width: min(220px, 100%); }
+    }
+    @media (max-width: 800px) {
+      .sidebar { position: static; height: auto; overflow: visible; width: 100%; padding: 18px 20px 14px; }
+      .brand { font-size: 28px; }
+      nav { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+      nav a { min-height: 44px; font-size: calc(14px * var(--text-scale, 1)); padding: 9px 12px; gap: 7px; }
+      nav a > svg { width: 18px; height: 18px; }
+      nav .nav-chevron { display: none; }
+      .hokie-companion { display: none; }
+      .topbar { flex-wrap: wrap; }
+      .topbar-actions { flex-wrap: wrap; }
+      .content, .dining-content { padding-top: 22px; }
+      .dining-hero { grid-template-columns: 1fr; }
+      .dining-photo img { height: 220px; }
+      .dining-hero h1 br { display: none; }
+      .balance-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 580px) {
+      .sidebar { padding-inline: 16px; }
+      .topbar, .content { padding-inline: 16px; }
+      .topbar-actions { gap: 7px; }
+      .theme-toggle, .accessibility-trigger { font-size: calc(12px * var(--text-scale, 1)); }
+      .dining-form { padding: 20px; }
+      .dining-photo img { height: 180px; }
+      .spending-content { flex-direction: column; }
+      .donut { width: 172px; height: 172px; }
+      .donut > div { width: 140px; height: 140px; }
+      .donut strong { font-size: calc(25px * var(--text-scale, 1)); }
+      .legend { width: 100%; }
+      .milestone-strip a { margin-left: 0; white-space: normal; }
+      .milestone-strip > div { min-width: 160px; }
+    }
+  }
+}

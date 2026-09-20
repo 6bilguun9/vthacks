@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../features/dashboard/dashboard.css";
+@import "../features/dashboard/campus.css";
+@import "../features/chat/chat.css";
+@import "../features/notifications/notifications.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -12,8 +16,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-ring: var(--primary);
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-serif: Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-lato), Arial, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, monospace;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -34,7 +37,7 @@
 
 @layer base {
   * { border-color: var(--border); }
-  body { background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background: var(--background); color: var(--foreground); font-family: var(--font-lato), Arial, sans-serif; -webkit-font-smoothing: antialiased; }
   button:not(:disabled) { cursor: pointer; }
   ::selection { background: #eddae0; }
   input:not([type="checkbox"]), select, textarea { border: 1px solid var(--border); border-radius: .5rem; background: white; padding: .75rem; font-size: .9rem; font-weight: 400; letter-spacing: normal; text-transform: none; }
