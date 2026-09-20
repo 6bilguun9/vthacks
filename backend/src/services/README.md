@@ -11,3 +11,5 @@ Guest plan access must be authorized on the server. Plan commits must check the 
 `plan-preview.ts` composes a frozen snapshot, explicit account selection, and a proposed plan into a pure preview. It does not persist, mutate, fetch, or authorize anything; a future authorized HTTP handler can call it after loading the user's snapshot and plan.
 
 `purchase-scenario.ts` compares an explicit hypothetical funding decision with that preview. Budgeted discretionary spending does not create a duplicate cash outflow; unallocated and goal-funded amounts do. It returns before/after projections, goal-date impact, a buffer shortfall when applicable, or a focused `needs_information` result without saving anything.
+
+`source-freshness.ts` evaluates a source with an explicit evaluation timestamp and maximum age. It preserves upstream stale flags, uses `fetchedAt` for provider data or `asOf` for manual data, and reports future timestamps as unknown rather than fresh.

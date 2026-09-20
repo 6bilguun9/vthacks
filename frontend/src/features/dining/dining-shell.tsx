@@ -1,6 +1,78 @@
-import Link from "next/link";
-import { Sprout } from "lucide-react";
+"use client";
 
-export function DiningShell({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto min-h-screen max-w-7xl px-5 sm:px-10"><header className="flex items-center justify-between border-b py-6"><Link href="/" className="flex items-center gap-3 font-semibold"><span className="flex size-9 items-center justify-center rounded-xl bg-primary text-white"><Sprout className="size-5"/></span>Student Savings Planner</Link><div className="flex gap-4"><Link href="/" className="text-sm font-semibold text-primary">Dashboard</Link><Link href="/demo" className="text-sm font-semibold text-primary">Quick demo →</Link></div></header>{children}<footer className="mt-16 flex flex-col justify-between gap-2 border-t py-6 text-xs text-muted-foreground sm:flex-row"><span>Built for students at VTHacks.</span><span>Unofficial project · Verify live dining information</span></footer></div>;
+import type { CSSProperties, ReactNode } from "react";
+import Link from "next/link";
+import {
+  AccessibilityControls,
+  useAccessibilityPreferences,
+} from "@/features/dashboard/accessibility-controls";
+import { useDashboardTheme } from "@/features/dashboard/theme-preference";
+import "@/features/dashboard/dashboard.css";
+
+const navigation = [
+  { href: "/#main", icon: "◫", label: "Overview" },
+  { href: "/#activity", icon: "⇄", label: "Recent activity" },
+  { href: "/#savings", icon: "◎", label: "Savings goal" },
+  { href: "/#finbot", icon: "✧", label: "Ask FinBot" },
+] as const;
+
+const diningSummary = "Dining planner. Build a sample weekly meal rhythm around your Virginia Tech dining plan, schedule, preferences, and campus balances. The form includes dining plan, student status, balances, weeks remaining, dietary needs, and an option to use Hokie Passport funds as a fallback.";
+
+export function DiningShell({ children }: { children: ReactNode }) {
+  const { preferences, updatePreference } = useAccessibilityPreferences();
+  const { theme, toggleTheme } = useDashboardTheme();
+
+  return (
+    <div
+      className="dashboard dining-dashboard"
+      data-theme={theme}
+      data-view="dining"
+      data-color-palette={preferences.colorPalette}
+      data-contrast={preferences.contrast}
+      data-motion={preferences.motion}
+      style={{ "--text-scale": preferences.textScale / 100 } as CSSProperties}
+    >
+      <a className="skip-link" href="#main">Skip to dining planner</a>
+      <aside className="sidebar">
+        <Link className="brand" href="/#main">
+          <span className="brand-icon">hw<span>•</span></span>
+          <span>hokie<span className="brand-light">wallet</span></span>
+        </Link>
+        <p className="nav-label">YOUR MONEY, SIMPLIFIED</p>
+        <nav aria-label="Main navigation">
+          {navigation.map((item) => (
+            <Link key={item.href} href={item.href}>
+              <span aria-hidden="true">{item.icon}</span> {item.label}
+            </Link>
+          ))}
+          <Link className="nav-active" href="/dining" aria-current="page">
+            <span aria-hidden="true">♨</span> Dining planner
+          </Link>
+        </nav>
+        <div className="sidebar-note">
+          <span className="little-star" aria-hidden="true">✳</span>
+          <h3>Fuel your week.<br />Protect your budget.</h3>
+          <p>Turn campus balances and a busy schedule into a meal rhythm that works.</p>
+          <span className="hokie-tag">MADE FOR HOKIES</span>
+        </div>
+        <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>
+      </aside>
+      <main id="main">
+        <header className="topbar">
+          <span>My workspace <span className="breadcrumb">/ Dining planner</span></span>
+          <div className="topbar-actions">
+            <AccessibilityControls preferences={preferences} readText={diningSummary} updatePreference={updatePreference} />
+            <button className="theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
+              <span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? "Dark mode" : "Light mode"}
+            </button>
+            <span className="demo-badge"><span /> Planner · Sample inputs</span>
+          </div>
+        </header>
+        <div className="content dining-content">
+          {children}
+          <footer><span><strong>hokiewallet</strong> · More clarity. Less money stress.</span><span>Built for student life <span aria-hidden="true">↗</span></span></footer>
+        </div>
+      </main>
+    </div>
+  );
 }
