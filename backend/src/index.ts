@@ -1,8 +1,9 @@
+import Fastify from "fastify";
 import { createApp } from "./create-app.js";
 import { readConfig } from "./config/env.js";
 
 const config = readConfig();
-const app = createApp(config);
+const app = createApp(config, {}, Fastify);
 
 async function shutdown() {
   await app.close();

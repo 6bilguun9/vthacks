@@ -9,7 +9,9 @@ cleanup() { docker rm -f "$container" >/dev/null 2>&1 || true; rm -rf "$scratch"
 trap cleanup EXIT INT TERM
 
 docker run -d --rm --name "$container" -e POSTGRES_PASSWORD=vthacks-it -e POSTGRES_DB=vthacks_it postgres:16-alpine >/dev/null
-until docker exec "$container" pg_isready -U postgres -d vthacks_it >/dev/null 2>&1; do sleep 1; done
+# pg_isready can succeed while Postgres is completing startup. Wait until the
+# same authenticated query the test needs can actually run.
+until docker exec "$container" psql -v ON_ERROR_STOP=1 -U postgres -d vthacks_it -c "select 1" >/dev/null 2>&1; do sleep 1; done
 docker exec "$container" mkdir -p /work
 docker cp "$(dirname "$test_dir")" "$container:/work"
 docker exec "$container" psql -v ON_ERROR_STOP=1 -U postgres -d vthacks_it -f /work/supabase/tests/verify-storage.sql

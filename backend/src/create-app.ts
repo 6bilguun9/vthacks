@@ -13,7 +13,7 @@ import { createAgentService } from "./agents/service.js";
 import { financialRoutes } from "./routes/financial.js";
 
 export interface AppDependencies { auth?: Authenticator; repository?: Repository; limits?: Limits; clock?: () => Date; id?: () => string; fetch?: typeof fetch }
-export function createApp(config: AppConfig = readConfig(), dependencies: AppDependencies = {}) {
+export function createApp(config: AppConfig = readConfig(), dependencies: AppDependencies = {}, fastify = Fastify) {
   const infrastructure = createInfrastructure(config);
   const auth = dependencies.auth ?? infrastructure.auth;
   const repository = dependencies.repository ?? infrastructure.repository;
@@ -25,7 +25,7 @@ export function createApp(config: AppConfig = readConfig(), dependencies: AppDep
     if (config.AI_MODE === "off") throw new AppError(503, "AI_DISABLED", "AI is disabled. Deterministic plan previews remain available.");
     if (!config.PRESENTER_USER_IDS.includes(actor.userId)) throw new AppError(403, "PRESENTER_REQUIRED", "AI is available to the authorized demo presenter only.");
   }
-  const app = Fastify({
+  const app = fastify({
     logger: {
       level: config.LOG_LEVEL,
       redact: ["req.headers.authorization", "req.headers.cookie", "res.headers.set-cookie"],
