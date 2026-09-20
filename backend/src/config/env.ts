@@ -30,10 +30,21 @@ const agentHost = z.string().trim().min(1).max(253).refine((value) => {
 const semver = z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/, "Use major.minor.patch semantic versioning");
 
 const ansApiKey = z.string().trim().regex(/^[^:\s]+:[^:\s]+$/, "ANS_API_KEY must use the KEY:SECRET format");
-const nessieBaseUrl = z.string().url().refine((value) => {
-  const url = new URL(value);
-  return url.protocol === "https:" && !url.username && !url.password && url.origin === value;
-}, "Use an HTTPS Nessie API origin without credentials, a path, query, or fragment");
+const nessieBaseUrl = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().url().refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && !url.username && !url.password && url.origin === value;
+    } catch {
+      return false;
+    }
+  }, "Use an HTTPS Nessie API origin without credentials, a path, query, or fragment").default("https://api.nessieisreal.com"),
+);
+const optionalNessieApiKey = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().trim().min(1).optional(),
+);
 
 const environmentSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
@@ -53,7 +64,7 @@ const environmentSchema = z.object({
   llm_arc_api_key: z.string().optional(),
   ARC_MODEL: z.string().min(1).default("gpt-oss-120b"),
   NESSIE_BASE_URL: nessieBaseUrl.default("https://api.nessieisreal.com"),
-  NESSIE_API_KEY: z.string().trim().min(1).optional(),
+  NESSIE_API_KEY: optionalNessieApiKey,
 });
 
 export type AppConfig = z.infer<typeof environmentSchema>;

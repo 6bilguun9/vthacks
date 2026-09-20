@@ -66,4 +66,10 @@ describe("configuration", () => {
     expect(readConfig({ CORS_ORIGINS: "http://localhost:3000, https://app.example.com" }).CORS_ORIGINS)
       .toEqual(["http://localhost:3000", "https://app.example.com"]);
   });
+  it("treats blank optional Nessie template values as unconfigured defaults", () => {
+    expect(readConfig({ NESSIE_BASE_URL: "", NESSIE_API_KEY: "" })).toMatchObject({
+      NESSIE_BASE_URL: "https://api.nessieisreal.com",
+      NESSIE_API_KEY: undefined,
+    });
+  });
 });
