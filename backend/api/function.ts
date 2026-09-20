@@ -37,6 +37,9 @@ export default {
       method: request.method as "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS",
       url: requestTarget(url),
       headers: Object.fromEntries(request.headers.entries()),
+      remoteAddress: request.headers.get("x-vercel-forwarded-for")
+        ?? request.headers.get("x-forwarded-for")
+        ?? "127.0.0.1",
     };
     const response = payload === undefined
       ? await app.inject(injection)
