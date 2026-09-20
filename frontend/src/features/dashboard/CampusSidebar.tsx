@@ -2,6 +2,7 @@ import type { MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Bot, ChevronRight, LayoutDashboard, PiggyBank, ReceiptText, Utensils, WalletCards } from "lucide-react";
+import type { OverviewCopy } from "./overview-copy";
 
 export type DashboardView = "main" | "activity" | "savings" | "finbot";
 const navigation = [
@@ -12,18 +13,19 @@ const navigation = [
 ] as const;
 
 // Reuse one sidebar so navigation and branding stay consistent on every page.
-export default function CampusSidebar({ activeView, labels, onNavigate }: {
+export default function CampusSidebar({ activeView, labels, copy, onNavigate }: {
   activeView: DashboardView | "dining";
   labels: Record<DashboardView | "dining", string>;
+  copy: OverviewCopy;
   onNavigate?: (event: MouseEvent<HTMLAnchorElement>, view: DashboardView) => void;
 }) {
   return (
     <aside className="sidebar">
-      <Link className="brand" lang="en" dir="ltr" href={onNavigate ? "#main" : "/#main"} onClick={(event) => onNavigate?.(event, "main")} aria-label="Hokie Wallet overview">
+      <Link className="brand" dir="ltr" href={onNavigate ? "#main" : "/#main"} onClick={(event) => onNavigate?.(event, "main")} aria-label={copy.walletOverview}>
         <span className="brand-icon"><WalletCards aria-hidden="true" /></span>
         <span>hokie<span className="brand-light">Wallet</span><small>VIRGINIA TECH</small></span>
       </Link>
-      <nav aria-label="Main navigation">
+      <nav aria-label={copy.mainNavigation}>
         {navigation.map(({ view, Icon }) => (
           <Link key={view} className={activeView === view ? "nav-active" : undefined} href={`${onNavigate ? "" : "/"}#${view}`} onClick={(event) => onNavigate?.(event, view)} aria-current={activeView === view ? "page" : undefined}>
             <Icon aria-hidden="true" /><span>{labels[view]}</span>{activeView === view && <ChevronRight className="nav-chevron" aria-hidden="true" />}
@@ -33,12 +35,12 @@ export default function CampusSidebar({ activeView, labels, onNavigate }: {
           <Utensils aria-hidden="true" /><span>{labels.dining}</span>{activeView === "dining" && <ChevronRight className="nav-chevron" aria-hidden="true" />}
         </Link>
       </nav>
-      <div className="hokie-companion" lang="en" dir="ltr">
-        <p className="hokie-speech">You’ve got this,<br />Hokie!</p>
-        <Image src="/campus/hokiebird.jpg" alt="The HokieBird cheering at Lane Stadium" width={850} height={566} sizes="240px" />
-        <a className="photo-credit" href="https://www.archive.vtmag.vt.edu/fall18/HokieBirdGallery.php" target="_blank" rel="noreferrer">Photo: Virginia Tech</a>
+      <div className="hokie-companion">
+        <p className="hokie-speech">{copy.encouragement}</p>
+        <Image src="/campus/hokiebird.jpg" alt={copy.birdAlt} width={850} height={566} sizes="240px" />
+        <a className="photo-credit" href="https://www.archive.vtmag.vt.edu/fall18/HokieBirdGallery.php" target="_blank" rel="noreferrer">{copy.photoCredit}</a>
       </div>
-      <div className="profile"><span className="avatar">H</span><strong>Hokie student</strong></div>
+      <div className="profile"><span className="avatar">H</span><strong>{copy.student}</strong></div>
     </aside>
   );
 }

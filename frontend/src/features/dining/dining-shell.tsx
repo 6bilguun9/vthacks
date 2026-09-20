@@ -21,8 +21,8 @@ export function DiningShell({ children, showIntro = false }: { children: ReactNo
       data-theme={theme} data-view="dining" data-color-palette={preferences.colorPalette}
       data-contrast={preferences.contrast} data-motion={preferences.motion}
       style={{ "--text-scale": preferences.textScale / 100 } as CSSProperties}>
-      <a className="skip-link" href="#main">Skip to dining planner</a>
-      <CampusSidebar activeView="dining" labels={copy.nav} />
+      <a className="skip-link" href="#main">{copy.overview.skipDining}</a>
+      <CampusSidebar activeView="dining" labels={copy.nav} copy={copy.overview} />
       <main id="main">
         <header className="topbar">
           <span className="page-location">{copy.nav.dining}</span>
@@ -40,13 +40,13 @@ export function DiningShell({ children, showIntro = false }: { children: ReactNo
             {showIntro && <section className="dining-hero">
               <div className="dining-hero-copy"><p className="eyebrow">{copy.diningKicker}</p><h1>{copy.diningTitle}</h1><p>{copy.diningDescription}</p></div>
               <figure className="dining-photo">
-                <Image src="/campus/origami.png" alt="Origami’s lantern-lit counter inside Turner Place" width={600} height={400} sizes="(max-width: 800px) 100vw, 460px" preload />
+                <Image src="/campus/origami.png" alt={copy.overview.diningPhotoAlt} width={600} height={400} sizes="(max-width: 800px) 100vw, 460px" preload />
                 <figcaption>Origami · Turner Place</figcaption>
               </figure>
             </section>}
             {children}
           </div>
-          <footer><span>Built by Hokies · VTHacks 14</span></footer>
+          <footer><span>{copy.overview.footer}</span></footer>
         </div>
       </main>
     </div>

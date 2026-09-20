@@ -1,3 +1,5 @@
+import { overviewTranslations, type OverviewCopy } from "./overview-copy";
+
 export type LanguageCode = "en" | "zh" | "hi" | "es" | "ar" | "fr" | "bn" | "pt" | "ru" | "ur";
 
 export const languageOptions: ReadonlyArray<{ code: LanguageCode; label: string; speechTag: string }> = [
@@ -110,6 +112,7 @@ const balanceTranslations: Record<LanguageCode, BalanceCopy> = {
 };
 
 type InterfaceCopy = {
+  overview: OverviewCopy;
   balances: BalanceCopy;
   accessTools: string;
   personalize: string;
@@ -146,6 +149,7 @@ type InterfaceCopy = {
 };
 
 const english: InterfaceCopy = {
+  overview: overviewTranslations.en,
   balances: balanceTranslations.en,
   accessTools: "Access tools",
   personalize: "MAKE IT YOURS",
@@ -281,7 +285,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
 
 export function getInterfaceCopy(language: LanguageCode): InterfaceCopy {
   if (language === "en") return english;
-  return { ...english, ...translations[language], balances: balanceTranslations[language] };
+  return { ...english, ...translations[language], balances: balanceTranslations[language], overview: overviewTranslations[language] };
 }
 
 export function isLanguageCode(value: unknown): value is LanguageCode {
