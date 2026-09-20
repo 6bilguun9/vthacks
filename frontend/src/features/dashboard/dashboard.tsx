@@ -10,6 +10,7 @@ import Link from "next/link";
 import ChatPanel from "@/features/chat/ChatPanel";
 import { ApiStatus } from "@/features/system/api-status";
 import { demoData, demoSummary, formatMoney as money } from "./demo-data";
+import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
 import "./dashboard.css";
 
 const { spending, recentTransactions: transactions, savingsGoal: goal } = demoData;
@@ -22,11 +23,11 @@ function Balance({ amount }: { amount: number }) {
 
 // Chart proportions visualize the fixed sample totals, without projecting finances.
 let chartPosition = 0;
-const chartSegments = spending.map((item) => {
+const chartSegments = spending.map((item, index) => {
   const start = chartPosition;
   chartPosition += demoSummary.totalSpentCents > 0 ? item.amountCents / demoSummary.totalSpentCents * 100 : 0;
   const end = Math.max(start, chartPosition - 0.75);
-  return `${item.color} ${start}% ${end}%, #fff ${end}% ${chartPosition}%`;
+  return `var(--chart-${index + 1}, ${item.color}) ${start}% ${end}%, var(--chart-gap, #fff) ${end}% ${chartPosition}%`;
 });
 const chartBackground = demoSummary.totalSpentCents > 0
   ? `conic-gradient(${chartSegments.join(", ")})`
@@ -81,13 +82,23 @@ function navigate(event: MouseEvent<HTMLAnchorElement>, view: View) {
 export default function Dashboard() {
   const view = useSyncExternalStore(subscribeView, currentView, () => "main" as View);
   const theme = useSyncExternalStore(subscribeTheme, currentTheme, () => "light");
+  const { preferences, updatePreference } = useAccessibilityPreferences();
+  const readText = getViewSummary(view);
   function toggleTheme() {
     temporaryTheme = theme === "light" ? "dark" : "light";
     try { localStorage.setItem("hokie-wallet-theme", temporaryTheme); } catch { /* Use an in-memory preference. */ }
     window.dispatchEvent(new Event("wallet-theme"));
   }
   return (
-    <div className="dashboard" data-theme={theme} data-view={view}>
+    <div
+      className="dashboard"
+      data-theme={theme}
+      data-view={view}
+      data-color-vision={preferences.colorVision}
+      data-contrast={preferences.contrast}
+      data-motion={preferences.motion}
+      data-text-size={preferences.textSize}
+    >
       <a className="skip-link" href="#main">Skip to dashboard</a>
       <aside className="sidebar">
         <a className="brand" href="#main" onClick={(event) => navigate(event, "main")} aria-label="Hokie Wallet home">
@@ -115,6 +126,7 @@ export default function Dashboard() {
         <header className="topbar">
           <span>My workspace <span className="breadcrumb">/ <strong>{views[view].label}</strong></span></span>
           <div className="topbar-actions">
+            <AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} />
             <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span>{theme === "light" ? "Dark mode" : "Light mode"}</button>
             <span className="demo-badge"><FlaskConical aria-hidden="true" />Demo workspace</span>
           </div>
@@ -167,7 +179,7 @@ export default function Dashboard() {
                   <div><span>Total spent</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>sample spending</small></div>
                 </div>
                 <div className="legend">
-                  {spending.map((item) => <div className="legend-row" key={item.name}><span className="legend-dot" style={{ background: item.color }} aria-hidden="true" /><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}
+                  {spending.map((item, index) => <div className="legend-row" key={item.name}><span className={`legend-dot legend-dot-${index + 1}`} aria-hidden="true" /><span className="legend-symbol" aria-hidden="true">{["●", "◆", "■"][index]}</span><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}
                 </div>
               </div>
               <p className="budget-note">{demoSummary.budgetRemainingCents >= 0 ? <><strong>{money(demoSummary.budgetRemainingCents)}</strong> remaining in the sample monthly budget.</> : <><strong>{money(Math.abs(demoSummary.budgetRemainingCents))}</strong> over the sample monthly budget.</>}</p>
@@ -204,4 +216,17 @@ export default function Dashboard() {
       </main>
     </div>
   );
+}
+
+function getViewSummary(view: View) {
+  if (view === "activity") {
+    return `Recent activity. ${transactions.map((item) => `${item.name}, ${item.category}, ${money(item.amountCents)}, on ${item.date}.`).join(" ")}`;
+  }
+  if (view === "savings") {
+    return `Savings goal. ${goal.name}. ${money(goal.savedCents)} saved of ${money(goal.targetCents)}, or ${demoSummary.savingsPercent} percent. ${money(demoSummary.savingsRemainingCents)} remains.`;
+  }
+  if (view === "finbot") {
+    return "Ask FinBot. This is a scripted demonstration using sample data. You can choose an example prompt or type a question about spending and saving.";
+  }
+  return `Overview. Sample bank balance ${money(demoData.bankBalanceCents)}. Restricted Hokie Wallet balance ${money(demoData.walletBalanceCents)}. Spending this month ${money(demoSummary.totalSpentCents)} of a ${money(demoData.monthlyBudgetCents)} budget. Emergency fund progress is ${demoSummary.savingsPercent} percent.`;
 }
