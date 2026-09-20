@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { emptyHistory, filterConversations, groupConversations, historyReducer, readHistory } from "../src/features/chat/conversation-history";
+import { emptyHistory, filterConversations, groupConversations, historyStorageKey, historyReducer, readHistory } from "../src/features/chat/conversation-history";
 
 const morning = new Date(2026, 8, 19, 9).getTime();
 const first = () => historyReducer(emptyHistory, { type: "ask", id: "spending", question: "  What have I spent this month?  ", at: morning });
@@ -97,5 +97,41 @@ describe("FinBot conversation history", () => {
     const groups = groupConversations(state.conversations, new Date(2026, 8, 19, 19));
     expect(groups.map((g) => g.label)).toEqual(["Today", "Yesterday", "September 16, 2026"]);
     expect(groups[0]?.conversations.map((c) => c.id)).toEqual(["latest", "spending"]);
+  });
+});
+
+
+describe("live chat isolation and recovery", () => {
+  it("keeps legacy samples and each guest in distinct stores, with no disconnected live store", () => {
+    expect(historyStorageKey("demo", null)).toBe("hokie-wallet-finbot-chats-v1");
+    expect(historyStorageKey("demo", "guest-a")).toBe(historyStorageKey("demo", null));
+    expect(historyStorageKey("live", null)).toBeNull();
+    expect(historyStorageKey("live", "guest-a")).not.toBe(historyStorageKey("demo", null));
+    expect(historyStorageKey("live", "guest-a")).not.toBe(historyStorageKey("live", "guest-b"));
+  });
+
+  it("allows editing an unanswered question without leaving a duplicate", () => {
+    const discarded = historyReducer(first(), { type: "discard-question", id: "spending" });
+    expect(discarded.conversations).toEqual([]);
+    const answered = historyReducer(first(), { type: "reply", id: "spending", questionIndex: 0, text: "Answer", at: morning + 1 });
+    expect(historyReducer(answered, { type: "discard-question", id: "spending" })).toEqual(answered);
+    const followup = historyReducer(answered, { type: "ask", id: "spending", question: "Unanswered", at: morning + 2 });
+    expect(historyReducer(followup, { type: "discard-question", id: "spending" }).conversations[0]?.messages).toEqual(answered.conversations[0]?.messages);
+  });
+
+  it("ignores an old tab’s reply after the unanswered question was edited", () => {
+    const answered = historyReducer(first(), { type: "reply", id: "spending", questionIndex: 0, text: "Answer", at: morning + 1 });
+    const question = historyReducer(answered, { type: "ask", id: "spending", question: "Original question", at: morning + 2 });
+    const removed = historyReducer(question, { type: "discard-question", id: "spending" });
+    const edited = historyReducer(removed, { type: "ask", id: "spending", question: "Changed amount and date", at: morning + 3 });
+    expect(historyReducer(edited, { type: "reply", id: "spending", questionIndex: 2, question: "Original question", text: "Stale answer", at: morning + 4 })).toEqual(edited);
+  });
+
+  it("retains truthful backend execution metadata and rejects malformed comparisons on restore", () => {
+    const backend = { kind: "clarification" as const, text: "Which date?", comparison: null, executionSource: "unavailable" as const };
+    const answer = historyReducer(first(), { type: "reply", id: "spending", questionIndex: 0, text: backend.text, backend, at: morning + 1 });
+    expect(readHistory(JSON.stringify(answer)).history.conversations[0]?.messages.at(-1)?.backend).toEqual(backend);
+    const invalid = JSON.stringify(answer).replace('"kind":"clarification"', '"kind":"comparison"');
+    expect(readHistory(invalid).warning).toBeTruthy();
   });
 });

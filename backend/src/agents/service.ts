@@ -31,6 +31,9 @@ function missing(intent: ParsedIntent, request: ChatRequest, plan: Plan): string
 }
 function goalName(plan: Plan, id: string | null): string { return plan.goals.find((goal) => goal.id === id)?.name ?? "the selected goal"; }
 function formatDate(value: string | null): string { return value ?? "not reached within the two-year forecast"; }
+function affordability(value: boolean | null): string {
+  return value === null ? "affordability not yet established" : value ? "currently affordable" : "not currently affordable";
+}
 function explain(comparison: ScenarioComparison, plan: Plan, goalId: string | null): string {
   if (comparison.status === "within_budget") return "This purchase is covered by the discretionary budget; your savings schedule is unchanged. A neutral alternative is to keep the same budgeted amount for future purchases.";
   const impact = goalId ? comparison.goalImpacts.find((item) => item.goalId === goalId) : comparison.goalImpacts[0];
@@ -38,8 +41,8 @@ function explain(comparison: ScenarioComparison, plan: Plan, goalId: string | nu
   const dollars = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
   const delay = impact.delayDays === 0 ? "no delay" : impact.delayDays === null ? "delay not available" : impact.delayDays < 0 ? `${Math.abs(impact.delayDays)} days earlier` : `${impact.delayDays} days of delay`;
   const core = `${goalName(plan, impact.goalId)}: original completion ${formatDate(impact.originalDate)}; revised completion ${formatDate(impact.revisedDate)}; ${delay}.`;
-  const next = impact.nextWeekExtraCents === null ? "" : ` Catch-up next week: ${dollars(impact.nextWeekExtraCents)} (${impact.nextWeekAffordable ? "currently affordable" : "not currently affordable"}).`;
-  const remaining = impact.remainingWeeklyExtraCents === null ? "" : ` Spread across the remaining weeks: ${dollars(impact.remainingWeeklyExtraCents)} per week (${impact.remainingWeeklyAffordable ? "currently affordable" : "not currently affordable"}).`;
+  const next = impact.nextWeekExtraCents === null ? "" : ` Catch-up next week: ${dollars(impact.nextWeekExtraCents)} (${affordability(impact.nextWeekAffordable)}).`;
+  const remaining = impact.remainingWeeklyExtraCents === null ? "" : ` Spread across the remaining weeks: ${dollars(impact.remainingWeeklyExtraCents)} per week (${affordability(impact.remainingWeeklyAffordable)}).`;
   return `${core} ${next}${remaining} A neutral alternative is to keep the current schedule and choose a lower purchase amount or a later date.`.trim();
 }
 function unavailable(text: string): ChatResponse { return { kind: "explanation", text, comparison: null, executionSource: "unavailable" }; }

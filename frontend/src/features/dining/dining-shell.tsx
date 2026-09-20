@@ -7,10 +7,13 @@ import NotificationBell from "@/features/notifications/NotificationBell";
 import { AccessibilityControls, useAccessibilityPreferences } from "@/features/dashboard/accessibility-controls";
 import { getInterfaceCopy, isRtlLanguage } from "@/features/dashboard/interface-language";
 import { useDashboardTheme } from "@/features/dashboard/theme-preference";
+import { ConnectionControl } from "@/features/session/connection-control";
+import { useFinancialSession } from "@/features/session/financial-session";
 
 const diningSummary = "Dining planner. Build a weekly meal rhythm around your Virginia Tech dining plan, schedule, preferences, and campus balances. The form includes dining plan, student status, balances, weeks remaining, dietary needs, and an option to use Hokie Passport funds as a fallback.";
 
 export function DiningShell({ children, showIntro = false }: { children: ReactNode; showIntro?: boolean }) {
+  const session = useFinancialSession();
   const { preferences, updatePreference } = useAccessibilityPreferences();
   const { theme, toggleTheme } = useDashboardTheme();
   const copy = getInterfaceCopy(preferences.language);
@@ -27,12 +30,13 @@ export function DiningShell({ children, showIntro = false }: { children: ReactNo
         <header className="topbar">
           <span className="page-location">{copy.nav.dining}</span>
           <div className="topbar-actions">
-            <NotificationBell />
+            <ConnectionControl />
+            {session.mode === "demo" && <NotificationBell />}
             <AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} />
             <button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}>
               <span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}
             </button>
-            <span className="demo-badge"><span /> {copy.plannerSample}</span>
+            <span className="demo-badge"><span /> {!showIntro ? "Sample calendar" : session.mode === "live" ? "Guest dining planner" : "Demo mode"}</span>
           </div>
         </header>
         <div className="content dining-content">

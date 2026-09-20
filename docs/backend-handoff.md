@@ -31,7 +31,7 @@ Saved hypothetical purchases remain planned expenses. After a new bank snapshot 
 
 ## AI and ANS
 
-Default `AI_MODE=off`. For the authorized presentation set `AI_MODE=presenter` and `PRESENTER_USER_IDS` to the comma-separated verified Supabase user IDs. Both `/chat` and `/dining-plans` require the guest token and presenter permission. The existing frontend dining client needs that header before it can use the protected endpoint.
+Default `AI_MODE=off`. For the authorized presentation set `AI_MODE=presenter` and `PRESENTER_USER_IDS` to the comma-separated verified Supabase user IDs. Both `/chat` and `/dining-plans` require the guest token and presenter permission. The frontend now supplies that header from its shared guest session and checks the returned AI capability before enabling chat/dining. Hosted verification remains required.
 
 Choose `AI_PROVIDER=arc` or `AI_PROVIDER=openrouter` only in the backend and configure the matching credential. Goal/purchase calculations come from deterministic code; dining meal prices remain estimates and their totals are recomputed. AI-provider failures direct the user to structured planning inputs. Missing dates/goals produce clarification rather than invented values.
 

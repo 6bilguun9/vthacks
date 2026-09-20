@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { chatResponseSchema, type ChatResponse } from "../../lib/api";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   text: z.string().min(1).max(20_000),
+  backend: chatResponseSchema.optional(),
 });
 const conversationSchema = z.object({
   id: z.string().min(1),
@@ -25,8 +27,9 @@ export type HistoryAction =
   | { type: "select"; id: string }
   | { type: "remove"; id: string }
   | { type: "rename"; id: string; title: string }
+  | { type: "discard-question"; id: string }
   | { type: "ask"; id: string; question: string; at: number }
-  | { type: "reply"; id: string; questionIndex: number; text: string; at: number };
+  | { type: "reply"; id: string; questionIndex: number; question?: string; text: string; at: number; backend?: ChatResponse };
 
 // A reducer describes how an action changes data, without changing the original object.
 export function historyReducer(state: ChatHistory, action: HistoryAction): ChatHistory {
@@ -38,6 +41,11 @@ export function historyReducer(state: ChatHistory, action: HistoryAction): ChatH
     return { ...state, activeId: state.activeId === action.id ? null : state.activeId, conversations: state.conversations.filter((chat) => chat.id !== action.id) };
   }
   const existing = state.conversations.find((chat) => chat.id === action.id);
+  if (action.type === "discard-question") {
+    if (!existing || existing.messages.at(-1)?.role !== "user") return state;
+    if (existing.messages.length === 1) return historyReducer(state, { type: "remove", id: action.id });
+    return { ...state, conversations: state.conversations.map((chat) => chat.id === action.id ? { ...chat, messages: chat.messages.slice(0, -1) } : chat) };
+  }
   if (action.type === "rename") {
     const title = action.title.trim();
     if (!existing || !title || title.length > 80) return state;
@@ -51,8 +59,8 @@ export function historyReducer(state: ChatHistory, action: HistoryAction): ChatH
     return { ...state, activeId: action.id, conversations: [updated, ...state.conversations.filter((item) => item.id !== action.id)] };
   }
   // A delayed reply must never land in the newly selected chat or resurrect a deleted one.
-  if (!existing || existing.messages.at(-1)?.role !== "user" || existing.messages.length - 1 !== action.questionIndex) return state;
-  return { ...state, conversations: state.conversations.map((chat) => chat.id === action.id ? { ...chat, updatedAt: action.at, messages: [...chat.messages, { role: "assistant", text: action.text }] } : chat) };
+  if (!existing || existing.messages.at(-1)?.role !== "user" || existing.messages.length - 1 !== action.questionIndex || (action.question !== undefined && existing.messages.at(-1)?.text !== action.question)) return state;
+  return { ...state, conversations: state.conversations.map((chat) => chat.id === action.id ? { ...chat, updatedAt: action.at, messages: [...chat.messages, { role: "assistant", text: action.text, ...(action.backend ? { backend: action.backend } : {}) }] } : chat) };
 }
 
 export function readHistory(raw: string | null): { history: ChatHistory; warning: string | null } {
@@ -89,4 +97,9 @@ export function groupConversations(conversations: Conversation[], now = new Date
     groups.get(key)!.conversations.push(chat);
   }
   return [...groups.values()];
+}
+
+// Keep legacy sample chats, but never load them into a guest’s live conversation.
+export function historyStorageKey(mode: "demo" | "live", userId: string | null) {
+  return mode === "demo" ? "hokie-wallet-finbot-chats-v1" : userId ? `hokie-wallet-finbot-live-v1:${encodeURIComponent(userId)}` : null;
 }

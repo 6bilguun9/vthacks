@@ -1,5 +1,6 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { canonicalJson, type Actor, type ScenarioRequest } from "../src/domain/model.js";
+import { canonicalJson, type Actor, type ScenarioComparison, type ScenarioRequest } from "../src/domain/model.js";
 import { signature, verifyPlannerInvocation } from "../src/integrations/planner-client.js";
 import { createAgentService } from "../src/agents/service.js";
 import { normalizeDiningResult } from "../src/agents/dining.js";
@@ -82,5 +83,31 @@ describe("coach parsing and dining normalization", () => {
   it("rejects a dining plan that overspends Hokie Passport", () => {
     const meals = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => ({ day, meals: ["Breakfast", "Lunch", "Dinner"].map((label) => ({ label, venue: "Place", suggestion: "Estimated option", payment: "hokie_passport", estimatedCostCents: 100 })) }));
     expect(() => normalizeDiningResult({ diningBalanceCents: 0, hokiePassportBalanceCents: 100, weeksRemaining: 1, allowHokiePassport: true, diningPlan: "Unlimited" }, { strategy: "Plan", days: meals, assumptions: [], warnings: [], hoursUrl: "https://apps.students.vt.edu/hours/#/", source: "vt_arc", model: "test" })).toThrow("Hokie Passport");
+  });
+});
+
+
+describe("coach recovery affordability", () => {
+  it.each([
+    { affordable: null, description: "affordability not yet established" },
+    { affordable: true, description: "currently affordable" },
+    { affordable: false, description: "not currently affordable" },
+  ])("keeps recovery funding status $affordable distinct in the chat narrative", async ({ affordable, description }) => {
+    const example = JSON.parse(readFileSync(new URL("../../contracts/examples/scenario-goal-delay.json", import.meta.url), "utf8")) as ScenarioComparison;
+    const comparison: ScenarioComparison = {
+      ...example,
+      snapshotId: "snapshot-1",
+      goalImpacts: example.goalImpacts.map((impact) => ({ ...impact, goalId: "goal-1", nextWeekAffordable: affordable, remainingWeeklyAffordable: affordable })),
+    };
+    const service = createAgentService(readConfig({ ARC_API_KEY: "key", LOG_LEVEL: "silent", PLANNER_ALLOW_LOCAL_FALLBACK: "true" }), limits, {
+      overview: async () => ({ snapshot, plan, projection }),
+      planner: async () => comparison,
+    }, { fetch: async () => new Response(JSON.stringify({ choices: [{ message: { content: '{"intent":"purchase","amountCents":15000,"date":"2026-09-21","goalId":"goal-1"}' } }] })), now: () => new Date("2026-09-19T12:00:00Z") });
+    const reply = await service.chat(actor, { message: "What happens if I spend $150 on September 21 using Tuition?", snapshotId: "snapshot-1", planVersion: 1, selectedGoalId: "goal-1" });
+    expect(reply.executionSource).toBe("local_fallback");
+    expect(reply.text).toContain(`Catch-up next week: $100.00 (${description})`);
+    expect(reply.text).toContain(`$12.50 per week (${description})`);
+    expect(reply.comparison?.goalImpacts[0]?.nextWeekAffordable).toBe(affordable);
+    if (affordable === null) expect(reply.text).not.toContain("currently affordable");
   });
 });

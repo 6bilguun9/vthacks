@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import localFont from "next/font/local";
+import { FinancialSessionProvider } from "@/features/session/financial-session";
 import "./globals.css";
 
 const lato = localFont({
@@ -20,5 +21,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return <html lang="en" className={`${lato.variable} ${comic.variable}`}><body>{children}</body></html>;
+  return <html lang="en" className={`${lato.variable} ${comic.variable}`}><body><FinancialSessionProvider>{children}</FinancialSessionProvider></body></html>;
 }

@@ -1,5 +1,5 @@
 import type { DiningPlanResponse } from "@/lib/api";
-const meals = (day: string, exchange = false) => ({ day, meals: [
+const meals = (day: DiningPlanResponse["days"][number]["day"], exchange = false) => ({ day, meals: [
   { label: "Breakfast" as const, venue: day === "Saturday" ? "Owens" : "D2", suggestion: "Quick vegetarian option — confirm today’s menu", payment: "swipe" as const, estimatedCostCents: 0 },
   { label: "Lunch" as const, venue: exchange ? "Perry Place" : "Owens", suggestion: exchange ? "Eligible vegetarian meal exchange — confirm current offer" : "Vegetarian entrée — confirm today’s menu", payment: exchange ? "meal_exchange" as const : "swipe" as const, estimatedCostCents: 0 },
   { label: "Dinner" as const, venue: "D2", suggestion: "Vegetarian entrée — confirm today’s menu", payment: "swipe" as const, estimatedCostCents: 0 },

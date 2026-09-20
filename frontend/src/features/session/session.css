@@ -1,0 +1,30 @@
+.session-control { position: relative; color: var(--foreground, #32272e); font-size: 13px; text-align: left; }
+.session-trigger { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 8px 12px; border: 1px solid var(--border, #e2d9df); background: var(--card, #fff); color: var(--foreground, #32272e); border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; list-style: none; }
+.session-trigger::-webkit-details-marker { display: none; }
+.session-trigger:focus-visible, .session-panel button:focus-visible, .session-panel summary:focus-visible { outline: 3px solid var(--maroon, #861f41); outline-offset: 3px; }
+.session-panel { position: absolute; z-index: 100; top: calc(100% + 10px); right: 0; width: min(370px, calc(100vw - 32px)); max-height: min(720px, calc(100dvh - 130px)); overflow-y: auto; padding: 22px; border: 1px solid var(--border, #e2d9df); border-radius: 16px; background: var(--card, #fff); color: var(--foreground, #32272e); box-shadow: 0 20px 70px #24131b26; line-height: 1.55; }
+.session-panel .session-panel-title { display: flex; align-items: center; gap: 9px; }
+.session-panel .session-panel-title h2 { font-size: 18px; margin: 0; letter-spacing: -.4px; color: inherit; }
+.session-panel p { margin: 12px 0; font-size: 13px; line-height: 1.55; color: inherit; }
+.session-panel .session-small { font-size: 12px; opacity: .8; }
+.session-panel .session-setup { padding: 15px; border-radius: 12px; background: color-mix(in srgb, var(--maroon, #861f41) 6%, var(--card, white)); }
+.session-panel .session-setup summary { cursor: pointer; font-weight: 700; }
+.session-panel .session-setup code { overflow-wrap: anywhere; font-size: 11px; }
+.session-panel .session-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.session-panel button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border, #e2d9df); font: inherit; font-weight: 700; cursor: pointer; background: var(--card, white); color: var(--foreground, #32272e); }
+.session-panel button.session-primary { background: var(--maroon, #861f41); border-color: var(--maroon, #861f41); color: var(--accent-contrast, white); }
+.session-panel button:disabled { opacity: .5; cursor: not-allowed; }
+.session-panel .session-inline-message { padding: 12px; border-left: 3px solid #b16a25; background: color-mix(in srgb, #bd802f 10%, var(--card, white)); }
+.session-guest { display: grid; gap: 6px; padding: 12px 0; }
+.session-guest > span:first-child { font-weight: 700; }
+.session-guest code { font-size: 11px; word-break: break-all; }
+.session-guest button { justify-self: start; }
+.session-guest small { font-size: 11px; line-height: 1.5; opacity: .8; }
+.session-verification { min-width: 0; }
+@media (max-width: 600px) { .session-panel { position: fixed; top: 88px; right: 16px; max-height: calc(100dvh - 110px); } }
+
+.dashboard[data-theme="dark"] .session-control { --accent-contrast: #25151f; }
+@media (max-width: 700px) {
+  .dashboard .topbar { height: auto; min-height: 72px; gap: 14px; flex-wrap: wrap; padding-block: 14px; }
+  .dashboard .topbar-actions { flex-wrap: wrap; gap: 8px; }
+}
