@@ -23,13 +23,15 @@ The shared header includes a notification bell. Savings and workspace examples a
 
 Typography uses locally bundled Lato, with Comic Relief reserved for the HokieBird speech bubble. Font licenses are in `src/app/fonts/`; campus photo sources are documented in `public/campus/README.md`.
 
-## Browser presentation
+## Presentation
 
-Open <http://localhost:3000/present> for the animated audience view. It preserves the existing 499-word speaker script in nine scenes across 240 seconds: Carlos presents 0:00–1:00, Neha 1:00–2:00, Grant 2:00–3:00, and Bilguun 3:00–4:00. The PowerPoint in `../docs/presentation/` stays available as a fallback.
+Run `npm run presentation:export` inside `frontend/` to create `presentation-dist/Hokie_Wallet_Presentation.html`. Open or share that single file directly; its images and fonts are embedded, so it does not need a running website or backend. External source and app links still need their destinations to be available.
+
+The development route remains at <http://localhost:3000/present>. Both versions contain the current 504-word script in nine scenes across 240 seconds: Carlos presents 0:00–1:00, Neha 1:00–2:00, Grant 2:00–3:00, and Bilguun 3:00–4:00. The PowerPoint in `../docs/presentation/` is an older fallback with an earlier script.
 
 Use the arrow keys for previous/next scenes, Space for the next scene, P to play/pause the automatic four-minute timeline, N for presenter notes, F for fullscreen, H to hide/show controls, and Home/End for the first/last scene. Notes are hidden in the default audience view, contain source links, and pause playback when opened. Close them before sharing the presentation screen. The reduced-motion toggle follows the system preference until the presenter overrides it.
 
-Screenshots show the actual UI with sample data, and flow animations illustrate the architecture without calling the backend. FinBot replies remain scripted; frontend authentication and live ANS verification are still pending. Asset credits are in `public/presentation/README.md`. See `../docs/presentation/README.md` for the speaker schedule and rehearsal details.
+Screenshots show the actual UI with sample data. Backend flows explain Nessie sandbox/manual inputs, Supabase persistence, and the signed ANS Coach-to-Planner path without making live requests. A separate synthetic contract comparison replays a $150 purchase: $50 discretionary plus $100 from the selected Laptop goal, with its projected date moving from November 16 to November 23, 2026. Those values do not belong to the dashboard profile. FinBot replies remain scripted; frontend authentication and hosted provider verification are still pending. Asset credits are in `public/presentation/README.md`. See `../docs/presentation/README.md` for the speaker schedule, sponsor context, and rehearsal details.
 
 ## Layout
 
@@ -52,6 +54,7 @@ The backend is a separate Fastify application. Do not put financial business log
 | `npm run typecheck` | Generate Next route types, then TypeScript checks |
 | `npm test` | API client and contract tests |
 | `npm run check` | All checks and build |
+| `npm run presentation:export` | Export the current slideshow as one portable HTML file with embedded images and fonts |
 
 Run shadcn commands from this folder so only the frontend manifest and lockfile change. ESLint 9 and TypeScript 5.9 are deliberately pinned to match the installed Next.js lint plugins' peer ranges. Coordinate toolchain upgrades rather than overriding peers.
 
