@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { AppConfig } from "../config/env.js";
 import { AppError, chatSchema, scenarioSchema, type Actor, type ChatRequest, type ChatResponse, type Plan, type Projection, type ScenarioComparison, type ScenarioRequest, type Snapshot } from "../domain/model.js";
 import type { Limits } from "../domain/ports.js";
-import { completeWithArc, ArcUnavailableError } from "../integrations/arc.js";
+import { completeWithAi, AiUnavailableError } from "../integrations/ai.js";
 import { resolveAgentEndpoint, AnsUnavailableError } from "../integrations/ans.js";
 import { callPlanner, PlannerUnavailableError, verifyPlannerInvocation } from "../integrations/planner-client.js";
 
@@ -47,7 +47,7 @@ export function createAgentService(config: RuntimeConfig, limits: Limits, callba
   const now = options.now ?? (() => new Date());
   async function getIntent(request: ChatRequest, plan: Plan): Promise<ParsedIntent> {
     const deadline = Date.now() + 30_000;
-    const arcOptions = () => ({ ...(options.fetch ? { fetch: options.fetch } : {}), timeoutMs: Math.max(1, deadline - Date.now()) });
+    const aiOptions = () => ({ ...(options.fetch ? { fetch: options.fetch } : {}), timeoutMs: Math.max(1, deadline - Date.now()) });
     const today = todayInNewYork(now());
     const goalContext = plan.goals.map((goal) => ({ id: goal.id, name: goal.name }));
     const system = "Extract only a supported financial intent. Return JSON: intent (purchase|extra_contribution|goal_timing|recovery|clarification), amountCents nullable, date nullable YYYY-MM-DD, goalId nullable, cadence nullable once|weekly, question nullable. A goalId must be one of the supplied goals. Use only an explicit date from the user; if none, leave date null. Do not infer a date from today. This is parsing only; do not give financial advice.";
@@ -55,17 +55,17 @@ export function createAgentService(config: RuntimeConfig, limits: Limits, callba
       { role: "system" as const, content: system },
       { role: "user" as const, content: `Reference date in America/New_York: ${today}. Available goals: ${JSON.stringify(goalContext)}. User message: ${request.message}` },
     ];
-    let raw = await completeWithArc(config, messages, arcOptions());
+    let raw = await completeWithAi(config, messages, aiOptions());
     let candidate: unknown;
     try { candidate = parseJson(raw); } catch { candidate = null; }
     let result = parsedIntent.safeParse(candidate);
     if (!result.success) {
-      if (Date.now() >= deadline) throw new ArcUnavailableError("ARC parsing exceeded its request budget.");
-      raw = await completeWithArc(config, [{ role: "system", content: system }, { role: "user", content: `Repair this into the requested JSON. Validation issues: ${JSON.stringify(result.error.issues.map((issue) => ({ path: issue.path, code: issue.code })))}. Draft: ${raw}` }], arcOptions());
+      if (Date.now() >= deadline) throw new AiUnavailableError("AI parsing exceeded its request budget.");
+      raw = await completeWithAi(config, [{ role: "system", content: system }, { role: "user", content: `Repair this into the requested JSON. Validation issues: ${JSON.stringify(result.error.issues.map((issue) => ({ path: issue.path, code: issue.code })))}. Draft: ${raw}` }], aiOptions());
       try { candidate = parseJson(raw); } catch { candidate = null; }
       result = parsedIntent.safeParse(candidate);
     }
-    if (!result.success) throw new ArcUnavailableError("ARC response could not be parsed.");
+    if (!result.success) throw new AiUnavailableError("AI response could not be parsed.");
     return result.data;
   }
   async function chat(actor: Actor, body: ChatRequest): Promise<ChatResponse> {
@@ -73,7 +73,7 @@ export function createAgentService(config: RuntimeConfig, limits: Limits, callba
       const overview = await callbacks.overview(actor);
       if (overview.snapshot.id !== request.snapshotId || overview.plan.version !== request.planVersion) throw new AppError(409, "STALE_STATE", "The financial snapshot or plan has changed.");
       let intent: ParsedIntent;
-      try { intent = await getIntent(request, overview.plan); } catch (error) { if (error instanceof ArcUnavailableError) return unavailable("I could not interpret that request. Please use the scenario form."); throw error; }
+      try { intent = await getIntent(request, overview.plan); } catch (error) { if (error instanceof AiUnavailableError) return unavailable("I could not interpret that request. Please use the scenario form."); throw error; }
       if (intent.goalId && !overview.plan.goals.some((goal) => goal.id === intent.goalId)) return { kind: "clarification", text: "I could not match that goal. Please choose one of your saved goals.", comparison: null, executionSource: "unavailable" };
       const clarification = missing(intent, request, overview.plan);
       if (clarification || intent.intent === "clarification" || intent.intent === "recovery") return { kind: "clarification", text: clarification ?? intent.question ?? (intent.intent === "recovery" ? "What purchase amount and date should I use to compare recovery options?" : "Which goal would you like to review?"), comparison: null, executionSource: "unavailable" };

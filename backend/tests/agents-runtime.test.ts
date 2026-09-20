@@ -46,7 +46,7 @@ describe("coach parsing and dining normalization", () => {
     expect(() => normalizeDiningResult(input, draft)).toThrow("swipes or exchanges");
   });
 
-  it("repairs malformed ARC JSON once then safely returns the scenario form", async () => {
+  it("repairs malformed AI JSON once then safely returns the scenario form", async () => {
     const service = serviceWithReplies(["not json", "still not json"]);
     const result = await service.chat(actor, { message: "Can I buy something?", snapshotId: "snapshot-1", planVersion: 1, selectedGoalId: null });
     expect(result.executionSource).toBe("unavailable");

@@ -9,7 +9,7 @@ const draftSchema = z.object({
   days: z.array(z.object({ day: z.enum(days), meals: z.array(meal).length(3) }).strict()).length(7),
   weeklyDiningSpendCents: z.number().int().nonnegative().safe().optional(), projectedDiningSpendCents: z.number().int().nonnegative().safe().optional(), remainingDiningBalanceCents: z.number().int().safe().optional(),
   assumptions: z.array(z.string().max(500)).max(10), warnings: z.array(z.string().max(500)).max(10),
-  hoursUrl: z.literal("https://apps.students.vt.edu/hours/#/"), source: z.literal("vt_arc"), model: z.string().min(1),
+  hoursUrl: z.literal("https://apps.students.vt.edu/hours/#/"), source: z.enum(["vt_arc", "openrouter"]), model: z.string().min(1),
 }).strict();
 export type DiningPlanResponse = z.infer<typeof draftSchema> & { weeklyDiningSpendCents: number; projectedDiningSpendCents: number; remainingDiningBalanceCents: number };
 

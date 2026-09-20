@@ -60,7 +60,7 @@ const mealSchema = z.object({ label: z.enum(["Breakfast", "Lunch", "Dinner"]), v
 export const diningPlanResponseSchema = z.object({
   strategy: z.string(), days: z.array(z.object({ day: z.string(), meals: z.array(mealSchema).length(3) })).length(7),
   weeklyDiningSpendCents: z.number().int().nonnegative(), projectedDiningSpendCents: z.number().int().nonnegative(), remainingDiningBalanceCents: z.number().int(),
-  assumptions: z.array(z.string()), warnings: z.array(z.string()), hoursUrl: z.literal("https://apps.students.vt.edu/hours/#/"), source: z.literal("vt_arc"), model: z.string(),
+  assumptions: z.array(z.string()), warnings: z.array(z.string()), hoursUrl: z.literal("https://apps.students.vt.edu/hours/#/"), source: z.enum(["vt_arc", "openrouter"]), model: z.string(),
 });
 export type DiningPlanRequest = z.infer<typeof diningPlanRequestSchema>;
 export type DiningPlanResponse = z.infer<typeof diningPlanResponseSchema>;

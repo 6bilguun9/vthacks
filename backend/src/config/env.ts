@@ -61,6 +61,38 @@ const nessieBaseUrl = z.preprocess(
   }, "Use an HTTPS Nessie API origin without credentials, a path, query, or fragment").default("https://api.nessieisreal.com"),
 );
 
+function httpsApiBaseUrl(defaultValue: string) {
+  return z.preprocess(
+    (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+    z.string().url().refine((value) => {
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:"
+          && !url.username
+          && !url.password
+          && !url.search
+          && !url.hash;
+      } catch {
+        return false;
+      }
+    }, "Use an HTTPS API URL without credentials, a query, or fragment")
+      .transform((value) => value.replace(/\/+$/, ""))
+      .default(defaultValue),
+  );
+}
+
+const optionalHttpsUrl = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().url().refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && !url.username && !url.password;
+    } catch {
+      return false;
+    }
+  }, "Use an HTTPS URL without credentials").optional(),
+);
+
 const environmentSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   HOST: z.string().min(1).default("127.0.0.1"),
@@ -74,10 +106,19 @@ const environmentSchema = z.object({
   COACH_AGENT_HOST: optionalAgentHost,
   PLANNER_AGENT_HOST: optionalAgentHost,
   ANS_AGENT_VERSION: semver.default("0.1.1"),
-  ARC_BASE_URL: z.string().url().default("https://llm-api.arc.vt.edu/api/v1"),
+  AI_PROVIDER: z.enum(["arc", "openrouter"]).default("arc"),
+  ARC_BASE_URL: httpsApiBaseUrl("https://llm-api.arc.vt.edu/api/v1"),
   ARC_API_KEY: optionalNonEmptyString,
   llm_arc_api_key: optionalNonEmptyString,
   ARC_MODEL: z.string().min(1).default("gpt-oss-120b"),
+  OPENROUTER_BASE_URL: httpsApiBaseUrl("https://openrouter.ai/api/v1"),
+  OPENROUTER_API_KEY: optionalNonEmptyString,
+  OPENROUTER_MODEL: z.string().trim().min(1).default("openrouter/free"),
+  OPENROUTER_SITE_URL: optionalHttpsUrl,
+  OPENROUTER_APP_NAME: z.preprocess(
+    (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+    z.string().trim().min(1).max(128).refine((value) => !/[\r\n]/.test(value), "Do not use newlines in the OpenRouter app name").optional(),
+  ),
   NESSIE_BASE_URL: nessieBaseUrl.default("https://api.nessieisreal.com"),
   NESSIE_API_KEY: optionalNonEmptyString,
   NESSIE_CUSTOMER_ID: optionalNonEmptyString,

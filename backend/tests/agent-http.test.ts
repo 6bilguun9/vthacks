@@ -14,7 +14,14 @@ it("runs chat through mocked ANS discovery and the real signed planner HTTP hand
   const calls: string[] = [];
   const fetcher: typeof fetch = async (input, init) => {
     const url = String(input); calls.push(url);
-    if (url.endsWith("/chat/completions")) return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "purchase", amountCents: 1000, date: today, goalId: null, cadence: "once" }) } }] }));
+    if (url.endsWith("/chat/completions")) {
+      expect(url).toBe("https://openrouter.ai/api/v1/chat/completions");
+      const headers = new Headers(init?.headers);
+      expect(headers.get("authorization")).toBe("Bearer test-openrouter-key");
+      expect(headers.get("http-referer")).toBe("https://saveandspendmoremoneyon.vodka");
+      expect(JSON.parse(String(init?.body))).toMatchObject({ model: "openrouter/free", provider: { require_parameters: true } });
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ intent: "purchase", amountCents: 1000, date: today, goalId: null, cadence: "once" }) } }] }));
+    }
     if (url.endsWith("/v1/agents/resolution")) return new Response(JSON.stringify({ links: [{ rel: "agent-endpoint", href: "https://planner.example.com/api/v1/agents/planner" }] }));
     if (url === "https://planner.example.com/api/v1/agents/planner") {
       const response = await app.inject({ method: "POST", url: "/api/v1/agents/planner", headers: Object.fromEntries(new Headers(init?.headers).entries()), payload: String(init?.body) });
@@ -23,7 +30,7 @@ it("runs chat through mocked ANS discovery and the real signed planner HTTP hand
     }
     throw new Error("Unexpected provider URL");
   };
-  const app = createApp(readConfig({ LOG_LEVEL: "silent", AI_MODE: "presenter", PRESENTER_USER_IDS: "presenter", ARC_API_KEY: "test", ANS_API_KEY: "key:secret", PLANNER_AGENT_HOST: "planner.example.com", AGENT_SIGNING_SECRET: "test-signing-secret-at-least-32-characters" }), { auth: memory.auth, repository: memory.repository, limits: memory.limits, clock: () => now, fetch: fetcher }); apps.push(app);
+  const app = createApp(readConfig({ LOG_LEVEL: "silent", AI_MODE: "presenter", PRESENTER_USER_IDS: "presenter", AI_PROVIDER: "openrouter", OPENROUTER_API_KEY: "test-openrouter-key", OPENROUTER_SITE_URL: "https://saveandspendmoremoneyon.vodka", ANS_API_KEY: "key:secret", PLANNER_AGENT_HOST: "planner.example.com", AGENT_SIGNING_SECRET: "test-signing-secret-at-least-32-characters" }), { auth: memory.auth, repository: memory.repository, limits: memory.limits, clock: () => now, fetch: fetcher }); apps.push(app);
   const headers = { authorization: "Bearer token" };
   const initial = (await app.inject({ method: "POST", url: "/api/v1/session/bootstrap", headers, payload: { source: "fixture" } })).json<OwnedState>();
   const plan = { ...initial.plan, selectedBankAccountIds: ["demo-checking"], incomeComplete: true, expensesComplete: true, discretionaryConfirmedAt: now.toISOString() };

@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import type { AppConfig } from "../config/env.js";
 import { DINING_SYSTEM_PROMPT } from "../agents/dining-prompt.js";
-import { ArcUnavailableError, completeWithArc } from "../integrations/arc.js";
+import { AiUnavailableError, completeWithAi, getAiProvider } from "../integrations/ai.js";
 import { normalizeDiningResult } from "../agents/dining.js";
 import type { FinancialRouteOptions } from "./financial.js";
 
@@ -38,21 +38,21 @@ const responseSchema = z.object({
   projectedDiningSpendCents: z.number().int().nonnegative().safe(),
   remainingDiningBalanceCents: z.number().int().safe(),
   assumptions: notesSchema, warnings: notesSchema,
-  hoursUrl: z.literal("https://apps.students.vt.edu/hours/#/"), source: z.literal("vt_arc"), model: z.string().min(1),
+  hoursUrl: z.literal("https://apps.students.vt.edu/hours/#/"), source: z.enum(["vt_arc", "openrouter"]), model: z.string().min(1),
 }).strict();
 
 export type DiningPlanResponse = z.infer<typeof responseSchema>;
 
 function parseJsonObject(raw: string): unknown {
-  try { return JSON.parse(raw); } catch { /* ARC reasoning models can prefix their JSON. */ }
+  try { return JSON.parse(raw); } catch { /* Some reasoning models can prefix their JSON. */ }
   const end = raw.lastIndexOf("}");
   for (let start = raw.indexOf("{"); start >= 0 && start < end; start = raw.indexOf("{", start + 1)) {
     try { return JSON.parse(raw.slice(start, end + 1)); } catch { /* Try the next object boundary. */ }
   }
-  throw new SyntaxError("No JSON object found in ARC response");
+  throw new SyntaxError("No JSON object found in AI provider response");
 }
 
-export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?: typeof completeWithArc } & Pick<FinancialRouteOptions, "auth" | "limits" | "clock" | "requireAi">> = async (app, options) => {
+export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?: typeof completeWithAi; fetch?: typeof fetch } & Pick<FinancialRouteOptions, "auth" | "limits" | "clock" | "requireAi">> = async (app, options) => {
   app.post("/dining-plans", async (request, reply) => {
     const parsed = requestSchema.safeParse(request.body);
     if (!parsed.success) return reply.code(422).send({ error: { code: "INVALID_REQUEST", message: "Check the dining-plan fields and try again." } });
@@ -61,26 +61,28 @@ export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?
     options.requireAi(actor);
     const release = await options.limits.acquire(actor, "ai", options.clock());
     const deadline = Date.now() + 55_000;
-    const prompt = `Create a representative weekly plan for this student. Return JSON with strategy; days; weeklyDiningSpendCents; projectedDiningSpendCents; remainingDiningBalanceCents; assumptions; warnings; hoursUrl; source; model. Each day has day and three meals; each meal has label, venue, suggestion, payment, estimatedCostCents. The payment value must be exactly one of: swipe, meal_exchange, dining_balance, hokie_passport, other.\n\n${JSON.stringify(input)}\n\nThe active ARC model is ${options.config.ARC_MODEL}. Set source to vt_arc and model to that exact value. Current balances, not original plan values, control the budget.`;
+    const provider = getAiProvider(options.config);
+    const prompt = `Create a representative weekly plan for this student. Return JSON with strategy; days; weeklyDiningSpendCents; projectedDiningSpendCents; remainingDiningBalanceCents; assumptions; warnings; hoursUrl; source; model. Each day has day and three meals; each meal has label, venue, suggestion, payment, estimatedCostCents. The payment value must be exactly one of: swipe, meal_exchange, dining_balance, hokie_passport, other.\n\n${JSON.stringify(input)}\n\nThe active AI model is ${provider.model}. Set source to ${provider.source} and model to that exact value. Current balances, not original plan values, control the budget.`;
     try {
-      const complete = options.complete ?? completeWithArc;
-      const raw = await complete(options.config, [{ role: "system", content: DINING_SYSTEM_PROMPT }, { role: "user", content: prompt }], { timeoutMs: Math.max(1, deadline - Date.now()) });
+      const complete = options.complete ?? completeWithAi;
+      const completionOptions = () => ({ timeoutMs: Math.max(1, deadline - Date.now()), ...(options.fetch ? { fetch: options.fetch } : {}) });
+      const raw = await complete(options.config, [{ role: "system", content: DINING_SYSTEM_PROMPT }, { role: "user", content: prompt }], completionOptions());
       let result = responseSchema.safeParse(parseJsonObject(raw));
       if (!result.success) {
         const issues = result.error.issues.map(({ path, code }) => ({ path: path.join("."), code }));
-        request.log.warn({ issues }, "ARC dining response failed validation; requesting one repair");
+        request.log.warn({ issues }, "AI dining response failed validation; requesting one repair");
         const repaired = await complete(options.config, [
           { role: "system", content: DINING_SYSTEM_PROMPT },
           { role: "user", content: `Repair this invalid draft into the exact requested JSON shape. Return only the corrected JSON object. Validation issues: ${JSON.stringify(issues)}\n\nInvalid draft:\n${raw}` },
-        ], { timeoutMs: Math.max(1, deadline - Date.now()) });
+        ], completionOptions());
         result = responseSchema.safeParse(parseJsonObject(repaired));
       }
-      if (!result.success) return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "ARC returned a meal plan that could not be safely validated." } });
-      return reply.header("Cache-Control", "no-store").send(normalizeDiningResult(input, { ...result.data, source: "vt_arc", model: options.config.ARC_MODEL }));
+      if (!result.success) return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "The AI provider returned a meal plan that could not be safely validated." } });
+      return reply.header("Cache-Control", "no-store").send(normalizeDiningResult(input, { ...result.data, source: provider.source, model: provider.model }));
     } catch (error) {
-      if (error instanceof ArcUnavailableError) return reply.code(503).send({ error: { code: "ARC_UNAVAILABLE", message: "The meal-planning agent is temporarily unavailable." } });
-      request.log.warn("ARC dining response was invalid");
-      return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "ARC returned a meal plan that could not be safely validated." } });
+      if (error instanceof AiUnavailableError) return reply.code(503).send({ error: { code: "AI_UNAVAILABLE", message: "The meal-planning agent is temporarily unavailable." } });
+      request.log.warn("AI dining response was invalid");
+      return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "The AI provider returned a meal plan that could not be safely validated." } });
     } finally { await release(); }
   });
 };
