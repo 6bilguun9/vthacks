@@ -9,8 +9,11 @@
     .brand { gap: 12px; font-size: 28px; font-weight: 900; letter-spacing: -.8px; line-height: 1.1; }
     .brand-icon { width: 50px; height: 54px; flex-shrink: 0; border-radius: 16px; }
     .brand-icon svg { width: 31px; height: 31px; stroke-width: 2.2; }
-    .brand-light { font-weight: 900; }
-    .brand small { display: block; margin-top: 8px; font-size: 10px; font-weight: 700; letter-spacing: 2px; opacity: .85; }
+    .brand-text { min-width: 0; }
+    .brand-name { display: block; overflow-wrap: anywhere; letter-spacing: normal; }
+    .brand small { display: block; margin-top: 8px; font-size: 11px; font-weight: 700; letter-spacing: .03em; line-height: 1.5; overflow-wrap: anywhere; opacity: .85; }
+    &:lang(en) .brand-name { letter-spacing: -.8px; }
+    &:lang(en) .brand small { text-transform: uppercase; letter-spacing: 2px; }
     nav { margin-top: 28px; gap: 8px; }
     nav a { display: flex; min-height: 50px; gap: 12px; padding: 11px 14px; border: 1px solid #ffffff38; border-radius: 13px; font-size: calc(16px * var(--text-scale, 1)); font-weight: 700; }
     nav a > span { font-size: inherit; line-height: 1.4; }

@@ -21,9 +21,9 @@ export default function CampusSidebar({ activeView, labels, copy, onNavigate }: 
 }) {
   return (
     <aside className="sidebar">
-      <Link className="brand" dir="ltr" href={onNavigate ? "#main" : "/#main"} onClick={(event) => onNavigate?.(event, "main")} aria-label={copy.walletOverview}>
+      <Link className="brand" href={onNavigate ? "#main" : "/#main"} onClick={(event) => onNavigate?.(event, "main")} aria-label={copy.walletOverview}>
         <span className="brand-icon"><WalletCards aria-hidden="true" /></span>
-        <span>hokie<span className="brand-light">Wallet</span><small>VIRGINIA TECH</small></span>
+        <span className="brand-text"><span className="brand-name">{copy.walletWordmark}</span><small>{copy.universityName}</small></span>
       </Link>
       <nav aria-label={copy.mainNavigation}>
         {navigation.map(({ view, Icon }) => (

@@ -75,7 +75,7 @@ export default function Dashboard() {
   const budgetNote = demoSummary.budgetRemainingCents >= 0 ? overview.remainingBudget : overview.overBudget;
   const budgetRemaining = money(Math.abs(demoSummary.budgetRemainingCents));
   const spendingDescription = `${overview.totalSpent}: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${overview.categories[item.name]}: ${money(item.amountCents)}`).join(", ")}`;
-  const overviewSummary = `${viewCopy.title}. ${copy.demoSample}. ${copy.balances.bankBalance}: ${money(demoData.bankBalanceCents)}. ${copy.balances.checkingDescription}. Hokie Wallet: ${money(demoData.walletBalanceCents)}. ${copy.balances.walletDescription}. ${overview.milestone.replace("{amount}", money(goal.savedCents, 0))} ${spendingDescription}. ${budgetNote.replace("{amount}", budgetRemaining)}`;
+  const overviewSummary = `${viewCopy.title}. ${copy.demoSample}. ${copy.balances.bankBalance}: ${money(demoData.bankBalanceCents)}. ${copy.balances.checkingDescription}. ${overview.walletName}: ${money(demoData.walletBalanceCents)}. ${copy.balances.walletDescription}. ${overview.milestone.replace("{amount}", money(goal.savedCents, 0))} ${spendingDescription}. ${budgetNote.replace("{amount}", budgetRemaining)}`;
   const readText = view === "main" ? overviewSummary : preferences.language === "en" ? getViewSummary(view) : `${viewCopy.title} ${viewCopy.description}`;
   return (
     <div
@@ -100,7 +100,7 @@ export default function Dashboard() {
           <div hidden={view !== "main"} className="view-panel overview-view">
           <section className="balance-grid" aria-label={copy.balances.accountOverview}>
             <article className="balance-card"><div className="card-label">{copy.balances.bankBalance} <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> {copy.balances.checkingDescription}</p></article>
-            <article className="balance-card wallet-card"><div className="card-label">Hokie Wallet <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>{copy.balances.walletDescription} <span aria-hidden="true">↗</span></p></article>
+            <article className="balance-card wallet-card"><div className="card-label">{overview.walletName} <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>{copy.balances.walletDescription} <span aria-hidden="true">↗</span></p></article>
             <article className="balance-card"><div className="card-label">{copy.balances.monthlySpending} <span className="card-icon" aria-hidden="true">↗</span></div><Balance amount={demoSummary.totalSpentCents} /><p>{copy.balances.monthlyBudget(money(demoData.monthlyBudgetCents, 0))}</p><div className="budget-track" role="progressbar" aria-label={copy.balances.budgetSpent} aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={copy.balances.spentOfBudget(money(demoSummary.totalSpentCents), money(demoData.monthlyBudgetCents))}><span style={{ width: `${demoSummary.budgetPercent}%` }} /></div></article>
           </section>
           <p className="sample-notice">{copy.balances.sampleNotice}</p>
