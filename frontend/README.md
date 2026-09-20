@@ -35,7 +35,7 @@ Typography uses locally bundled Lato, with Comic Relief reserved for the HokieBi
 
 Run `npm run presentation:export` inside `frontend/` to create `presentation-dist/Hokie_Wallet_Presentation.html`. Open or share that single file directly; its images and fonts are embedded, so it does not need a running website or backend. External source and app links still need their destinations to be available.
 
-The development route remains at <http://localhost:3000/present>. Both versions contain the current 495-word script in nine scenes across 240 seconds: Carlos presents 0:00–1:00, Neha 1:00–2:00, Grant 2:00–3:00, and Bilguun 3:00–4:00. The PowerPoint in `../docs/presentation/` is an older fallback with an earlier script.
+The development route remains at <http://localhost:3000/present>. Both versions contain the current 478-word script in nine scenes across 240 seconds: Carlos presents 0:00–1:00, Neha 1:00–2:00, Grant 2:00–3:00, and Bilguun 3:00–4:00. The organizer guide lists three minutes of presentation plus one minute for questions. `../docs/presentation/speaker-notes.md` includes a separate 324-word version for that format, with 45 seconds per teammate and manual scene advancement. The PowerPoint in `../docs/presentation/` is an older fallback with an earlier script.
 
 Use the arrow keys for previous/next scenes, Space for the next scene, P to play/pause the automatic four-minute timeline, N for presenter notes, F for fullscreen, H to hide/show controls, and Home/End for the first/last scene. Notes are hidden in the default audience view, contain source links, and pause playback when opened. Close them before sharing the presentation screen. The reduced-motion toggle follows the system preference until the presenter overrides it.
 
