@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 export type AccessibilityPreferences = {
   colorPalette: "hokie" | "ocean" | "berry";
   contrast: "standard" | "high";
-  motion: "system" | "reduced";
+  motion: "system" | "smooth" | "reduced";
   textScale: number;
 };
 
@@ -52,7 +52,7 @@ function parsePreferences(snapshot: string): AccessibilityPreferences {
     return {
       colorPalette,
       contrast: parsed.contrast === "high" ? "high" : "standard",
-      motion: parsed.motion === "reduced" ? "reduced" : "system",
+      motion: parsed.motion === "smooth" || parsed.motion === "reduced" ? parsed.motion : "system",
       textScale,
     };
   } catch {
@@ -223,8 +223,13 @@ export function AccessibilityControls({
             ))}
           </div>
         </fieldset>
-        <ControlGroup label="Motion">
+        <ControlGroup
+          label="Motion"
+          columns={3}
+          description="System follows your device and may match Reduced. Smooth always plays the tab transitions. Reduced switches instantly."
+        >
           <ChoiceButton pressed={preferences.motion === "system"} onClick={() => updatePreference("motion", "system")}>System</ChoiceButton>
+          <ChoiceButton pressed={preferences.motion === "smooth"} onClick={() => updatePreference("motion", "smooth")}>Smooth</ChoiceButton>
           <ChoiceButton pressed={preferences.motion === "reduced"} onClick={() => updatePreference("motion", "reduced")}>Reduced</ChoiceButton>
         </ControlGroup>
 
@@ -241,11 +246,22 @@ export function AccessibilityControls({
   );
 }
 
-function ControlGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function ControlGroup({
+  children,
+  columns = 2,
+  description,
+  label,
+}: {
+  children: React.ReactNode;
+  columns?: 2 | 3;
+  description?: string;
+  label: string;
+}) {
   return (
     <fieldset className="accessibility-group">
       <legend>{label}</legend>
-      <div>{children}</div>
+      <div style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>{children}</div>
+      {description && <p className="control-description">{description}</p>}
     </fieldset>
   );
 }

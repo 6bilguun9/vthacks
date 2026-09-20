@@ -237,8 +237,12 @@ footer strong { color: #7d828c; font-weight: 500; }
   }
 }
 
-@keyframes wallet-view-enter {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes wallet-heading-enter {
+  from { opacity: 0; filter: blur(3px); transform: translateY(16px) scale(.985); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+}
+@keyframes wallet-panel-enter {
+  from { opacity: 0; transform: translateY(22px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @layer components {
@@ -280,6 +284,7 @@ footer strong { color: #7d828c; font-weight: 500; }
     .palette-swatches { display: flex; align-items: center; }
     .palette-swatches i { display: block; width: 17px; height: 17px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #8e8289; }
     .palette-swatches i + i { margin-left: -5px; }
+    .control-description { margin: 9px 2px 0; color: #756b72; font-size: 11px; line-height: 1.55; }
     .listen-button { width: 100%; min-height: 46px; margin-top: 8px; display: flex; justify-content: center; align-items: center; gap: 10px; border: 0; border-radius: 9px; background: #451c2d; color: #fff; font-weight: 700; }
     .speech-status { min-height: 18px; margin: 8px 0 0; color: #665c63; font-size: 11px; text-align: center; }
     .accessibility-trigger:focus-visible, .accessibility-close:focus-visible, .accessibility-group button:focus-visible, .listen-button:focus-visible { outline: 3px solid #e87722; outline-offset: 3px; }
@@ -287,7 +292,8 @@ footer strong { color: #7d828c; font-weight: 500; }
     .theme-toggle span { font-size: 20px; }
     .theme-toggle:hover { background: #f0e3dd; }
     .theme-toggle:focus-visible { outline: 3px solid #e87722; outline-offset: 3px; }
-    .view-heading, .view-panel:not([hidden]) { animation: wallet-view-enter 260ms cubic-bezier(.2,.7,.2,1) both; }
+    .view-heading { animation: wallet-heading-enter 420ms cubic-bezier(.16,1,.3,1) both; }
+    .view-panel:not([hidden]) { animation: wallet-panel-enter 480ms 70ms cubic-bezier(.16,1,.3,1) both; }
     .detail-grid:not(.view-main) { display: block; max-width: 950px; margin-inline: auto; }
     .chat-view { width: 100%; }
     .activity-panel .transactions li { padding-block: 26px; }
@@ -302,28 +308,78 @@ footer strong { color: #7d828c; font-weight: 500; }
       --chart-2: #e69f00;
       --chart-3: #009e73;
       --maroon: #0072b2;
+      background: #edf6f7;
+      .sidebar { background: #073b4c; }
+      .brand-icon { background: #e5f6f1; color: #073b4c; }
+      .brand-icon span, .little-star { color: #e69f00; }
+      .nav-label, .sidebar-note p, .profile small { color: #b8d7dc; }
+      nav a { color: #d6e9ec; }
+      nav a:hover { background: #145267; color: #fff; }
+      nav .nav-active { background: #e4f7f2; color: #07566c; }
+      .hokie-tag { color: #ffd27a; }
+      .profile { border-color: #2e6271; }
+      .avatar { background: #20586a; color: #effbfc; }
+      .topbar { background: #edf6f7; border-color: #cbdfe1; }
+      .welcome .eyebrow, .dining-hero .eyebrow { color: #006783; }
+      .balance-card, .panel, .dining-form { background: #fbfefe; border-color: #bfd9dc; box-shadow: 0 3px 0 #c8dfe144; }
       .wallet-card { background: #005f91; border-color: #005f91; box-shadow: 0 3px 0 #00496f; }
+      .milestone-strip, .transactions li, .budget-note, .next-step a { border-color: #bfd9dc; }
+      .milestone-mark, .transaction-icon { background: #dcefee; color: #006b76; }
+      .milestone-strip .eyebrow { color: #006b76; }
+      .milestone-strip a, .next-step a, .dining-demo-link { color: #006783; }
+      .subtle-pill, .savings-tip { background: #e8f3f2; border-color: #c8dfdf; }
+      .theme-toggle, .accessibility-trigger { background: #f8fdfc; border-color: #b9d6d8; color: #07566c; }
+      .theme-toggle:hover, .accessibility-trigger:hover { background: #dff0ef; }
+      .accessibility-panel { border-color: #b9d6d8; }
+      .text-scale-control output { color: #006783; }
+      .text-scale-control input[type="range"]::-webkit-slider-runnable-track { background: linear-gradient(to right, #0072b2 0 var(--range-progress), #d1e3e4 var(--range-progress) 100%); }
+      .text-scale-control input[type="range"]::-webkit-slider-thumb { background: #0072b2; box-shadow: 0 0 0 1px #0072b2, 0 2px 6px #003f5840; }
       .budget-track span, progress::-webkit-progress-value { background: #0072b2; }
       progress::-moz-progress-bar { background: #0072b2; }
-      .coach-link, .accessibility-group button[aria-pressed="true"] { background: #005f91; border-color: #005f91; }
+      .coach-link, .dining-submit, .accessibility-group button[aria-pressed="true"] { background: #005f91; border-color: #005f91; }
     }
     &[data-color-palette="berry"] {
       --chart-1: #8b4a83;
       --chart-2: #56b4e9;
       --chart-3: #f0c94a;
       --maroon: #7a3e73;
+      background: #f8f1f7;
+      .sidebar { background: #482343; }
+      .brand-icon { background: #f7e8f4; color: #482343; }
+      .brand-icon span, .little-star { color: #f0c94a; }
+      .nav-label, .sidebar-note p, .profile small { color: #dfc2da; }
+      nav a { color: #efddeb; }
+      nav a:hover { background: #63355d; color: #fff; }
+      nav .nav-active { background: #f8e9f4; color: #66315f; }
+      .hokie-tag { color: #f7dc73; }
+      .profile { border-color: #74476d; }
+      .avatar { background: #74476d; color: #fff3fb; }
+      .topbar { background: #f8f1f7; border-color: #e4cfe0; }
+      .welcome .eyebrow, .dining-hero .eyebrow { color: #7a3e73; }
+      .balance-card, .panel, .dining-form { background: #fffafd; border-color: #ddc5d8; box-shadow: 0 3px 0 #ead8e644; }
       .wallet-card { background: #6f3769; border-color: #6f3769; box-shadow: 0 3px 0 #572951; }
+      .milestone-strip, .transactions li, .budget-note, .next-step a { border-color: #ddc5d8; }
+      .milestone-mark, .transaction-icon { background: #f0dceb; color: #7a3e73; }
+      .milestone-strip .eyebrow { color: #7a3e73; }
+      .milestone-strip a, .next-step a, .dining-demo-link { color: #7a3e73; }
+      .subtle-pill, .savings-tip { background: #f5e9f2; border-color: #e3ccdd; }
+      .theme-toggle, .accessibility-trigger { background: #fffafd; border-color: #dcc4d7; color: #66315f; }
+      .theme-toggle:hover, .accessibility-trigger:hover { background: #f0dceb; }
+      .accessibility-panel { border-color: #dcc4d7; }
+      .text-scale-control output { color: #7a3e73; }
+      .text-scale-control input[type="range"]::-webkit-slider-runnable-track { background: linear-gradient(to right, #8b4a83 0 var(--range-progress), #eadbe6 var(--range-progress) 100%); }
+      .text-scale-control input[type="range"]::-webkit-slider-thumb { background: #8b4a83; box-shadow: 0 0 0 1px #8b4a83, 0 2px 6px #4c234640; }
       .budget-track span, progress::-webkit-progress-value { background: #7a3e73; }
       progress::-moz-progress-bar { background: #7a3e73; }
-      .coach-link, .accessibility-group button[aria-pressed="true"] { background: #6f3769; border-color: #6f3769; }
+      .coach-link, .dining-submit, .accessibility-group button[aria-pressed="true"] { background: #6f3769; border-color: #6f3769; }
     }
     .legend-dot-1 { background: var(--chart-1); }
     .legend-dot-2 { background: var(--chart-2); }
     .legend-dot-3 { background: var(--chart-3); }
     .legend-symbol { width: 12px; color: #4f454c; font-size: 10px; text-align: center; }
     .topbar, .date-label { font-size: calc(12px * var(--text-scale)); }
-    nav a, .card-label, .welcome > div > p:last-child, .milestone-strip p, .goal-name, .transactions li, .next-step > p:not(.eyebrow) { font-size: calc(14px * var(--text-scale)); }
-    .balance-card p, .sample-notice, .legend-row, .budget-note, .goal-name span, .goal-amount span, .goal-caption, .savings-tip p, .transaction-name span, .activity-note { font-size: calc(12px * var(--text-scale)); }
+    nav a, .card-label, .welcome > div > p:last-child, .milestone-strip p, .goal-name, .transactions li, .next-step > p:not(.eyebrow), .dining-hero > p:last-child, .dining-fallback { font-size: calc(14px * var(--text-scale)); }
+    .balance-card p, .sample-notice, .legend-row, .budget-note, .goal-name span, .goal-amount span, .goal-caption, .savings-tip p, .transaction-name span, .activity-note, .dining-field { font-size: calc(12px * var(--text-scale)); }
     .eyebrow, .nav-label { font-size: calc(10px * var(--text-scale)); }
     .subtle-pill, footer { font-size: calc(11px * var(--text-scale)); }
     .section-heading h2 { font-size: calc(20px * var(--text-scale)); }
@@ -352,7 +408,7 @@ footer strong { color: #7d828c; font-weight: 500; }
       --border: #4a3c48;
       .sidebar { background: #26151e; }
       .topbar { background: #19171c; border-color: #43363e; color: #d4c4cd; }
-      .balance-card, .panel { background: #252129; border-color: #4a3c48; box-shadow: none; }
+      .balance-card, .panel, .dining-form { background: #252129; border-color: #4a3c48; box-shadow: none; }
       .wallet-card { background: #74253f; border-color: #a75570; }
       .card-label, .card-icon, .balance-card p, .eyebrow, .welcome .eyebrow, .date-label, .breadcrumb, .sample-notice, .goal-name span, .goal-amount span, .goal-caption, .activity-note, .transaction-name span, .legend-row, .budget-note, footer, footer strong, .next-step > p:not(.eyebrow) { color: #cabbc5; }
       .wallet-card .card-label, .wallet-card p { color: #ffe4ed; }
@@ -363,7 +419,7 @@ footer strong { color: #7d828c; font-weight: 500; }
       .accessibility-trigger:hover { background: #503545; }
       .accessibility-panel { background: #252129; color: #f1e8e6; border-color: #654554; box-shadow: 0 20px 55px #0008; }
       .accessibility-close, .accessibility-group, .accessibility-group button { border-color: #604b59; }
-      .accessibility-group legend, .speech-status { color: #ded0d8; }
+      .accessibility-group legend, .speech-status, .control-description { color: #ded0d8; }
       .accessibility-group button { background: #342c36; color: #ded0d8; }
       .accessibility-group button[aria-pressed="true"], .listen-button { background: #f2c6d5; color: #2b1520; }
       .demo-badge { background: #372e22; color: #edd3a5; border-color: #5b4b34; }
@@ -399,13 +455,39 @@ footer strong { color: #7d828c; font-weight: 500; }
       a:focus-visible, button:focus-visible, input:focus-visible { outline: 4px solid #ffdd00; outline-offset: 4px; }
     }
     &[data-theme="dark"][data-color-palette="ocean"] {
+      background: #071b23;
+      .sidebar { background: #062f3e; }
+      .topbar { background: #071b23; border-color: #28505d; }
+      .balance-card, .panel, .dining-form { background: #0e2832; border-color: #315a67; }
       .wallet-card { background: #005f91; border-color: #56b4e9; }
-      .coach-link { background: #0072b2; }
+      .coach-link, .dining-submit { background: #0072b2; }
+      .milestone-mark, .transaction-icon, .savings-tip { background: #143844; }
+      .subtle-pill, .theme-toggle, .accessibility-trigger { background: #12313c; border-color: #356171; color: #bfe8ee; }
     }
     &[data-theme="dark"][data-color-palette="berry"] {
+      background: #21151f;
+      .sidebar { background: #351c32; }
+      .topbar { background: #21151f; border-color: #5b3d56; }
+      .balance-card, .panel, .dining-form { background: #2d202b; border-color: #65475f; }
       .wallet-card { background: #66315f; border-color: #cc79a7; }
-      .coach-link { background: #7a3e73; }
+      .coach-link, .dining-submit { background: #7a3e73; }
+      .milestone-mark, .transaction-icon, .savings-tip { background: #41283d; }
+      .subtle-pill, .theme-toggle, .accessibility-trigger { background: #3a2937; border-color: #6b4c65; color: #f1cce9; }
     }
+    .dining-content { max-width: 1220px; padding-top: 54px; }
+    .dining-view { max-width: 1120px; margin-inline: auto; }
+    .dining-hero { max-width: 800px; }
+    .dining-hero h1 { margin-block: 15px 20px; }
+    .dining-hero > p:last-child { max-width: 690px; color: var(--dashboard-muted); line-height: 1.8; }
+    .dining-form { margin-top: 38px; border-radius: 12px; box-shadow: 0 3px 0 #e9e3dc66; }
+    .dining-field { color: #665c63; }
+    .dining-field input, .dining-field select, .dining-field textarea { border-color: #d9d0ca; background: #fffdf9; color: inherit; }
+    .dining-field input:focus-visible, .dining-field select:focus-visible, .dining-field textarea:focus-visible { outline: 3px solid var(--maroon); outline-offset: 2px; }
+    .dining-submit { background: var(--maroon); transition: transform 180ms ease, filter 180ms ease; }
+    .dining-submit:hover:not(:disabled) { filter: brightness(.9); transform: translateY(-2px); }
+    .dining-demo-link { color: var(--maroon); text-underline-offset: 4px; }
+    &[data-theme="dark"] .dining-field { color: #ded0d8; }
+    &[data-theme="dark"] .dining-field input, &[data-theme="dark"] .dining-field select, &[data-theme="dark"] .dining-field textarea { background: #342c36; border-color: #604b59; }
     @media (max-width: 580px) {
       .topbar { height: auto; min-height: 72px; padding-block: 12px; gap: 12px; flex-wrap: wrap; }
       .topbar-actions { gap: 8px; }
@@ -414,7 +496,7 @@ footer strong { color: #7d828c; font-weight: 500; }
       .accessibility-panel { position: fixed; top: 12px; right: 12px; left: 12px; width: auto; max-height: calc(100dvh - 24px); overflow-y: auto; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .view-heading, .view-panel:not([hidden]) { animation: none; }
+      &[data-motion="system"] *, &[data-motion="system"] *::before, &[data-motion="system"] *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
     }
   }
 }
