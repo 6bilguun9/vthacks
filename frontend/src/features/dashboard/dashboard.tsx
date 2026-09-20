@@ -3,6 +3,7 @@
 import { useSyncExternalStore, type MouseEvent } from "react";
 import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
+import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
 import "./dashboard.css";
 
 import { demoData, demoSummary, formatMoney as money } from "./demo-data";
@@ -20,7 +21,7 @@ const chartSegments = spending.map((item) => {
   const start = chartPosition;
   chartPosition += demoSummary.totalSpentCents > 0 ? item.amountCents / demoSummary.totalSpentCents * 100 : 0;
   const end = Math.max(start, chartPosition - 0.75);
-  return `${item.color} ${start}% ${end}%, #fff ${end}% ${chartPosition}%`;
+  return `var(--chart-${spending.indexOf(item) + 1}, ${item.color}) ${start}% ${end}%, var(--chart-gap, #fff) ${end}% ${chartPosition}%`;
 });
 const chartBackground = demoSummary.totalSpentCents > 0
   ? `conic-gradient(${chartSegments.join(", ")})`
@@ -75,13 +76,23 @@ function navigate(event: MouseEvent<HTMLAnchorElement>, view: View) {
 export default function Dashboard() {
   const view = useSyncExternalStore(subscribeView, currentView, () => "main" as View);
   const theme = useSyncExternalStore(subscribeTheme, currentTheme, () => "light");
+  const { preferences, updatePreference } = useAccessibilityPreferences();
+  const readText = getViewSummary(view);
   function toggleTheme() {
     temporaryTheme = theme === "light" ? "dark" : "light";
     try { localStorage.setItem("hokie-wallet-theme", temporaryTheme); } catch { /* Use an in-memory preference. */ }
     window.dispatchEvent(new Event("wallet-theme"));
   }
   return (
-    <div className="dashboard" data-theme={theme} data-view={view}>
+    <div
+      className="dashboard"
+      data-theme={theme}
+      data-view={view}
+      data-color-vision={preferences.colorVision}
+      data-contrast={preferences.contrast}
+      data-motion={preferences.motion}
+      data-text-size={preferences.textSize}
+    >
       <a className="skip-link" href="#main">Skip to dashboard</a>
       <aside className="sidebar">
         <a className="brand" href="#main" onClick={(event) => navigate(event, "main")}><span className="brand-icon">hw<span>•</span></span><span>hokie<span className="brand-light">wallet</span></span></a>
@@ -98,7 +109,7 @@ export default function Dashboard() {
         <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>
       </aside>
       <main id="main">
-        <header className="topbar"><span>My workspace <span className="breadcrumb">/ {views[view].label}</span></span><div className="topbar-actions"><button className="theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? "Dark mode" : "Light mode"}</button><span className="demo-badge"><span /> Demo · Sample data</span></div></header>
+        <header className="topbar"><span>My workspace <span className="breadcrumb">/ {views[view].label}</span></span><div className="topbar-actions"><AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? "Dark mode" : "Light mode"}</button><span className="demo-badge"><span /> Demo · Sample data</span></div></header>
         <div className="content">
           <div className="view-heading" key={view}>
           <section className="welcome"><div><p className="eyebrow">YOUR CAMPUS. YOUR PLANS. YOUR MONEY.</p><h1>{views[view].title}</h1><p>{views[view].description}</p></div><div className="welcome-actions"><span className="date-label">{demoData.month} {demoData.year} · Sample profile</span><a className="coach-link" href="#finbot" onClick={(event) => navigate(event, "finbot")}>Talk it through with FinBot <span aria-hidden="true">↗</span></a></div></section>
@@ -117,7 +128,7 @@ export default function Dashboard() {
           </section>
           </div>
           <div className={`detail-grid view-${view}`}>
-            <section hidden={view !== "main"} className="panel spending-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE BIG PICTURE</p><h2>A month in spending</h2></div><span className="subtle-pill">{demoData.month}</span></div><div className="spending-content"><div className="donut" role="img" style={{ background: chartBackground }} aria-label={`Total spending: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${item.name}: ${money(item.amountCents)}`).join(", ")}`}><div><span>Total spent</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>this month</small></div></div><div className="legend">{spending.map((item) => <div className="legend-row" key={item.name}><span className="legend-dot" style={{ background: item.color }} /><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}<p className="budget-note">{demoSummary.budgetRemainingCents >= 0 ? <>You have <strong>{money(demoSummary.budgetRemainingCents)}</strong> left in your budget.</> : <>You are <strong>{money(Math.abs(demoSummary.budgetRemainingCents))}</strong> over your budget.</>}</p></div></div></section>
+            <section hidden={view !== "main"} className="panel spending-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE BIG PICTURE</p><h2>A month in spending</h2></div><span className="subtle-pill">{demoData.month}</span></div><div className="spending-content"><div className="donut" role="img" style={{ background: chartBackground }} aria-label={`Total spending: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${item.name}: ${money(item.amountCents)}`).join(", ")}`}><div><span>Total spent</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>this month</small></div></div><div className="legend">{spending.map((item, index) => <div className="legend-row" key={item.name}><span className={`legend-dot legend-dot-${index + 1}`} aria-hidden="true" /><span className="legend-symbol" aria-hidden="true">{["●", "◆", "■"][index]}</span><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}<p className="budget-note">{demoSummary.budgetRemainingCents >= 0 ? <>You have <strong>{money(demoSummary.budgetRemainingCents)}</strong> left in your budget.</> : <>You are <strong>{money(Math.abs(demoSummary.budgetRemainingCents))}</strong> over your budget.</>}</p></div></div></section>
             <section hidden={view !== "savings"} className="panel savings-panel view-panel"><div className="section-heading"><div><p className="eyebrow">LOOKING AHEAD</p><h2>A little closer every day</h2></div><span className="goal-icon" aria-hidden="true">◎</span></div><p className="goal-name">{goal.name} <span>Savings goal</span></p><div className="goal-amount"><strong>{money(goal.savedCents, 0)}</strong><span>of {money(goal.targetCents, 0)}</span><b>{demoSummary.savingsPercent}%</b></div><progress value={goal.savedCents} max={goal.targetCents} aria-label={`${goal.name}: ${money(goal.savedCents)} of ${money(goal.targetCents)}`} /><p className="goal-caption">{demoSummary.savingsRemainingCents > 0 ? <>Just <strong>{money(demoSummary.savingsRemainingCents, 0)} to go.</strong> Future you says thanks.</> : "Goal reached. Future you says thanks!"}</p><div className="savings-tip"><span aria-hidden="true">✧</span><p>Little by little adds up.<br /><strong>{demoSummary.savingsIllustration}</strong></p></div></section>
             <section hidden={view !== "activity"} className="panel activity-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE EVERYDAY DETAILS</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div><ul className="transactions">{transactions.map((item) => <li key={item.id}><span className="transaction-icon" aria-hidden="true">{item.icon}</span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category} · {item.date}</span></div><strong>{money(item.amountCents)}</strong></li>)}</ul><p className="activity-note">A snapshot of your latest sample purchases.</p></section>
             <div hidden={view !== "finbot"} className="chat-view view-panel"><ChatPanel /></div>
@@ -135,4 +146,17 @@ export default function Dashboard() {
       </main>
     </div>
   );
+}
+
+function getViewSummary(view: View) {
+  if (view === "activity") {
+    return `Recent activity. ${transactions.map((item) => `${item.name}, ${item.category}, ${money(item.amountCents)}, on ${item.date}.`).join(" ")}`;
+  }
+  if (view === "savings") {
+    return `Savings goal. ${goal.name}. ${money(goal.savedCents)} saved of ${money(goal.targetCents)}, or ${demoSummary.savingsPercent} percent. ${money(demoSummary.savingsRemainingCents)} remains.`;
+  }
+  if (view === "finbot") {
+    return "Ask FinBot. This is a scripted demonstration using sample data. You can choose an example prompt or type a question about spending and saving.";
+  }
+  return `Overview. Sample bank balance ${money(demoData.bankBalanceCents)}. Restricted Hokie Wallet balance ${money(demoData.walletBalanceCents)}. Spending this month ${money(demoSummary.totalSpentCents)} of a ${money(demoData.monthlyBudgetCents)} budget. Emergency fund progress is ${demoSummary.savingsPercent} percent.`;
 }
