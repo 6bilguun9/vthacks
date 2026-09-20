@@ -17,6 +17,8 @@ For development, the existing route remains available at <http://localhost:3000/
 
 Speaker notes are presenter-only material, hidden from the default audience view. The notes dialog includes the speaking script and source links. Opening it pauses playback; close it before sharing the presentation screen.
 
+For scenes 6–9, press **N** and expand **Backend explanation for judges’ questions** for plain-language answers about the API, data sources, AI provider, signed agent communication, and save behavior. These answers support Q&A and are not additional spoken script. Scene 7 automatically walks through Verify guest, Load context, Preview result, and Save revision; each stage is also clickable for rehearsal.
+
 ## Presentation controls
 
 | Key | Action |
@@ -39,7 +41,7 @@ npm run build
 npx next start --port 3002
 ```
 
-Then open <http://localhost:3002/present>. Port 3001 is reserved for the backend. Click **Start 4-minute talk** for timed scene changes and reveals, or use the arrows to advance at your own pace. Manual navigation pauses the timer. The dashboard, FinBot, meal week, and agent stages also have clickable controls for questions after the talk.
+Then open <http://localhost:3002/present>. Port 3001 is reserved for the backend. Click **Start 4-minute talk** for timed scene changes and reveals, or use the arrows to advance at your own pace. Manual navigation pauses the timer. The dashboard, FinBot, meal week, backend steps, and agent stages also have clickable controls for questions after the talk.
 
 ## Speaker timing
 
@@ -52,13 +54,17 @@ The script targets four minutes, with one minute per teammate:
 | Grant | 2:00–3:00 | Dining planner and backend connection |
 | Bilguun | 3:00–4:00 | Agent communication and challenge alignment |
 
-`speaker-notes.md` contains the same current speaking script for rehearsal: 504 words, or about 126 words per minute. The nine scene durations remain 15, 20, 25, 35, 25, 40, 20, 40, and 20 seconds. Practice the handoffs with a timer.
+`speaker-notes.md` contains the same current speaking script for rehearsal: 495 words, or about 124 words per minute. The nine scene durations remain 15, 20, 25, 35, 25, 40, 20, 40, and 20 seconds. Practice the handoffs with a timer.
 
 ## Images and integration status
 
 The product images are screenshots of the actual UI using sample data. The backend and agent animations illustrate the implemented architecture; they do not perform live requests. Screenshot and asset credits are in `frontend/public/presentation/README.md` from the repository root. The portable export embeds the image files instead of depending on a website image optimizer.
 
 The agent replay uses a separate [synthetic contract fixture](https://github.com/6bilguun9/vthacks/blob/2bbffe8a62dfaba788d19f2e814c15501e312ece/contracts/examples/scenario-goal-delay.json): a $150 purchase uses $50 of discretionary money and $100 from the selected Laptop goal, moving projected completion from November 16 to November 23, 2026. This is a different profile from the dashboard and dining examples. It is not a live backend response or a saved purchase. The presentation displays supplied comparison values; financial calculations remain in the backend.
+
+The backend connection scene explains four steps across its 20 seconds: **Verify guest → Load context → Preview result → Save revision**. The agent scene follows five responsibilities: **Parse the question → Discover the Planner → Authenticate the request → Calculate the comparison → Explain the result**. The AI structures a supported question; financial code owns the numbers and the Coach formats the explanation. Dining follows a separate suggestion-and-validation path, not the ANS Coach-to-Planner path.
+
+The current backend supports VT ARC and OpenRouter with explicit server-side selection. ARC is the default; selecting OpenRouter does not enable automatic fallback between providers. This source support is separate from verifying a successful hosted provider request. Pinned implementation sources are available in the presenter notes.
 
 FinBot still uses scripted replies, the frontend’s authenticated backend connection is pending, and live ANS execution still needs verification. Update those statements only after verifying the connected flow.
 

@@ -84,27 +84,27 @@ export const presentationScenes = [
     duration: 40,
     eyebrow: "Dining planner",
     notes:
-      "I’m Grant. Dining makes this specific to Hokies. Students enter their plan, remaining balances, weeks left, and preferences or schedule. Our dining backend asks VT ARC for a representative meal week, prioritizing included swipes and exchanges before dining dollars. It validates the response, recalculates costs from individual meals, and rejects estimates above the supplied balance. Prices remain estimates; students can check linked dining hours before going. This sample week shows the goal: use benefits already paid for before spending extra cash.",
+      "I’m Grant. Dining turns a balance into a practical week. Students provide their dining plan, remaining funds, weeks left, and preferences. OpenRouter or VT ARC drafts meal suggestions; our backend then checks the structure, adds up each meal, and rejects a plan that exceeds the supplied campus balances. We ask for swipes and exchanges first. Prices remain estimates, and students can check current dining hours. Students can use what they already paid for while protecting cash for other needs.",
   },
   {
     id: "backend",
-    title: "Student inputs. A plan you can check.",
+    title: "How the backend connects",
     speaker: "Grant",
     startsAt: 160,
     duration: 20,
     eyebrow: "How the backend connects",
     notes:
-      "Our backend brings together Nessie sandbox banking, student-entered campus balances, and a saved plan in Supabase. It keeps those sources distinct. Previews do not change the saved plan; students must explicitly save a revision. These workflows are implemented, while the dashboard’s authenticated connection and hosted provider verification remain unfinished.",
+      "First, our API verifies the student’s guest token. It loads their Supabase plan, Nessie sandbox snapshot, and entered campus balances. Then it returns a calculated preview. The preview stays hypothetical until the student explicitly saves it. These backend steps are implemented; connecting them to the frontend remains unfinished.",
   },
   {
     id: "agents",
-    title: "Ask a question. See what changes.",
+    title: "How Coach and Planner work together",
     speaker: "Bilguun",
     startsAt: 180,
     duration: 40,
     eyebrow: "Coach ↔ Planner",
     notes:
-      "I’m Bilguun. Our Coach uses VT ARC to structure a supported question, discovers the Planner through GoDaddy ANS, and sends a signed, authenticated request. The Planner calculates the comparison; the Coach explains it. This replay uses a separate synthetic contract example, not a live call: a hundred-fifty-dollar purchase uses fifty dollars of discretionary money and a hundred from the selected Laptop goal. Its projected completion moves from November sixteenth to November twenty-third: seven days later. Students see the trade-off before deciding to save a change.",
+      "I’m Bilguun. For a purchase question, the Coach uses our selected AI provider to extract the amount, date, and goal. Missing details trigger a question. GoDaddy ANS locates the Planner, and a signed request carries the student’s authorization. The Planner uses financial code to compare the plan before and after; the Coach explains those numbers. Here, our synthetic example spends fifty dollars of discretionary money and one hundred from a Laptop goal. Its completion moves seven days later. Students understand the consequence before choosing to save.",
   },
   {
     id: "closing",
@@ -114,7 +114,7 @@ export const presentationScenes = [
     duration: 20,
     eyebrow: "Made for Hokies",
     notes:
-      "Our challenge contributions connect to that student benefit: Capital One’s Nessie adds banking context; GoDaddy ANS connects specialized agents; campus meal planning addresses Deloitte and Databricks’ student-experience theme. Hokie Wallet brings everyday choices into one plan, helping Hokies use today’s benefits while protecting tomorrow’s goals. Thank you.",
+      "These contributions fit three challenges: Capital One’s Nessie provides banking context; GoDaddy ANS connects specialized agents; dining guidance addresses Deloitte and Databricks’ Virginia Tech student-experience theme. We help Hokies choose today’s meal while protecting tomorrow’s bills and savings. Thank you.",
   },
 ] as const satisfies readonly PresentationScene[];
 
@@ -164,14 +164,38 @@ export const sourceLinks = [
       "Independent synthetic contract fixture: $150 purchase funded by $50 discretionary money and $100 from the selected Laptop goal; projected completion moves from November 16 to November 23, 2026. It is not the dashboard profile, a live response, or a saved purchase.",
   },
   {
+    label: "Server-selected AI provider",
+    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/backend/src/integrations/ai.ts",
+    description:
+      "The server selects VT ARC or OpenRouter for intent parsing and dining drafts. ARC is the configuration default; OpenRouter must be explicitly selected. A failure does not automatically switch providers.",
+  },
+  {
+    label: "Coach parsing and grounded explanation",
+    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/backend/src/agents/service.ts",
+    description:
+      "The Coach validates structured intent, asks for missing details, and formats the Planner result. AI does not calculate the goal dates or generate a second free-form financial answer.",
+  },
+  {
+    label: "Signed Coach-to-Planner request",
+    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/backend/src/integrations/planner-client.ts",
+    description:
+      "The request carries the guest bearer token and a signature over its audience, timestamp, nonce, and body. The Planner verifies the request; ANS discovery alone does not authorize student access.",
+  },
+  {
+    label: "Authorized financial preview and save workflows",
+    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/backend/src/application/finance-api.ts",
+    description:
+      "Owner-scoped state feeds deterministic previews. An explicit save validates the current plan version and snapshot and creates a revision. Previewing a scenario does not mutate an account or saved plan.",
+  },
+  {
     label: "Project architecture and financial rules",
-    href: "https://github.com/6bilguun9/vthacks/blob/2bbffe8a62dfaba788d19f2e814c15501e312ece/docs/architecture.md",
+    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/docs/architecture.md",
     description:
       "Backend architecture separates campus funds from bank cash and uses deterministic purchase comparisons. The diagram illustrates implemented code; live ANS verification is not confirmed.",
   },
   {
     label: "Backend activation and integration status",
-    href: "https://github.com/6bilguun9/vthacks/blob/2bbffe8a62dfaba788d19f2e814c15501e312ece/docs/backend-handoff.md",
+    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/docs/backend-handoff.md",
     description:
       "Hosted provider setup and frontend authenticated requests remain activation gates. Current presentation screens use sample balances and scripted FinBot replies.",
   },
