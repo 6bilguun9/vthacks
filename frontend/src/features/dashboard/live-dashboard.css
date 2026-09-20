@@ -1,0 +1,66 @@
+@layer components {
+  .dashboard {
+    --live-surface: #fffdf9;
+    --live-border: #ded6cf;
+    --live-on-accent: #fff;
+    .live-dashboard { display: grid; gap: 22px; font-size: calc(14px * var(--text-scale)); line-height: 1.6; }
+    .live-dashboard h2, .live-empty h2 { font-family: inherit; font-size: calc(25px * var(--text-scale)); font-weight: 650; line-height: 1.25; letter-spacing: -.5px; margin: 0 0 16px; }
+    .live-dashboard h3 { font-size: calc(16px * var(--text-scale)); font-weight: 650; margin: 0 0 8px; }
+    .live-dashboard p { margin: 10px 0; }
+    .live-empty { line-height: 1.7; }
+    .live-empty p { max-width: 68ch; }
+    .live-data-label { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--live-border); font-size: calc(12px * var(--text-scale)); }
+    .live-dashboard > .live-caption { margin: -12px 0 0; }
+    .live-caption, .live-account-list small, .live-goals small { color: var(--dashboard-muted); font-size: calc(12px * var(--text-scale)); line-height: 1.65; }
+    .live-overview-grid, .live-form-grid, .live-goals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .live-form-grid { gap: 16px; margin: 18px 0; }
+    .live-goals article { min-width: 0; padding: 18px; border: 1px solid var(--live-border); border-radius: 10px; }
+    .live-goals progress { margin-block: 10px; }
+    .live-account-list { padding: 0; margin: 20px 0; list-style: none; }
+    .live-account-list li { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; padding-block: 16px; border-bottom: 1px solid var(--live-border); }
+    .live-account-list li > span { min-width: 0; overflow-wrap: anywhere; }
+    .live-account-list strong { flex-shrink: 0; font-size: calc(17px * var(--text-scale)); }
+    .live-account-list small { display: block; margin-top: 5px; }
+    .live-inline-stats { display: flex; flex-wrap: wrap; gap: 22px; padding-block: 12px; }
+    .live-inline-stats p { flex: 1; min-width: 155px; color: var(--dashboard-muted); font-size: calc(12px * var(--text-scale)); }
+    .live-inline-stats strong { display: block; color: var(--maroon); font-size: calc(23px * var(--text-scale)); margin-top: 5px; }
+    .live-dashboard fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+    .live-dashboard legend { font-weight: 650; margin-block: 16px 8px; }
+    .live-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; font-weight: 550; font-size: calc(13px * var(--text-scale)); }
+    .live-field input, .live-field select { width: 100%; min-width: 0; min-height: 46px; border: 1px solid var(--live-border); border-radius: 8px; padding: 10px 12px; background: var(--live-surface); color: inherit; font: inherit; font-weight: 400; }
+    .live-dashboard input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--maroon); margin-top: 3px; }
+    .live-checks { display: grid; gap: 12px; margin-block: 14px 22px; }
+    .live-checks label, .live-check { display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+    .live-editor-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--live-border); }
+    .live-editor-heading h3 { margin: 0; }
+    .live-editor-row { margin-block: 18px; padding: 18px; border: 1px solid var(--live-border); border-radius: 10px; background: color-mix(in srgb, var(--maroon) 3%, var(--live-surface)); }
+    .live-editor-row .live-form-grid { margin-top: 0; }
+    .live-primary, .live-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 16px; border: 1px solid var(--maroon); border-radius: 8px; font: inherit; font-weight: 650; font-size: calc(13px * var(--text-scale)); cursor: pointer; text-align: center; }
+    .live-primary { background: var(--maroon); color: var(--live-on-accent); }
+    .live-secondary { background: transparent; color: var(--maroon); }
+    .live-primary:hover:not(:disabled), .live-secondary:hover:not(:disabled) { filter: brightness(.92); }
+    .live-text-button, .live-link { display: inline-block; font: inherit; font-weight: 600; color: var(--maroon); text-decoration: underline; text-underline-offset: 4px; min-height: 44px; padding-block: 10px; cursor: pointer; }
+    .live-dashboard :disabled { opacity: .55; cursor: not-allowed; }
+    .live-dashboard :is(button, input, select, summary, a):focus-visible { outline: 3px solid var(--maroon); outline-offset: 4px; }
+    .live-preview, .live-result, .live-pending, .live-error { border: 1px solid var(--live-border); border-radius: 10px; padding: 18px; margin-top: 20px; background: color-mix(in srgb, var(--maroon) 6%, var(--live-surface)); overflow-wrap: anywhere; }
+    .live-error, .live-pending { border-inline-start: 4px solid var(--maroon); }
+    .live-dashboard > .live-result, .live-dashboard > .live-pending { margin: 0; }
+    .live-projection > strong { font-size: calc(16px * var(--text-scale)); }
+    .live-projection ul, .live-preview ul { padding-inline-start: 22px; list-style: disc; }
+    .live-projection li, .live-preview li { padding-block: 3px; }
+    .live-dashboard summary { cursor: pointer; font-weight: 650; padding-block: 10px; }
+    .live-disclosure > summary { font-size: calc(18px * var(--text-scale)); }
+    .live-action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .live-purchase-list { display: grid; gap: 16px; }
+    .live-purchase-list > article { padding: 18px; border: 1px solid var(--live-border); border-radius: 10px; }
+    &[data-theme="dark"] { --live-surface: #252129; --live-border: #60505e; --live-on-accent: #27151e; }
+    &[data-contrast="high"] { --live-border: currentColor; }
+    @media (max-width: 700px) {
+      .topbar { height: auto; min-height: 72px; gap: 14px; flex-wrap: wrap; padding-block: 14px; }
+      .topbar-actions { flex-wrap: wrap; gap: 8px; }
+      .live-overview-grid, .live-form-grid, .live-goals { grid-template-columns: minmax(0, 1fr); }
+      .live-editor-row { padding: 14px; }
+      .live-account-list strong { font-size: calc(15px * var(--text-scale)); }
+    }
+  }
+}

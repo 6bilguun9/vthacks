@@ -73,6 +73,19 @@
     .fb-disclaimer { margin: 5px 0 0; font-size: var(--fb-small-size); color: var(--fb-header-ink); line-height: 1.5; }
     .fb-transcript { flex: 1 0 180px; min-height: 180px; max-height: clamp(220px, calc(100dvh - 470px), 440px); overflow-y: auto; overscroll-behavior: contain; padding: 16px 22px; background: var(--fb-surface); scroll-padding: 18px; }
     .fb-composer { flex-shrink: 0; }
+    .fb-live-context { padding: 16px 24px; border-bottom: 1px solid var(--fb-line); background: var(--fb-soft); font-size: var(--fb-small-size); }
+    .fb-live-context p + label { display: block; margin-top: 12px; font-weight: 700; }
+    .fb-live-context select { display: block; width: 100%; min-height: 44px; margin: 6px 0; padding: 8px; border: 1px solid var(--fb-line); border-radius: 8px; background: var(--fb-paper); color: var(--fb-ink); font: inherit; }
+    .fb-live-context [role="status"] { margin-top: 10px; font-weight: 700; }
+    .fb-execution-source { margin-top: 6px; color: var(--fb-muted); font-size: var(--fb-small-size); }
+    .fb-comparison { margin-top: 10px; padding: 14px; border: 1px solid var(--fb-line); border-radius: 12px; background: var(--fb-soft); font-size: var(--fb-small-size); }
+    .fb-comparison summary { cursor: pointer; font-weight: 700; }
+    .fb-comparison-funding { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-block: 14px; }
+    .fb-comparison-funding dd { font-weight: 900; font-size: var(--fb-body-size); }
+    .fb-comparison p + p { margin-top: 6px; }
+    .fb-comparison ul { list-style: disc; padding-left: 20px; margin-block: 10px; }
+    .fb-goal-impact { margin-block: 12px; padding-top: 12px; border-top: 1px solid var(--fb-line); }
+    .fb-retry-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     &:dir(rtl) .fb-history { border-right: 0; border-left: 1px solid var(--fb-line); }
     &[data-wide="false"] .fb-transcript { flex: none; height: clamp(210px, 36dvh, 400px); }
     .fb-latest-row { display: flex; justify-content: center; padding: 6px 18px 12px; }

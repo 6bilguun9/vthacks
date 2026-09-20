@@ -7,15 +7,31 @@ import ChatHistory from "./ChatHistory";
 import ConversationHeading from "./ConversationHeading";
 import ConversationTranscript from "./ConversationTranscript";
 import { canSendQuestion, QUESTION_LIMIT, shouldSendOnEnter } from "./composer-input";
-import { type Conversation } from "./conversation-history";
+import { historyStorageKey, type Conversation } from "./conversation-history";
 import { getDemoReply } from "./demo-replies";
 import { demoData } from "@/features/dashboard/demo-data";
 import { useChatHistory } from "./use-chat-history";
+import { ApiError, sendChat } from "@/lib/api";
+import { useFinancialSession } from "@/features/session/financial-session";
+import { liveRequestError } from "./live-chat";
 
 const noMessages: Conversation["messages"] = [];
 
 export default function ChatPanel({ isVisible = true }: { isVisible?: boolean }) {
-  const { history, dispatch, ready, warning } = useChatHistory();
+  const { mode, userId } = useFinancialSession();
+  return <ScopedChatPanel key={`${mode}:${userId ?? "disconnected"}`} isVisible={isVisible} />;
+}
+
+function ScopedChatPanel({ isVisible }: { isVisible: boolean }) {
+  const session = useFinancialSession();
+  const live = session.mode === "live";
+  const { history, dispatch, ready, warning } = useChatHistory(historyStorageKey(session.mode, session.userId));
+  const [requestError, setRequestError] = useState<{ id: string; text: string } | null>(null);
+  const [selectedGoalId, setSelectedGoalId] = useState("");
+  const canUseLive = session.status === "ready" && session.overview?.capabilities?.ai === true;
+  const allowed = !live || canUseLive;
+  const goals = session.overview?.plan.goals ?? [];
+  const validGoalId = goals.some((goal) => goal.id === selectedGoalId) ? selectedGoalId : "";
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -25,7 +41,7 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
   const shellRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const historyButtonRef = useRef<HTMLButtonElement>(null);
-  const pendingRef = useRef<{ id: string; timer: ReturnType<typeof setTimeout> } | null>(null);
+  const pendingRef = useRef<{ id: string; controller: AbortController; timer?: ReturnType<typeof setTimeout> } | null>(null);
   const activeChat = history.conversations.find((chat) => chat.id === history.activeId);
   const messages = activeChat?.messages ?? noMessages;
   const draftKey = activeChat?.id ?? "new";
@@ -45,22 +61,56 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
   }, []);
 
   useEffect(() => () => {
-    if (pendingRef.current) clearTimeout(pendingRef.current.timer);
+    pendingRef.current?.controller.abort();
+    clearTimeout(pendingRef.current?.timer);
+    pendingRef.current = null;
   }, []);
 
-  function prepareReply(chatId: string, question: string, questionIndex: number) {
+  // Data changes invalidate an in-flight comparison, even if the selected chat stays open.
+  useEffect(() => () => {
+    pendingRef.current?.controller.abort();
+    clearTimeout(pendingRef.current?.timer);
+    pendingRef.current = null;
+    setPendingId(null);
+  }, [session.overview?.snapshot.id, session.overview?.plan.version]);
+
+  async function prepareReply(chatId: string, question: string, questionIndex: number) {
+    if (!allowed || pendingRef.current) return;
+    const pending = { id: chatId, controller: new AbortController(), timer: undefined as ReturnType<typeof setTimeout> | undefined };
+    pendingRef.current = pending;
     setPendingId(chatId);
-    pendingRef.current = { id: chatId, timer: setTimeout(() => {
-      dispatch({ type: "reply", id: chatId, questionIndex, text: getDemoReply(question), at: new Date().getTime() });
-      pendingRef.current = null;
-      setPendingId(null);
-    }, 900) };
+    setRequestError(null);
+    if (!live) {
+      pending.timer = setTimeout(() => {
+        if (pendingRef.current !== pending) return;
+        dispatch({ type: "reply", id: chatId, questionIndex, question, text: getDemoReply(question), at: Date.now() });
+        pendingRef.current = null;
+        setPendingId(null);
+      }, 900);
+      return;
+    }
+    try {
+      const overview = session.overview;
+      if (!overview) throw new Error("Load your guest plan before asking FinBot.");
+      const accessToken = await session.getAccessToken();
+      if (pending.controller.signal.aborted) return;
+      const result = await sendChat({ message: question, snapshotId: overview.snapshot.id, planVersion: overview.plan.version, selectedGoalId: validGoalId || null }, { accessToken, signal: pending.controller.signal });
+      if (pendingRef.current !== pending || pending.controller.signal.aborted) return;
+      dispatch({ type: "reply", id: chatId, questionIndex, question, text: result.text, backend: result, at: Date.now() });
+    } catch (cause) {
+      if (pendingRef.current !== pending || pending.controller.signal.aborted) return;
+      setRequestError({ id: chatId, text: liveRequestError(cause, "chat") });
+      if (cause instanceof ApiError && cause.status === 409) await session.reload().catch(() => undefined);
+    } finally {
+      if (pendingRef.current === pending) pendingRef.current = null;
+      if (!pending.controller.signal.aborted) setPendingId(null);
+    }
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = input.trim();
-    if (!ready || !canSendQuestion(input) || pendingRef.current || interrupted) return;
+    if (!ready || !allowed || !canSendQuestion(input) || pendingRef.current || interrupted) return;
     const chatId = activeChat?.id ?? crypto.randomUUID();
     dispatch({ type: "ask", id: chatId, question, at: new Date().getTime() });
     setDrafts((previous) => ({ ...previous, [draftKey]: "", [chatId]: "" }));
@@ -86,11 +136,13 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
 
   function removeChat(chatId: string) {
     if (pendingRef.current?.id === chatId) {
+      pendingRef.current.controller.abort();
       clearTimeout(pendingRef.current.timer);
       pendingRef.current = null;
       setPendingId(null);
     }
     dispatch({ type: "remove", id: chatId });
+    if (requestError?.id === chatId) setRequestError(null);
     setAnnouncement("Conversation deleted from this browser.");
     inputRef.current?.focus();
   }
@@ -100,10 +152,10 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
       <header className="fb-header">
         <div className="fb-brand">
           <Image className="fb-logo" src="/finbot/team-logo.png" alt="Our team’s orange robot logo" width={445} height={473} sizes="60px" />
-          <div><h1 id={`${id}-title`}>FinBot</h1><p id={`${id}-disclaimer`} className="fb-disclaimer">Sample replies · No accounts connected.</p></div>
+          <div><h1 id={`${id}-title`}>FinBot</h1><p id={`${id}-disclaimer`} className="fb-disclaimer">{live ? !canUseLive ? "Connected planner · AI access required" : session.overview?.snapshot.source.kind === "fixture" ? "Live AI · Synthetic bank example" : "Live AI · Nessie sandbox / manual data" : "Sample replies · No accounts connected."}</p></div>
         </div>
         <div className="fb-header-tools">
-          <span className="fb-date">{demoData.month} {demoData.year}</span>
+          <span className="fb-date">{live ? "Guest planning session" : `${demoData.month} ${demoData.year}`}</span>
           <div className="fb-toolbar">
             <button ref={historyButtonRef} className="fb-history-toggle" type="button" hidden={wide} aria-expanded={showHistory} aria-controls={`${id}-history`} onClick={() => setHistoryOpen((open) => !open)}>
               {showHistory ? <PanelLeftClose aria-hidden="true" /> : <History aria-hidden="true" />}History<span className="fb-count">{history.conversations.length}</span>
@@ -124,14 +176,33 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
             dispatch({ type: "rename", id: activeChat.id, title });
             setAnnouncement("Chat renamed.");
           }} />}
-          <ConversationTranscript key={`transcript-${activeChat?.id ?? "new"}`} messages={messages} ready={ready} thinking={thinkingHere} isVisible={isVisible} />
+          {live && <div className="fb-live-context">
+            <p>Each message is a separate request. Include the amount, date, and goal again when clarifying. Comparisons never save changes automatically.</p>
+            <label htmlFor={`${id}-goal`}>Goal to consider for this request</label>
+            <select id={`${id}-goal`} value={validGoalId} disabled={pendingId !== null} onChange={(event) => setSelectedGoalId(event.target.value)}>
+              <option value="">No goal selected</option>
+              {goals.map((goal) => <option key={goal.id} value={goal.id}>{goal.name}</option>)}
+            </select>
+            <p>Choosing a goal lets the planner show how using its funds would affect its date. You still choose whether to save a change.</p>
+            {!canUseLive && <p role="status">{session.status !== "ready" ? "Connect and load your guest plan to ask FinBot." : "AI is limited to an approved presenter guest. Other live planning tools remain available."}</p>}
+          </div>}
+          <ConversationTranscript live={live} key={`transcript-${activeChat?.id ?? "new"}`} messages={messages} ready={ready} thinking={thinkingHere} isVisible={isVisible} />
           <div className="fb-composer">
             <p id={`${id}-status`} className={`fb-status${interrupted ? "" : " sr-only"}`} role="status">
-              {pendingId ? thinkingHere ? "Preparing your sample reply…" : "Finishing a reply in another chat…" : interrupted ? "Reply interrupted. Resume to continue." : announcement}
+              {pendingId ? thinkingHere ? live ? "Asking the backend planner…" : "Preparing your sample reply…" : "Finishing a reply in another chat…" : interrupted ? "No reply received. Retry or edit your question." : announcement}
             </p>
-            {interrupted && <button className="fb-resume" type="button" onClick={() => {
-              if (activeChat && !pendingRef.current) prepareReply(activeChat.id, messages.at(-1)!.text, messages.length - 1);
-            }}>Resume sample reply</button>}
+            {requestError?.id === activeChat?.id && <p className="fb-storage-warning" role="alert">{requestError?.text}</p>}
+            {interrupted && <div className="fb-retry-actions"><button className="fb-resume" type="button" disabled={!allowed} onClick={() => {
+              if (activeChat && !pendingRef.current) void prepareReply(activeChat.id, messages.at(-1)!.text, messages.length - 1);
+            }}>{live ? "Retry question" : "Resume sample reply"}</button><button className="fb-resume" type="button" onClick={() => {
+              if (!activeChat) return;
+              const question = messages.at(-1)!.text;
+              const nextDraftKey = messages.length === 1 ? "new" : activeChat.id;
+              dispatch({ type: "discard-question", id: activeChat.id });
+              setDrafts((previous) => ({ ...previous, [nextDraftKey]: question }));
+              setRequestError(null);
+              inputRef.current?.focus();
+            }}>Edit question</button></div>}
             <form onSubmit={handleSubmit}>
               <div className="fb-input-row">
                 <label htmlFor={`${id}-input`}>Message FinBot</label>
@@ -143,7 +214,7 @@ export default function ChatPanel({ isVisible = true }: { isVisible?: boolean })
                 }} aria-describedby={`${id}-disclaimer ${id}-input-help ${id}-count`} aria-invalid={overLimit || undefined} aria-keyshortcuts="Enter" placeholder="Ask about your money…" autoComplete="off" />
                 <div className="fb-composer-actions">
                   <span className="fb-composer-signature" aria-hidden="true">One step at a time.</span>
-                  <button className="fb-send" type="submit" disabled={!ready || pendingId !== null || interrupted || !canSendQuestion(input)}><span>{thinkingHere ? "Preparing…" : "Send"}</span><ArrowUp aria-hidden="true" /></button>
+                  <button className="fb-send" type="submit" disabled={!ready || !allowed || pendingId !== null || interrupted || !canSendQuestion(input)}><span>{thinkingHere ? "Preparing…" : "Send"}</span><ArrowUp aria-hidden="true" /></button>
                 </div>
               </div>
               <div className="fb-input-help">

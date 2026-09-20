@@ -10,6 +10,10 @@ import NotificationBell from "@/features/notifications/NotificationBell";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
 import { getInterfaceCopy, isRtlLanguage } from "./interface-language";
 import { useDashboardTheme } from "./theme-preference";
+import { ConnectionControl } from "@/features/session/connection-control";
+import { useFinancialSession } from "@/features/session/financial-session";
+import { LiveDashboard } from "./live-dashboard";
+import { displayDate } from "./live-inputs";
 
 import { demoData, demoSummary, formatMoney as money } from "./demo-data";
 
@@ -70,6 +74,8 @@ export default function Dashboard() {
   const view = useSyncExternalStore(subscribeView, currentView, () => "main" as View);
   const { theme, toggleTheme } = useDashboardTheme();
   const { preferences, updatePreference } = useAccessibilityPreferences();
+  const session = useFinancialSession();
+  const live = session.mode === "live";
   const copy = getInterfaceCopy(preferences.language);
   const viewCopy = copy.views[view];
   const overview = copy.overview;
@@ -77,7 +83,10 @@ export default function Dashboard() {
   const budgetRemaining = money(Math.abs(demoSummary.budgetRemainingCents));
   const spendingDescription = `${overview.totalSpent}: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${overview.categories[item.name]}: ${money(item.amountCents)}`).join(", ")}`;
   const overviewSummary = `${viewCopy.title}. ${copy.demoSample}. ${copy.balances.bankBalance}: ${money(demoData.bankBalanceCents)}. ${copy.balances.checkingDescription}. ${overview.walletName}: ${money(demoData.walletBalanceCents)}. ${copy.balances.walletDescription}. ${overview.milestone.replace("{amount}", money(goal.savedCents, 0))} ${spendingDescription}. ${budgetNote.replace("{amount}", budgetRemaining)}`;
-  const readText = view === "main" ? overviewSummary : preferences.language === "en" ? getViewSummary(view) : `${viewCopy.title} ${viewCopy.description}`;
+  const liveSummary = session.overview
+    ? `Connected sandbox planner. ${views[view].label}. Forecast as of ${displayDate(session.overview.projection.asOf)}. ${session.overview.projection.feasibility.replaceAll("_", " ")}. ${session.overview.projection.warnings.join(" ")}. ${view === "main" ? session.overview.snapshot.accounts.map(account => `${account.name}, ${account.type}, ${money(account.balanceCents)}.`).join(" ") : view === "savings" ? session.overview.plan.goals.map(item => `${item.name}: ${money(item.allocatedCents)} allocated toward ${money(item.targetCents)}.`).join(" ") : view === "activity" ? session.overview.snapshot.transactions.map(item => `${item.description ?? "Purchase"}, ${money(item.amountCents)}, ${displayDate(item.date)}, ${item.status}.`).join(" ") : "Ask a complete question including the amount and date. Answers use your saved plan; no change is saved by chat."}`
+    : "Connected planning. Open the connection menu to load your saved plan.";
+  const readText = live ? liveSummary : view === "main" ? overviewSummary : preferences.language === "en" ? getViewSummary(view) : `${viewCopy.title} ${viewCopy.description}`;
   return (
     <div
       className="dashboard"
@@ -93,11 +102,12 @@ export default function Dashboard() {
       <a className="skip-link" href="#main">{overview.skipDashboard}</a>
       <CampusSidebar activeView={view} labels={copy.nav} copy={overview} onNavigate={navigate} />
       <main id="main">
-        <header className="topbar"><span className="page-location">{copy.nav[view]}</span><div className="topbar-actions"><NotificationBell onViewGoal={(event) => navigate(event, "savings")} /><AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}</button><span className="demo-badge"><span /> {copy.demoSample}</span></div></header>
+        <header className="topbar"><span className="page-location">{copy.nav[view]}</span><div className="topbar-actions">{!live && <NotificationBell onViewGoal={(event) => navigate(event, "savings")} />}<AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}</button><ConnectionControl /></div></header>
         <div className="content">
           {view !== "finbot" && <div className="view-heading" key={view}>
-            <section className="welcome"><h1>{viewCopy.title}</h1><span className="date-label">{overview.month} {demoData.year}</span></section>
+            <section className="welcome"><h1>{viewCopy.title}</h1><span className="date-label">{live ? session.overview ? displayDate(session.overview.snapshot.source.asOf) : "Connected planner" : `${overview.month} ${demoData.year}`}</span></section>
           </div>}
+          {live ? <div key={`live:${view}`} className="view-panel"><LiveDashboard view={view} /></div> : <>
           <div hidden={view !== "main"} className="view-panel overview-view">
           <section className="balance-grid" aria-label={copy.balances.accountOverview}>
             <article className="balance-card"><div className="card-label">{copy.balances.bankBalance} <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> {copy.balances.checkingDescription}</p></article>
@@ -127,7 +137,7 @@ export default function Dashboard() {
               <div><span className="campus-caption">Origami · Turner Place</span><h2 id="campus-dining-title">{overview.diningTitle}</h2><Link href="/dining">{overview.diningLink} <span aria-hidden="true">↗</span></Link></div>
             </section>
           </div>
-
+          </>}
           <footer><span>{overview.footer}</span></footer>
         </div>
       </main>
