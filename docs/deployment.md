@@ -8,17 +8,17 @@ The applications use independent deployments. Backend code and executable migrat
 | --- | --- | --- |
 | Repository | `6bilguun9/vthacks` | `6bilguun9/vthacks` |
 | Root directory | `frontend` | `backend` |
-| Framework | Next.js | Fastify |
+| Framework | Next.js | Other (Node Function wrapping Fastify) |
 | Node version | 24.x | 24.x |
 | Install | `npm ci` | `npm ci` |
-| Build | `npm run build` | `npm run build` |
-| Entry | Next.js App Router | `src/index.ts` |
+| Build | `npm run build` | Disabled in Vercel; CI still runs `npm run check` |
+| Entry | Next.js App Router | `api/function.ts` via `/api/v1/*` rewrite |
 
-Deploy the backend first, then set `NEXT_PUBLIC_API_BASE_URL` in the frontend to the backend HTTPS origin. Set backend `CORS_ORIGINS` to the exact frontend HTTPS origin and `HOST=0.0.0.0`. For known preview URLs, add each explicitly; do not broadly allow all Vercel domains. Rebuild the frontend after changing its public API URL.
+Deploy the backend first, then set `NEXT_PUBLIC_API_BASE_URL` in the frontend to the backend HTTPS origin. Set backend `CORS_ORIGINS` to the exact frontend HTTPS origin. Vercel invokes `api/function.ts` directly, so its deployment does not use `HOST` or `PORT`; those variables remain available for local/container listening through `src/index.ts`. For known preview URLs, add each explicitly; do not broadly allow all Vercel domains. Rebuild the frontend after changing its public API URL.
 
 Check `/api/v1/health` directly and through the frontend connection card. Liveness does not establish Nessie, ARC, Supabase, or ANS readiness. Provider failures must never be reported as connected simply because the health endpoint works.
 
-Docs: [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs), [Fastify on Vercel](https://vercel.com/docs/frameworks/backend/fastify).
+Docs: [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs), [Vercel Node.js Functions](https://vercel.com/docs/functions/runtimes/node-js), [Fastify on Vercel](https://vercel.com/docs/frameworks/backend/fastify).
 
 ## First integration milestone
 

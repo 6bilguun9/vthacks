@@ -50,7 +50,8 @@ Nessie read-only adapter + manual entries
 
 | Location | Responsibility |
 | --- | --- |
-| `src/index.ts` | Listening server and shutdown handling; Vercel entrypoint |
+| `src/index.ts` | Listening server and shutdown handling for local/container runs |
+| `api/function.ts` | Vercel Function adapter that forwards requests into Fastify |
 | `src/create-app.ts` | App factory, CORS, and error boundaries; import this in tests |
 | `src/routes/` | Thin HTTP handlers |
 | `src/config/` | Environment validation |
@@ -85,4 +86,4 @@ Add dependencies here only. Coordinate any shared API shape changes through `../
 
 ## Deployment
 
-Use a separate Vercel project rooted at `backend`, framework Fastify, and Node 24. `src/index.ts` is the listening-server entrypoint. Set `HOST=0.0.0.0` and explicitly allow the deployed frontend origin. Runtime builds do not depend on sibling files. Apply the migration and configure anonymous auth/CAPTCHA before connecting the frontend. See [deployment](../docs/deployment.md) and [handoff](../docs/backend-handoff.md); hosted integration remains a separate verification step.
+Use a separate Vercel project rooted at `backend` and Node 24. The checked-in `vercel.json` selects the framework-neutral Node Function build, disables the static build command, and rewrites `/api/v1/*` to `api/function.ts`. `src/index.ts` remains the local/container listening entrypoint; Vercel does not need `HOST` or `PORT`. Explicitly allow the deployed frontend origin with `CORS_ORIGINS`. Apply the migration and configure anonymous auth/CAPTCHA before connecting the frontend. See [deployment](../docs/deployment.md) and [handoff](../docs/backend-handoff.md); hosted integration remains a separate verification step.
