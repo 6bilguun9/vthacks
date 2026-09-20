@@ -5,3 +5,5 @@ Future services coordinate authorization, snapshots, provider adapters, financia
 Guest plan access must be authorized on the server. Plan commits must check the expected version and snapshot, recalculate changes, enforce idempotency, and save a revision atomically. Preview operations must not mutate saved plans.
 
 `financial-snapshot.ts` is the first pure service boundary: it assembles validated Nessie accounts, manual campus balances, and manual university charges into a contract-shaped snapshot without merging their balances. It requires explicit source freshness timestamps; it does not fetch providers, choose a clock, persist data, or grant authorization.
+
+`eligible-bank-cash.ts` requires an explicit checking/savings selection before producing a plan-eligible cash total. It rejects credit accounts, never includes campus balances, preserves known overdrafts, and returns `needs_information` when the selection is missing or unsafe.
