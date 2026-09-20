@@ -23,7 +23,7 @@ For overrides, copy `.env.example` to `.env`. Node loads it using `--env-file-if
 - Unimplemented routes return a structured 404, not fabricated financial data.
 - Request bodies are limited to 64 KiB. Internal errors and raw query strings are not exposed in responses/logs.
 
-Financial routes verify Supabase bearer tokens and load owner-scoped state. Bootstrap explicitly selects fixture data. Preview/scenarios/chat are non-mutating; commits use snapshot/version checks and an idempotency key. Database-backed limits protect writes and AI calls. AI endpoints default off and require presenter allowlisting when enabled. No public unrestricted ARC proxy is provided.
+Financial routes verify Supabase bearer tokens and load owner-scoped state. Bootstrap explicitly selects fixture data. Preview/scenarios/chat are non-mutating; commits use snapshot/version checks and an idempotency key. Database-backed limits protect writes and AI calls. AI endpoints default off and require presenter allowlisting when enabled. No public unrestricted AI-provider proxy is provided.
 
 `POST /api/v1/data/refresh` uses the read-only Nessie adapter for the server-configured sandbox customer. Add `NESSIE_API_KEY` and `NESSIE_CUSTOMER_ID` only to backend configuration. The adapter converts provider dollars to exact integer cents and validates records before creating immutable snapshots. Provider errors preserve the prior snapshot; they never silently substitute fixtures.
 
@@ -60,7 +60,7 @@ Nessie read-only adapter + manual entries
 | `src/domain/` | Validated domain schemas and dependency interfaces |
 | `src/auth/`, `src/persistence/`, `src/limits/` | Token verification, owner-scoped storage, database limits |
 | `src/finance/` | Pure deterministic goal, cash-flow, and plan calculations |
-| `src/integrations/` | Server-only Nessie, ARC, and ANS adapters |
+| `src/integrations/` | Server-only Nessie, AI-provider, and ANS adapters |
 | `src/agents/` | Constrained intent parsing, grounded explanations, dining validation |
 | `supabase/migrations/` | Executable schema, RLS, atomic mutation and limit functions |
 | `supabase/tests/` | Isolated PostgreSQL integration/concurrency checks |

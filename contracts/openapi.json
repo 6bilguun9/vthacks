@@ -40,7 +40,7 @@
     "/api/v1/dining-plans": {
       "post": {
         "operationId": "createDiningPlan",
-        "summary": "Presenter-authorized ARC dining suggestions with deterministic totals",
+        "summary": "Presenter-authorized AI dining suggestions with deterministic totals",
         "x-implementation-status": "implemented",
         "requestBody": {
           "required": true,

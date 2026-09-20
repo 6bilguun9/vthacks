@@ -1,12 +1,12 @@
 # VT Student Savings Planner
 
-An AI-assisted financial planner for Virginia Tech students, with Nessie **sandbox** banking data, manually entered campus balances and charges, deterministic savings calculations, and a VT ARC-powered conversation interface.
+An AI-assisted financial planner for Virginia Tech students, with Nessie **sandbox** banking data, manually entered campus balances and charges, deterministic savings calculations, and a server-selected VT ARC or OpenRouter conversation interface.
 
 ## Current status
 
-**Implemented in the backend:** authorized guest-owned plans, Supabase persistence/RLS migrations, deterministic previews and purchase comparisons, explicit versioned saves, read-only Nessie refresh, manual campus data, presenter-restricted ARC chat/dining, signed ANS planner calls, persistent limits, and automated tests. The frontend and backend remain independent applications.
+**Implemented in the backend:** authorized guest-owned plans, Supabase persistence/RLS migrations, deterministic previews and purchase comparisons, explicit versioned saves, read-only Nessie refresh, manual campus data, presenter-restricted AI chat/dining, signed ANS planner calls, persistent limits, and automated tests. The frontend and backend remain independent applications.
 
-**Still required for hosted use:** configure Supabase and apply migrations, wire the frontend guest session and private API requests, select/provision a Nessie sandbox customer, deploy the backend, and validate both ANS identities/DNS. Provider-mocked tests and local PostgreSQL tests do not prove hosted integration readiness. The health endpoint verifies only that the backend is running. See the [backend handoff](docs/backend-handoff.md) for the activation checklist and teammate split.
+**Still required before public use:** complete the authenticated frontend flow, select/provision a populated Nessie sandbox customer, and run the hosted two-guest isolation and end-to-end save tests. Provider-mocked tests and local PostgreSQL tests do not prove hosted integration readiness. The health endpoint verifies only that the backend is running. See the [backend handoff](docs/backend-handoff.md) for the activation checklist and teammate split.
 
 ## Start here
 

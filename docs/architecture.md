@@ -14,7 +14,7 @@ Browser / Next.js frontend
 Fastify backend
         |-- authorized services --> Supabase
         |-- read-only banking adapter --> Nessie sandbox
-        |-- coach --> VT ARC (parse/explain)
+        |-- coach --> selected AI provider (parse intent)
         |           --> ANS (resolve planner)
         |           --> authenticated planner endpoint
         |-- planner --> deterministic TypeScript finance engine
@@ -72,9 +72,9 @@ A saved hypothetical purchase is a planned expense, not a completed bank transac
 
 Nessie provides synthetic banking data. Support authorized manual entry of university charges, due dates, and restricted balances; do not claim a Hokie Wallet API connection. Include per-source timestamps and clear sample/manual/stale labels.
 
-VT ARC interprets a constrained set of intents and explains engine results. Validate model output with Zod, allow one bounded repair, and use a scenario form if parsing fails. Render numerical results from the engine. Validate explanation references/placeholders and fall back to deterministic text if grounding fails.
+The selected server-side AI provider (VT ARC or OpenRouter) interprets a constrained set of intents and supplies bounded dining suggestions. Validate model output with Zod, allow one bounded repair, and use a scenario form if parsing fails. Render all financial numerical results from the deterministic engine.
 
-Send only required financial fields to ARC; omit personal identifiers and raw transaction details. Cap requests and disable external provider fallback by default. ARC availability and app-mediated public use must be verified before unrestricted public AI access.
+Send only the required bounded fields to the selected AI provider; omit personal identifiers and raw transaction details. Provider selection is explicit configuration, not an automatic fallback. Verify the provider's privacy settings, data policy, limits, and app-mediated public-use terms before unrestricted public AI access.
 
 ANS registration/discovery is real integration work, not a badge. The coach resolves the planner's configured host/version, validates the destination, and authenticates the request. Sign the audience, body, timestamp, and nonce; reject expiry/replay. Never allow user/model-chosen URLs. An outage may use the local engine only if the UI clearly labels the fallback.
 
@@ -82,7 +82,7 @@ ANS registration/discovery is real integration work, not a badge. The coach reso
 
 - Anonymous guest sessions, RLS isolation, and server authorization on every private endpoint.
 - Turnstile at guest creation; Postgres-backed rate counters and expiring concurrency leases.
-- Initial chat limits: five requests/minute/guest, a separate IP limit, one in-flight chat/guest, and two simultaneous ARC calls globally.
+- Initial chat limits: five requests/minute/guest, a separate IP limit, one in-flight chat/guest, and two simultaneous AI-provider calls globally.
 - Provider timeouts, bounded retries, safe errors, data freshness, and an AI kill switch.
 - No provider credentials or raw financial payloads in the browser or logs.
 - Clearly identify sample-data affordability as a hypothetical result, not the visitor's actual bank position.
@@ -101,5 +101,6 @@ ANS registration/discovery is real integration work, not a badge. The coach reso
 - [Nessie sandbox overview](https://api.nessieisreal.com/) and [official SDK resource shapes](https://github.com/nessieisreal/nessie-javascript-sdk)
 - [Virginia Tech account restrictions](https://www.hokiepassport.vt.edu/pages/FAQ.php?div2=Student)
 - [VT ARC API, models, access, and retention](https://www.docs.arc.vt.edu/ai/011_llm_api_arc_vt_edu.html)
+- [OpenRouter API quickstart](https://openrouter.ai/docs/quickstart)
 - [GoDaddy ANS registration](https://developer.godaddy.com/en/docs/references/rest/ans/registration) and [resolution](https://developer.godaddy.com/en/docs/references/rest/ans/resolution)
 - [Supabase anonymous authentication](https://supabase.com/docs/guides/auth/auth-anonymous) and [row-level security](https://supabase.com/docs/guides/database/postgres/row-level-security)

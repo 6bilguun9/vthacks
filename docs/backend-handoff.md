@@ -1,6 +1,6 @@
 # Backend MVP integration handoff
 
-The backend implements guest-owned financial planning. Cloud activation is a separate step: health does not prove that Supabase, Nessie, ARC, or ANS is configured. All banking data is sandbox or explicitly requested synthetic fixture data. No financial account mutation endpoints exist.
+The backend implements guest-owned financial planning. Cloud activation is a separate step: health does not prove that Supabase, Nessie, the selected AI provider, or ANS is configured. All banking data is sandbox or explicitly requested synthetic fixture data. No financial account mutation endpoints exist.
 
 ## Local verification
 
@@ -33,7 +33,7 @@ Saved hypothetical purchases remain planned expenses. After a new bank snapshot 
 
 Default `AI_MODE=off`. For the authorized presentation set `AI_MODE=presenter` and `PRESENTER_USER_IDS` to the comma-separated verified Supabase user IDs. Both `/chat` and `/dining-plans` require the guest token and presenter permission. The existing frontend dining client needs that header before it can use the protected endpoint.
 
-Configure ARC only in the backend. Goal/purchase calculations come from deterministic code; dining meal prices remain estimates and their totals are recomputed. ARC failures direct the user to structured planning inputs. Missing dates/goals produce clarification rather than invented values.
+Choose `AI_PROVIDER=arc` or `AI_PROVIDER=openrouter` only in the backend and configure the matching credential. Goal/purchase calculations come from deterministic code; dining meal prices remain estimates and their totals are recomputed. AI-provider failures direct the user to structured planning inputs. Missing dates/goals produce clarification rather than invented values.
 
 Set the configured coach/planner hosts, ANS production key, and a random signing secret of at least 32 characters. Runtime ANS resolution uses HTTPS and the configured planner endpoint, not a CLI subprocess. Planner requests carry the guest bearer token plus signed audience, timestamp, body, and single-use nonce. POST bodies use `ScenarioRequest` directly. Registration/DNS validation still uses the existing maintenance scripts.
 
@@ -51,5 +51,5 @@ Set the configured coach/planner hosts, ANS production key, and a random signing
 ## Backend teammate split
 
 - Backend developer 1: authentication/storage, Nessie/manual snapshots, HTTP orchestration, deployment, integration checks.
-- Backend developer 2: financial engine, scenario correctness, ARC coach/dining, ANS runtime and sponsor demonstration.
+- Backend developer 2: financial engine, scenario correctness, AI coach/dining, ANS runtime and sponsor demonstration.
 - Coordinate shared contracts, environment definitions, route composition, and dependency changes before editing. Each developer uses a separate feature branch. Frontend developers retain frontend ownership.

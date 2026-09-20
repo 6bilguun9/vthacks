@@ -58,7 +58,7 @@ export function createApp(
   const runtime = { auth, repository, limits, clock, finance, agents, requireAi };
   app.register(financialRoutes, { prefix: "/api/v1", ...runtime });
   app.register(agentRoutes, { prefix: "/api/v1", config, ...runtime });
-  app.register(diningPlanRoutes, { prefix: "/api/v1", config, ...runtime });
+  app.register(diningPlanRoutes, { prefix: "/api/v1", config, ...runtime, ...(dependencies.fetch ? { fetch: dependencies.fetch } : {}) });
 
   app.setNotFoundHandler((_request, reply) => {
     return reply.code(404).send({

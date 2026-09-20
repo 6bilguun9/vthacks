@@ -1,16 +1,16 @@
 # Coach and planner
 
-The coach will interpret constrained financial questions with VT ARC and call the deterministic planner. The planner owns calculation results; the coach must not invent them. Both are exposed as separate HTTP-API identities, while sharing this Fastify deployment.
+The coach interprets constrained financial questions with the configured AI provider and calls the deterministic planner. The planner owns calculation results; the coach does not invent them. Both are exposed as separate HTTP-API identities while sharing this Fastify deployment.
 
 ## Stable development seams
 
 - `GET /api/v1/agents/coach` and `GET /api/v1/agents/planner` expose non-sensitive descriptors for the two registered identities.
-- `POST` to either endpoint deliberately returns `501 AGENT_NOT_IMPLEMENTED` until its owner builds the runtime. This prevents a sponsor registry entry from implying that financial advice is ready.
+- `POST /api/v1/agents/coach` runs the authenticated coach flow. `POST /api/v1/agents/planner` requires the guest bearer token plus the signed coach invocation and reloads owner-scoped state before calculating.
 - Definitions, endpoint paths, function tags, and configured hosts live in `src/agents/registry.ts`. Add an agent capability there before registering it.
 - GoDaddy ANS commands live in `scripts/`; their local CSRs, private keys, and registration state live under ignored `backend/.ans/`.
 
 ## Building the runtime
 
-The agent owner should add a narrow request schema and deterministic result schema before adding a `POST` handler. The coach's eventual remote call must resolve only the configured planner FQDN, reject redirects, sign audience/body/expiry/nonce, and never accept an LLM- or user-provided URL. ANS discovery is not user authorization and does not certify financial advice.
+The coach resolves only the configured planner FQDN and version through ANS, rejects redirects, and signs the audience, body, timestamp, and single-use nonce. It never accepts an AI- or user-provided URL. ANS discovery is not user authorization and does not certify financial advice.
 
-Keep the planner's financial engine deterministic and test it without ANS or ARC. The coach can then provide a grounded explanation of that engine result.
+Keep the planner's financial engine deterministic and test it without ANS or an AI provider. The coach provides a grounded explanation of that engine result.

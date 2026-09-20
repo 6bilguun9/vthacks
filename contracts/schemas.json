@@ -2375,7 +2375,10 @@
           "const": "https://apps.students.vt.edu/hours/#/"
         },
         "source": {
-          "const": "vt_arc"
+          "enum": [
+            "vt_arc",
+            "openrouter"
+          ]
         },
         "model": {
           "type": "string"
