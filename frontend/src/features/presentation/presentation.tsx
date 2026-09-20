@@ -223,6 +223,11 @@ export function Presentation() {
   const [notesOpen, setNotesOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const notesButtonRef = useRef<HTMLButtonElement>(null);
+  const notesReturnFocusRef = useRef<HTMLElement | null>(null);
+  const hideControlsRef = useRef<HTMLButtonElement>(null);
+  const showControlsRef = useRef<HTMLButtonElement>(null);
+  const moveControlsFocusRef = useRef(false);
+  const sceneRef = useRef<HTMLElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const scene = presentationScenes[playback.index] ?? presentationScenes[0];
   const nextScene = presentationScenes[playback.index + 1];
@@ -236,7 +241,7 @@ export function Presentation() {
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(max-width: 900px), (max-height: 619px)").matches) {
+    if (window.matchMedia("(max-width: 900px), (max-height: 719px)").matches) {
       rootRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     }
   }, [scene.id]);
@@ -247,6 +252,19 @@ export function Presentation() {
     return () => window.clearInterval(timer);
   }, [playback.running]);
 
+  useEffect(() => {
+    if (!moveControlsFocusRef.current) return;
+    moveControlsFocusRef.current = false;
+    (controls ? hideControlsRef.current : showControlsRef.current)?.focus({ preventScroll: true });
+  }, [controls]);
+
+  const toggleControls = useCallback(() => {
+    const active = document.activeElement;
+    // Only move focus when the focused control is about to be removed.
+    moveControlsFocusRef.current = active instanceof HTMLElement
+      && Boolean(rootRef.current?.contains(active) && active.closest(".pc-controls, .pc-show-controls"));
+    setControls(current => !current);
+  }, []);
   const togglePlayback = useCallback(() => dispatch({ type: playback.running ? "pause" : "play", now: performance.now() }), [playback.running]);
   const fullscreen = useCallback(async () => {
     try {
@@ -256,10 +274,21 @@ export function Presentation() {
     } catch { setStatus("Fullscreen could not open in this browser. You can expand the window instead."); }
   }, []);
   const openNotes = useCallback(() => {
+    const active = document.activeElement;
+    notesReturnFocusRef.current = active instanceof HTMLElement && rootRef.current?.contains(active) ? active : null;
     dispatch({ type: "pause", now: performance.now() });
     dialogRef.current?.showModal(); setNotesOpen(true);
   }, []);
   const closeNotes = useCallback(() => { dialogRef.current?.close(); }, []);
+  const restoreNotesFocus = useCallback(() => {
+    setNotesOpen(false);
+    const previous = notesReturnFocusRef.current;
+    notesReturnFocusRef.current = null;
+    const target = previous?.isConnected && !previous.matches(":disabled")
+      ? previous
+      : notesButtonRef.current ?? showControlsRef.current ?? sceneRef.current;
+    target?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -279,22 +308,22 @@ export function Presentation() {
         case "p": event.preventDefault(); togglePlayback(); break;
         case "n": event.preventDefault(); openNotes(); break;
         case "f": event.preventDefault(); void fullscreen(); break;
-        case "h": event.preventDefault(); setControls(current => !current); break;
+        case "h": event.preventDefault(); toggleControls(); break;
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [playback.index, togglePlayback, openNotes, closeNotes, fullscreen]);
+  }, [playback.index, togglePlayback, toggleControls, openNotes, closeNotes, fullscreen]);
 
   // Keep a button that initiated navigation usable without retaining a detached focus target.
   const seek = (index: number) => dispatch({ type: "seek", index });
   return <div ref={rootRef} className="pitch" data-reduced={reduced ?? "system"} data-scene={scene.id} data-controls={controls}>
     <a className="pc-skip" href="#pitch-scene">Skip presentation controls</a>
     <header className="pc-header"><a className="pc-brand" href={presentationAppUrl} target="_blank" rel="noreferrer"><Wallet size={24} /><span>hokie<span>Wallet</span></span></a><span className="pc-event">VTHacks 14 <span>/</span> sudo win</span><div className="pc-scene-label"><span>{scene.speaker}</span><span>{String(playback.index + 1).padStart(2, "0")} / 09</span></div></header>
-    <main id="pitch-scene" className="pc-stage" tabIndex={-1} aria-label={`${scene.title} Presented by ${scene.speaker}`}><Scene key={scene.id} id={scene.id} seconds={playback.elapsed - scene.startsAt} /></main>
+    <main ref={sceneRef} id="pitch-scene" className="pc-stage" tabIndex={-1} aria-label={`${scene.title} Presented by ${scene.speaker}`}><Scene key={scene.id} id={scene.id} seconds={playback.elapsed - scene.startsAt} /></main>
     <div className="pc-sr-only" aria-live="polite" aria-atomic="true">Scene {playback.index + 1}: {scene.title} Speaker: {scene.speaker}.</div>
-    {controls ? <footer className="pc-controls"><div className="pc-control-main"><div className="pc-navigation"><button className="pc-icon-button" aria-label="Previous scene" disabled={playback.index === 0} onClick={() => seek(playback.index - 1)}><ChevronLeft /></button><button className="pc-icon-button" aria-label="Next scene" disabled={playback.index === presentationScenes.length - 1} onClick={() => seek(playback.index + 1)}><ChevronRight /></button><button className="pc-play" onClick={togglePlayback}>{playback.running ? <Pause size={15} /> : <Play size={15} />}{playback.running ? "Pause" : playback.elapsed === 0 ? "Start 4-minute talk" : playback.elapsed === 240 ? "Replay talk" : "Resume talk"}</button><span className="pc-timer" aria-label={`${formatPresentationTime(playback.elapsed)} elapsed of 4 minutes`}>{formatPresentationTime(playback.elapsed)}<span> / 4:00</span></span></div><nav className="pc-dots" aria-label="Presentation scenes">{presentationScenes.map((item, i) => <button key={item.id} aria-label={`${i + 1}. ${item.title} ${item.speaker}`} aria-current={playback.index === i ? "step" : undefined} title={item.title} onClick={() => seek(i)}><span /></button>)}</nav><div className="pc-utilities"><button className="pc-icon-button" ref={notesButtonRef} aria-label="Open speaker notes" title="Speaker notes (N)" onClick={openNotes}><BookOpen size={18} /></button><button className="pc-icon-button" aria-label="Toggle reduced motion" aria-pressed={effectiveReduced} title={effectiveReduced ? "Motion reduced — turn animations on" : "Reduce motion"} onClick={() => setReduced(!effectiveReduced)}><Eye size={18} /><span className="pc-utility-text">{reduced === null ? effectiveReduced ? "System: reduced" : "System" : effectiveReduced ? "Reduced" : "Motion on"}</span></button><button className="pc-icon-button" aria-label="Toggle fullscreen" title="Fullscreen (F)" onClick={() => void fullscreen()}><Maximize2 size={18} /></button><button className="pc-icon-button" aria-label="Hide presentation controls" title="Hide controls (H)" onClick={() => setControls(false)}><EyeOff size={18} /></button></div></div><div className="pc-progress" role="progressbar" aria-label="Presentation time" aria-valuemin={0} aria-valuemax={totalPresentationSeconds} aria-valuenow={Math.floor(playback.elapsed)}><span style={{ width: `${playback.elapsed / totalPresentationSeconds * 100}%` }} /></div></footer> : <button className="pc-show-controls" onClick={() => setControls(true)}><Eye size={15} /> Show controls</button>}
+    {controls ? <footer className="pc-controls"><div className="pc-control-main"><div className="pc-navigation"><button className="pc-icon-button" aria-label="Previous scene" disabled={playback.index === 0} onClick={() => seek(playback.index - 1)}><ChevronLeft /></button><button className="pc-icon-button" aria-label="Next scene" disabled={playback.index === presentationScenes.length - 1} onClick={() => seek(playback.index + 1)}><ChevronRight /></button><button className="pc-play" onClick={togglePlayback}>{playback.running ? <Pause size={15} /> : <Play size={15} />}{playback.running ? "Pause" : playback.elapsed === 0 ? "Start 4-minute talk" : playback.elapsed === 240 ? "Replay talk" : "Resume talk"}</button><span className="pc-timer" aria-label={`${formatPresentationTime(playback.elapsed)} elapsed of 4 minutes`}>{formatPresentationTime(playback.elapsed)}<span> / 4:00</span></span></div><nav className="pc-dots" aria-label="Presentation scenes">{presentationScenes.map((item, i) => <button key={item.id} aria-label={`${i + 1}. ${item.title} ${item.speaker}`} aria-current={playback.index === i ? "step" : undefined} title={item.title} onClick={() => seek(i)}><span /></button>)}</nav><div className="pc-utilities"><button className="pc-icon-button" ref={notesButtonRef} aria-label="Open speaker notes" title="Speaker notes (N)" onClick={openNotes}><BookOpen size={18} /></button><button className="pc-icon-button" aria-label="Toggle reduced motion" aria-pressed={effectiveReduced} title={effectiveReduced ? "Motion reduced — turn animations on" : "Reduce motion"} onClick={() => setReduced(!effectiveReduced)}><Eye size={18} /><span className="pc-utility-text">{reduced === null ? effectiveReduced ? "System: reduced" : "System" : effectiveReduced ? "Reduced" : "Motion on"}</span></button><button className="pc-icon-button" aria-label="Toggle fullscreen" title="Fullscreen (F)" onClick={() => void fullscreen()}><Maximize2 size={18} /></button><button ref={hideControlsRef} className="pc-icon-button" aria-label="Hide presentation controls" title="Hide controls (H)" onClick={toggleControls}><EyeOff size={18} /></button></div></div><div className="pc-progress" role="progressbar" aria-label="Presentation time" aria-valuemin={0} aria-valuemax={totalPresentationSeconds} aria-valuenow={Math.floor(playback.elapsed)}><span style={{ width: `${playback.elapsed / totalPresentationSeconds * 100}%` }} /></div></footer> : <button ref={showControlsRef} className="pc-show-controls" onClick={toggleControls}><Eye size={15} /> Show controls</button>}
     {status && <div className="pc-status" role="status">{status}<button onClick={() => setStatus("")} aria-label="Dismiss message"><X size={16} /></button></div>}
-    <dialog className="pc-notes" ref={dialogRef} onClose={() => { setNotesOpen(false); notesButtonRef.current?.focus(); }} aria-labelledby="pc-notes-title"><div className="pc-notes-heading"><div><p className="pc-kicker">Presenter notes · Playback paused</p><h2 id="pc-notes-title">{scene.speaker} · {formatPresentationTime(scene.startsAt)}–{formatPresentationTime(scene.startsAt + scene.duration)}</h2></div><button className="pc-icon-button" aria-label="Close speaker notes" autoFocus={notesOpen} onClick={closeNotes}><X /></button></div><h3>{scene.title}</h3><p className="pc-notes-script">{scene.notes}</p><div className="pc-notes-next"><span>Up next</span><strong>{nextScene ? `${nextScene.speaker} · ${nextScene.title}` : "Thank the judges. Open the product for questions."}</strong></div>{briefing && <details className="pc-backend-notes"><summary>Backend explanation for judges’ questions</summary>{briefing.map(item => <section key={item.question}><h4>{item.question}</h4><p>{item.answer}</p></section>)}</details>}<details><summary>Keyboard controls & sources</summary><p>← / → or Space: navigate · P: run / pause · N: notes · F: fullscreen · H: hide controls · Home / End: first / last scene. Text fields and the text-size slider keep their normal keyboard controls. N or Escape closes notes.</p><ul>{sourceLinks.map(source => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label}</a><p>{source.description}</p></li>)}</ul><p>UI screenshots: team frontend, merged in 0c04e56. FinBot artwork and Origami photo: team. HokieBird photo in screenshots: Virginia Tech. The current script is also in docs/presentation/speaker-notes.md. The purchase comparison reproduces a synthetic backend contract example; it makes no live API request.</p></details></dialog>
+    <dialog className="pc-notes" ref={dialogRef} onClose={restoreNotesFocus} aria-labelledby="pc-notes-title"><div className="pc-notes-heading"><div><p className="pc-kicker">Presenter notes · Playback paused</p><h2 id="pc-notes-title">{scene.speaker} · {formatPresentationTime(scene.startsAt)}–{formatPresentationTime(scene.startsAt + scene.duration)}</h2></div><button className="pc-icon-button" aria-label="Close speaker notes" autoFocus={notesOpen} onClick={closeNotes}><X /></button></div><h3>{scene.title}</h3><p className="pc-notes-script">{scene.notes}</p><div className="pc-notes-next"><span>Up next</span><strong>{nextScene ? `${nextScene.speaker} · ${nextScene.title}` : "Thank the judges. Open the product for questions."}</strong></div>{briefing && <details className="pc-backend-notes"><summary>Backend explanation for judges’ questions</summary>{briefing.map(item => <section key={item.question}><h4>{item.question}</h4><p>{item.answer}</p></section>)}</details>}<details><summary>Keyboard controls & sources</summary><p>← / → or Space: navigate · P: run / pause · N: notes · F: fullscreen · H: hide controls · Home / End: first / last scene. Text fields and the text-size slider keep their normal keyboard controls. N or Escape closes notes.</p><ul>{sourceLinks.map(source => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label}</a><p>{source.description}</p></li>)}</ul><p>UI screenshots: team frontend, merged in 0c04e56. FinBot artwork and Origami photo: team. HokieBird photo in screenshots: Virginia Tech. The current script is also in docs/presentation/speaker-notes.md. The purchase comparison reproduces a synthetic backend contract example; it makes no live API request.</p></details></dialog>
   </div>;
 }
