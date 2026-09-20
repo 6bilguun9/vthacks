@@ -42,7 +42,7 @@ Set the configured coach/planner hosts, ANS production key, and a random signing
 ## Hosted activation checklist
 
 - Add Supabase URL, publishable key, and secret key to backend deployment configuration. Apply the SQL migrations through an authorized Supabase database session. Enable anonymous authentication plus CAPTCHA.
-- Deploy the separate backend Vercel project rooted at `backend`, Node 24; set `HOST=0.0.0.0` and exact frontend `CORS_ORIGINS`. Add known preview origins individually.
+- Deploy the separate backend Vercel project rooted at `backend`, Node 24. Keep the checked-in framework-neutral Node Function configuration and set the exact frontend `CORS_ORIGINS`; `HOST` and `PORT` are only for the listening-server runtime. Add known preview origins individually.
 - Set frontend `NEXT_PUBLIC_API_BASE_URL` to the backend origin and rebuild. Keep provider keys out of public variables.
 - Select/provision the Nessie sandbox customer and verify refresh with authorized guest state.
 - Attach both agent hosts to the backend, complete TLS and the returned DNS challenges/ANS records, verify ACTIVE, and smoke-test real resolution and signed planning.

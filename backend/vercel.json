@@ -1,4 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "fastify"
+  "buildCommand": "",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/v1/:__vercel_path*",
+      "destination": "/api/function"
+    }
+  ]
 }
