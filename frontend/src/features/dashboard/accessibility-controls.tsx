@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { getInterfaceCopy, getSpeechTag, isLanguageCode, languageOptions, type LanguageCode } from "./interface-language";
 
 export type AccessibilityPreferences = {
   colorPalette: "hokie" | "ocean" | "berry";
   contrast: "standard" | "high";
+  language: LanguageCode;
   motion: "system" | "smooth" | "reduced";
   textScale: number;
 };
@@ -14,6 +16,7 @@ const eventName = "hokie-wallet-accessibility-change";
 const defaults: AccessibilityPreferences = {
   colorPalette: "hokie",
   contrast: "standard",
+  language: "en",
   motion: "system",
   textScale: 100,
 };
@@ -52,6 +55,7 @@ function parsePreferences(snapshot: string): AccessibilityPreferences {
     return {
       colorPalette,
       contrast: parsed.contrast === "high" ? "high" : "standard",
+      language: isLanguageCode(parsed.language) ? parsed.language : "en",
       motion: parsed.motion === "smooth" || parsed.motion === "reduced" ? parsed.motion : "system",
       textScale,
     };
@@ -101,6 +105,7 @@ export function AccessibilityControls({
   readText,
   updatePreference,
 }: AccessibilityControlsProps) {
+  const copy = getInterfaceCopy(preferences.language);
   const [open, setOpen] = useState(false);
   const [speechState, setSpeechState] = useState<"idle" | "speaking" | "unsupported">("idle");
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -137,6 +142,7 @@ export function AccessibilityControls({
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(readText);
+    utterance.lang = getSpeechTag(preferences.language);
     utterance.rate = 0.95;
     utterance.pitch = 1;
     utterance.onend = () => setSpeechState("idle");
@@ -155,18 +161,18 @@ export function AccessibilityControls({
         aria-controls="accessibility-panel"
         onClick={() => setOpen((value) => !value)}
       >
-        <span aria-hidden="true">◉</span> Access tools
+        <span aria-hidden="true">◉</span> {copy.accessTools}
       </button>
       <section
         id="accessibility-panel"
         className="accessibility-panel"
-        aria-label="Accessibility tools"
+        aria-label={copy.accessibilityTools}
         hidden={!open}
       >
         <div className="accessibility-panel-heading">
           <div>
-            <p className="eyebrow">MAKE IT YOURS</p>
-            <h2>Accessibility tools</h2>
+            <p className="eyebrow">{copy.personalize}</p>
+            <h2>{copy.accessibilityTools}</h2>
           </div>
           <button
             ref={closeRef}
@@ -176,7 +182,7 @@ export function AccessibilityControls({
               setOpen(false);
               triggerRef.current?.focus();
             }}
-            aria-label="Close accessibility tools"
+            aria-label={copy.closeAccessTools}
           >
             ×
           </button>
@@ -184,7 +190,7 @@ export function AccessibilityControls({
 
         <fieldset className="accessibility-group text-scale-control">
           <div className="control-label-row">
-            <legend>Text size</legend>
+            <legend>{copy.textSize}</legend>
             <output htmlFor="text-size-slider" aria-live="polite">{preferences.textScale}%</output>
           </div>
           <input
@@ -198,14 +204,19 @@ export function AccessibilityControls({
             onChange={(event) => updatePreference("textScale", Number(event.target.value))}
             style={{ "--range-progress": `${((preferences.textScale - 100) / 40) * 100}%` } as React.CSSProperties}
           />
-          <div className="range-labels" aria-hidden="true"><span>Standard</span><span>Large</span></div>
+          <div className="range-labels" aria-hidden="true"><span>{copy.standard}</span><span>{copy.large}</span></div>
         </fieldset>
-        <ControlGroup label="Contrast">
-          <ChoiceButton pressed={preferences.contrast === "standard"} onClick={() => updatePreference("contrast", "standard")}>Standard</ChoiceButton>
-          <ChoiceButton pressed={preferences.contrast === "high"} onClick={() => updatePreference("contrast", "high")}>High contrast</ChoiceButton>
-        </ControlGroup>
+        <label className="contrast-switch accessibility-group">
+          <span><strong>{copy.strongerContrast}</strong><small>{copy.contrastHelp}</small></span>
+          <input
+            type="checkbox"
+            checked={preferences.contrast === "high"}
+            onChange={(event) => updatePreference("contrast", event.target.checked ? "high" : "standard")}
+          />
+          <i aria-hidden="true"><b /></i>
+        </label>
         <fieldset className="accessibility-group palette-control">
-          <legend>Dashboard colors</legend>
+          <legend>{copy.dashboardColors}</legend>
           <div className="palette-options">
             {palettes.map((palette) => (
               <button
@@ -224,22 +235,33 @@ export function AccessibilityControls({
           </div>
         </fieldset>
         <ControlGroup
-          label="Motion"
+          label={copy.motion}
           columns={3}
-          description="System follows your device and may match Reduced. Smooth always plays the tab transitions. Reduced switches instantly."
+          description={copy.motionHelp}
         >
-          <ChoiceButton pressed={preferences.motion === "system"} onClick={() => updatePreference("motion", "system")}>System</ChoiceButton>
-          <ChoiceButton pressed={preferences.motion === "smooth"} onClick={() => updatePreference("motion", "smooth")}>Smooth</ChoiceButton>
-          <ChoiceButton pressed={preferences.motion === "reduced"} onClick={() => updatePreference("motion", "reduced")}>Reduced</ChoiceButton>
+          <ChoiceButton pressed={preferences.motion === "system"} onClick={() => updatePreference("motion", "system")}>{copy.system}</ChoiceButton>
+          <ChoiceButton pressed={preferences.motion === "smooth"} onClick={() => updatePreference("motion", "smooth")}>{copy.smooth}</ChoiceButton>
+          <ChoiceButton pressed={preferences.motion === "reduced"} onClick={() => updatePreference("motion", "reduced")}>{copy.reduced}</ChoiceButton>
         </ControlGroup>
+
+        <fieldset className="accessibility-group language-control">
+          <legend>{copy.language}</legend>
+          <select
+            value={preferences.language}
+            onChange={(event) => updatePreference("language", event.target.value as LanguageCode)}
+          >
+            {languageOptions.map((language) => <option key={language.code} value={language.code}>{language.label}</option>)}
+          </select>
+          <p className="control-description">{copy.languageHelp}</p>
+        </fieldset>
 
         <button type="button" className="listen-button" onClick={toggleSpeech}>
           <span aria-hidden="true">{speechState === "speaking" ? "■" : "▶"}</span>
-          {speechState === "speaking" ? "Stop reading" : "Listen to this view"}
+          {speechState === "speaking" ? copy.stopReading : copy.listen}
         </button>
         <p className="speech-status" role="status" aria-live="polite">
-          {speechState === "speaking" && "Reading this view aloud."}
-          {speechState === "unsupported" && "Text-to-speech is not available in this browser."}
+          {speechState === "speaking" && copy.readingStatus}
+          {speechState === "unsupported" && copy.speechUnavailable}
         </p>
       </section>
     </div>

@@ -124,15 +124,13 @@
     --fb-surface: #2d202b; --fb-paper: #3a2937; --fb-soft: #412f3e; --fb-ink: #fff5fc; --fb-muted: #ddc2d8; --fb-line: #6b4c65; --fb-accent: #e8a6d2; --fb-on-accent: #32162e; --fb-header: #351c32; --fb-focus: #f0c94a;
   }
   .dashboard[data-contrast="high"] .chat-view .finbot-chat[data-finbot] {
-    --fb-surface: #fff; --fb-paper: #fff; --fb-soft: #fff; --fb-ink: #000; --fb-muted: #000; --fb-line: #000; --fb-accent: #000; --fb-on-accent: #fff; --fb-header: #000; --fb-header-ink: #fff; --fb-orange: #000; --fb-focus: #005fcc;
-    border: 2px solid var(--fb-line); box-shadow: none;
-    .fb-header .fb-kicker, .fb-sample, .fb-header h2 span { color: var(--fb-header-ink); }
-    .fb-sample { border-color: var(--fb-header-ink); }
+    --fb-ink: #1c1519; --fb-muted: #44383f; --fb-line: #75636c; --fb-focus: #005fcc;
+    border: 2px solid var(--fb-line); box-shadow: 0 6px 22px #3214211f;
     button:disabled { opacity: 1; border-style: dashed; }
     &[data-wide="true"] .fb-history { border-right-width: 2px; }
   }
   .dashboard[data-contrast="high"][data-theme="dark"] .chat-view .finbot-chat[data-finbot] {
-    --fb-surface: #000; --fb-paper: #000; --fb-soft: #000; --fb-ink: #fff; --fb-muted: #fff; --fb-line: #fff; --fb-accent: #fff; --fb-on-accent: #000; --fb-header: #fff; --fb-header-ink: #000; --fb-orange: #fff; --fb-focus: #ffdd00;
+    --fb-ink: #fff8fb; --fb-muted: #eadde4; --fb-line: #c7b5be; --fb-focus: #ffdd00;
   }
   .dashboard[data-motion="reduced"] .finbot-chat .fb-pulse { animation: none; }
   @media (prefers-reduced-motion: reduce) { .dashboard[data-motion="system"] .finbot-chat .fb-pulse { animation: none; } }

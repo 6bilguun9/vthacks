@@ -5,6 +5,7 @@ import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
 import { ArrowLeftRight, LayoutDashboard, Sparkles, Target, Utensils } from "lucide-react";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
+import { getInterfaceCopy, isRtlLanguage } from "./interface-language";
 import { useDashboardTheme } from "./theme-preference";
 import "./dashboard.css";
 
@@ -30,10 +31,10 @@ const chartBackground = demoSummary.totalSpentCents > 0
   : "#efeff2";
 
 const views = {
-  main: { label: "Overview", title: "Make room for what matters.", description: "A clearer view of today. A little more confidence for tomorrow.", icon: LayoutDashboard },
-  activity: { label: "Recent activity", title: "The little things add up.", description: "A closer look at your latest sample purchases.", icon: ArrowLeftRight },
-  savings: { label: "Savings goal", title: "A little closer every day.", description: "Make space for your next chapter, one contribution at a time.", icon: Target },
-  finbot: { label: "Ask FinBot", title: "Let’s talk money.", description: "Explore your questions with a sample conversation.", icon: Sparkles },
+  main: { icon: LayoutDashboard },
+  activity: { icon: ArrowLeftRight },
+  savings: { icon: Target },
+  finbot: { icon: Sparkles },
 };
 type View = keyof typeof views;
 function subscribeView(callback: () => void) {
@@ -62,10 +63,14 @@ export default function Dashboard() {
   const view = useSyncExternalStore(subscribeView, currentView, () => "main" as View);
   const { theme, toggleTheme } = useDashboardTheme();
   const { preferences, updatePreference } = useAccessibilityPreferences();
-  const readText = getViewSummary(view);
+  const copy = getInterfaceCopy(preferences.language);
+  const viewCopy = copy.views[view];
+  const readText = preferences.language === "en" ? getViewSummary(view) : `${viewCopy.title} ${viewCopy.description}`;
   return (
     <div
       className="dashboard"
+      dir={isRtlLanguage(preferences.language) ? "rtl" : "ltr"}
+      lang={preferences.language}
       data-theme={theme}
       data-view={view}
       data-color-palette={preferences.colorPalette}
@@ -83,20 +88,20 @@ export default function Dashboard() {
             return (
               <a key={key} className={view === key ? "nav-active" : undefined} href={`#${key}`} onClick={(event) => navigate(event, key)} aria-current={view === key ? "page" : undefined}>
                 <span className="nav-icon" aria-hidden="true"><Icon /></span>
-                <span className="nav-text">{views[key].label}</span>
+                <span className="nav-text">{copy.nav[key]}</span>
               </a>
             );
           })}
-          <Link href="/dining"><span className="nav-icon" aria-hidden="true"><Utensils /></span><span className="nav-text">Dining planner</span></Link>
+          <Link href="/dining"><span className="nav-icon" aria-hidden="true"><Utensils /></span><span className="nav-text">{copy.nav.dining}</span></Link>
         </nav>
         <div className="sidebar-note"><span className="little-star" aria-hidden="true">✳</span><h3>Small steps.<br />Big possibilities.</h3><p>A little clarity goes a long way. Make room for what matters.</p><span className="hokie-tag">MADE FOR HOKIES</span></div>
         <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>
       </aside>
       <main id="main">
-        <header className="topbar"><span>My workspace <span className="breadcrumb">/ {views[view].label}</span></span><div className="topbar-actions"><AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? "Dark mode" : "Light mode"}</button><span className="demo-badge"><span /> Demo · Sample data</span></div></header>
+        <header className="topbar"><span>{copy.workspace} <span className="breadcrumb">/ {copy.nav[view]}</span></span><div className="topbar-actions"><AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}</button><span className="demo-badge"><span /> {copy.demoSample}</span></div></header>
         <div className="content">
           <div className="view-heading" key={view}>
-          <section className="welcome"><div><p className="eyebrow">YOUR CAMPUS. YOUR PLANS. YOUR MONEY.</p><h1>{views[view].title}</h1><p>{views[view].description}</p></div><div className="welcome-actions"><span className="date-label">{demoData.month} {demoData.year} · Sample profile</span><a className="coach-link" href="#finbot" onClick={(event) => navigate(event, "finbot")}>Talk it through with FinBot <span aria-hidden="true">↗</span></a></div></section>
+          <section className="welcome"><div><p className="eyebrow">YOUR CAMPUS. YOUR PLANS. YOUR MONEY.</p><h1>{viewCopy.title}</h1><p>{viewCopy.description}</p></div><div className="welcome-actions"><span className="date-label">{demoData.month} {demoData.year} · Sample profile</span><a className="coach-link" href="#finbot" onClick={(event) => navigate(event, "finbot")}>{copy.talkToFinbot} <span aria-hidden="true">↗</span></a></div></section>
           </div>
           <div hidden={view !== "main"} className="view-panel overview-view">
           <section className="balance-grid" aria-label="Account overview">
