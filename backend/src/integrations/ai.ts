@@ -2,7 +2,11 @@ import type { AppConfig } from "../config/env.js";
 import { z } from "zod";
 
 export type AiMessage = { role: "system" | "user"; content: string };
-export type AiOptions = { fetch?: typeof fetch; timeoutMs?: number };
+export type AiOptions = {
+  fetch?: typeof fetch;
+  timeoutMs?: number;
+  maxTokens?: number;
+};
 
 export class AiUnavailableError extends Error {}
 
@@ -44,7 +48,7 @@ export async function completeWithAi(config: AppConfig, messages: AiMessage[], o
         model: provider.model,
         messages,
         temperature: 0.25,
-        max_tokens: 3000,
+        max_tokens: options.maxTokens ?? 3000,
         response_format: { type: "json_object" },
         ...(provider.provider === "openrouter" ? { provider: { require_parameters: true } } : {}),
       }),
