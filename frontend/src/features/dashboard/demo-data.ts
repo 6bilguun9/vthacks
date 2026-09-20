@@ -15,9 +15,9 @@ export const demoData = {
     { name: "Transportation", amountCents: 6000, color: "#d6bca7" },
   ],
   recentTransactions: [
-    { id: "coffee", name: "Deet’s Place", category: "Food & coffee", date: "Sep 19", amountCents: -650, icon: "☕" },
-    { id: "books", name: "University Bookstore", category: "Shopping", date: "Sep 18", amountCents: -4284, icon: "▤" },
-    { id: "transit", name: "Blacksburg Transit", category: "Transportation", date: "Sep 17", amountCents: -1200, icon: "↗" },
+    { id: "coffee", name: "Deet’s Place", category: "Food & coffee", date: "Sep 19", amountCents: -650 },
+    { id: "books", name: "University Bookstore", category: "Shopping", date: "Sep 18", amountCents: -4284 },
+    { id: "transit", name: "Blacksburg Transit", category: "Transportation", date: "Sep 17", amountCents: -1200 },
   ],
 } as const;
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { MessageSquare, Trash2 } from "lucide-react";
-import { groupConversations, type Conversation } from "./conversation-history";
+import { useId, useRef, useState } from "react";
+import { MessageSquare, Search, Trash2, X } from "lucide-react";
+import { filterConversations, groupConversations, type Conversation } from "./conversation-history";
 
 type Props = {
   conversations: Conversation[];
@@ -14,17 +14,32 @@ type Props = {
 export default function ChatHistory({ conversations, activeId, onSelect, onRemove }: Props) {
   const deleteButtons = useRef(new Map<string, HTMLButtonElement>());
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const id = useId();
+  const filtered = filterConversations(conversations, query);
   return (
     <>
-      <div className="fb-history-heading"><h3>Your conversations</h3><span>{conversations.length}</span></div>
+      <div className="fb-history-heading"><h2>Your chats</h2><span>{conversations.length}</span></div>
       <p className="fb-history-note">Saved on this browser only.</p>
+      {conversations.length > 0 && <div className="fb-history-search">
+        <label htmlFor={id}>Search chats</label>
+        <div className="fb-search-row">
+          <Search aria-hidden="true" />
+          <input ref={searchRef} id={id} type="text" value={query} placeholder="Names or messages" autoComplete="off" aria-describedby={`${id}-results`} onChange={(event) => { setQuery(event.target.value); setConfirmDelete(null); }} />
+          {query && <button type="button" aria-label="Clear chat search" onClick={() => { setQuery(""); searchRef.current?.focus(); }}><X aria-hidden="true" /></button>}
+        </div>
+        <p id={`${id}-results`} className="fb-search-results" role="status">{query.trim() ? `${filtered.length} ${filtered.length === 1 ? "chat found" : "chats found"}` : ""}</p>
+      </div>}
       {conversations.length === 0 ? (
-        <div className="fb-history-empty"><MessageSquare aria-hidden="true" /><p>Your first question starts a chat.</p><span>Come back to it here, anytime.</span></div>
+        <div className="fb-history-empty"><MessageSquare aria-hidden="true" /><p>Your chats will appear here.</p></div>
+      ) : filtered.length === 0 ? (
+        <div className="fb-history-empty"><Search aria-hidden="true" /><p>No chats found.</p><span>Try a different word or clear your search.</span></div>
       ) : (
         <div className="fb-history-list" tabIndex={0} aria-label="Saved conversations by date">
-          {groupConversations(conversations).map((group) => (
+          {groupConversations(filtered).map((group) => (
             <div className="fb-history-group" key={group.label}>
-              <h4>{group.label}</h4>
+              <h3>{group.label}</h3>
               <ul>
                 {group.conversations.map((chat) => (
                   <li key={chat.id}>

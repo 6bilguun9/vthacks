@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { publishNotification } from "@/features/notifications/use-notifications";
 
 export type DashboardTheme = "dark" | "light";
 
@@ -42,6 +43,7 @@ export function useDashboardTheme() {
       // Keep the in-memory preference for this session.
     }
     window.dispatchEvent(new Event(eventName));
+    publishNotification({ id: "preference-theme", kind: "system", title: "Appearance updated", message: `${temporaryTheme === "dark" ? "Dark" : "Light"} mode is now on.`, sample: false });
   }
 
   return { theme, toggleTheme };

@@ -37,5 +37,5 @@ export function getDemoReply(question: string) {
     (item) => normalizeQuestion(item.question) === normalized,
   );
   return example?.answer ??
-    "This demo only has scripted replies. Try a suggested question about spending, balances, or savings below. I can’t analyze custom questions or make changes to accounts. No real account data is connected.";
+    "This is a scripted demo, so I can’t answer custom questions yet. For a sample balance summary, ask “What are my balances?” No accounts are connected.";
 }

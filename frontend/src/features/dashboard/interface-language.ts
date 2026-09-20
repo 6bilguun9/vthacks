@@ -1,3 +1,5 @@
+import { overviewTranslations, type OverviewCopy } from "./overview-copy";
+
 export type LanguageCode = "en" | "zh" | "hi" | "es" | "ar" | "fr" | "bn" | "pt" | "ru" | "ur";
 
 export const languageOptions: ReadonlyArray<{ code: LanguageCode; label: string; speechTag: string }> = [
@@ -13,7 +15,105 @@ export const languageOptions: ReadonlyArray<{ code: LanguageCode; label: string;
   { code: "ur", label: "اردو (Urdu)", speechTag: "ur-PK" },
 ];
 
+type BalanceCopy = {
+  accountOverview: string;
+  bankBalance: string;
+  checkingDescription: string;
+  walletDescription: string;
+  monthlySpending: string;
+  monthlyBudget: (budget: string) => string;
+  budgetSpent: string;
+  spentOfBudget: (spent: string, budget: string) => string;
+  sampleNotice: string;
+};
+
+// Every supported language must include the full balance-card copy.
+const balanceTranslations: Record<LanguageCode, BalanceCopy> = {
+  en: {
+    accountOverview: "Account overview", bankBalance: "Bank balance",
+    checkingDescription: "Sample checking cash · includes goal allocation",
+    walletDescription: "Restricted campus funds · not bank cash",
+    monthlySpending: "Spent this month", monthlyBudget: (budget) => `Of your ${budget} monthly budget`,
+    budgetSpent: "Monthly budget spent", spentOfBudget: (spent, budget) => `${spent} spent of ${budget}`,
+    sampleNotice: "Sample snapshot. Savings are included in bank cash; campus funds are separate and restricted.",
+  },
+  zh: {
+    accountOverview: "账户概览", bankBalance: "银行余额",
+    checkingDescription: "示例活期账户资金 · 含储蓄目标预留金额",
+    walletDescription: "限用途校园资金 · 非银行资金",
+    monthlySpending: "本月支出", monthlyBudget: (budget) => `每月预算为 ${budget}`,
+    budgetSpent: "已使用的月度预算", spentOfBudget: (spent, budget) => `预算 ${budget}，已支出 ${spent}`,
+    sampleNotice: "示例数据。储蓄已包含在银行资金中；校园资金单独列出，且用途受限。",
+  },
+  hi: {
+    accountOverview: "खातों का अवलोकन", bankBalance: "बैंक बैलेंस",
+    checkingDescription: "नमूना चेकिंग खाते की राशि · लक्ष्य के लिए आरक्षित राशि शामिल है",
+    walletDescription: "सीमित उपयोग की कैंपस राशि · बैंक की राशि नहीं",
+    monthlySpending: "इस महीने का खर्च", monthlyBudget: (budget) => `आपके ${budget} मासिक बजट में से`,
+    budgetSpent: "मासिक बजट में से खर्च", spentOfBudget: (spent, budget) => `${budget} में से ${spent} खर्च`,
+    sampleNotice: "नमूना विवरण। बचत बैंक की राशि में शामिल है; कैंपस की राशि अलग है और उसका उपयोग सीमित है।",
+  },
+  es: {
+    accountOverview: "Resumen de cuentas", bankBalance: "Saldo bancario",
+    checkingDescription: "Saldo de cuenta corriente de muestra · incluye la reserva para la meta",
+    walletDescription: "Fondos del campus de uso restringido · no son saldo bancario",
+    monthlySpending: "Gastado este mes", monthlyBudget: (budget) => `De tu presupuesto mensual de ${budget}`,
+    budgetSpent: "Presupuesto mensual gastado", spentOfBudget: (spent, budget) => `${spent} gastados de ${budget}`,
+    sampleNotice: "Datos de muestra. Los ahorros están incluidos en el saldo bancario; los fondos del campus son independientes y de uso restringido.",
+  },
+  ar: {
+    accountOverview: "نظرة عامة على الحسابات", bankBalance: "الرصيد البنكي",
+    checkingDescription: "رصيد تجريبي للحساب الجاري · يشمل المبلغ المخصص للهدف",
+    walletDescription: "أموال جامعية مقيّدة الاستخدام · ليست رصيدًا بنكيًا",
+    monthlySpending: "الإنفاق هذا الشهر", monthlyBudget: (budget) => `من ميزانيتك الشهرية البالغة ${budget}`,
+    budgetSpent: "المبلغ المنفق من الميزانية الشهرية", spentOfBudget: (spent, budget) => `تم إنفاق ${spent} من ${budget}`,
+    sampleNotice: "بيانات تجريبية. المدخرات مشمولة في الرصيد البنكي؛ أموال الجامعة منفصلة ومقيّدة الاستخدام.",
+  },
+  fr: {
+    accountOverview: "Aperçu des comptes", bankBalance: "Solde bancaire",
+    checkingDescription: "Solde de compte courant fictif · inclut la réserve pour l’objectif",
+    walletDescription: "Fonds du campus à usage restreint · hors solde bancaire",
+    monthlySpending: "Dépenses du mois", monthlyBudget: (budget) => `Sur votre budget mensuel de ${budget}`,
+    budgetSpent: "Budget mensuel dépensé", spentOfBudget: (spent, budget) => `${spent} dépensés sur ${budget}`,
+    sampleNotice: "Données fictives. L’épargne est incluse dans le solde bancaire ; les fonds du campus sont distincts et à usage restreint.",
+  },
+  bn: {
+    accountOverview: "অ্যাকাউন্টের সারসংক্ষেপ", bankBalance: "ব্যাংক ব্যালেন্স",
+    checkingDescription: "নমুনা চেকিং অ্যাকাউন্টের অর্থ · লক্ষ্যের জন্য সংরক্ষিত অর্থসহ",
+    walletDescription: "সীমিত ব্যবহারের ক্যাম্পাস তহবিল · ব্যাংকের অর্থ নয়",
+    monthlySpending: "এই মাসের খরচ", monthlyBudget: (budget) => `আপনার ${budget} মাসিক বাজেটের মধ্যে`,
+    budgetSpent: "মাসিক বাজেট থেকে খরচ", spentOfBudget: (spent, budget) => `${budget} থেকে ${spent} খরচ হয়েছে`,
+    sampleNotice: "নমুনা তথ্য। সঞ্চয় ব্যাংকের অর্থের মধ্যেই অন্তর্ভুক্ত; ক্যাম্পাসের অর্থ আলাদা এবং এর ব্যবহার সীমিত।",
+  },
+  pt: {
+    accountOverview: "Resumo das contas", bankBalance: "Saldo bancário",
+    checkingDescription: "Saldo de conta corrente de exemplo · inclui a reserva para a meta",
+    walletDescription: "Fundos do campus de uso restrito · não são saldo bancário",
+    monthlySpending: "Gasto neste mês", monthlyBudget: (budget) => `Do seu orçamento mensal de ${budget}`,
+    budgetSpent: "Orçamento mensal gasto", spentOfBudget: (spent, budget) => `${spent} gastos de ${budget}`,
+    sampleNotice: "Dados de exemplo. A poupança está incluída no saldo bancário; os fundos do campus são separados e de uso restrito.",
+  },
+  ru: {
+    accountOverview: "Обзор счетов", bankBalance: "Банковский баланс",
+    checkingDescription: "Пример остатка на текущем счёте · включает резерв на цель",
+    walletDescription: "Средства кампуса с ограниченным использованием · не банковские средства",
+    monthlySpending: "Потрачено за месяц", monthlyBudget: (budget) => `Из месячного бюджета ${budget}`,
+    budgetSpent: "Потраченная часть месячного бюджета", spentOfBudget: (spent, budget) => `Потрачено ${spent} из ${budget}`,
+    sampleNotice: "Тестовые данные. Накопления включены в банковский баланс; средства кампуса учитываются отдельно и имеют ограничения по использованию.",
+  },
+  ur: {
+    accountOverview: "اکاؤنٹس کا جائزہ", bankBalance: "بینک بیلنس",
+    checkingDescription: "نمونہ چیکنگ اکاؤنٹ کی رقم · ہدف کے لیے مختص رقم شامل ہے",
+    walletDescription: "محدود استعمال کے کیمپس فنڈز · بینک کی رقم نہیں",
+    monthlySpending: "اس ماہ کا خرچ", monthlyBudget: (budget) => `آپ کے ${budget} ماہانہ بجٹ میں سے`,
+    budgetSpent: "ماہانہ بجٹ میں سے خرچ", spentOfBudget: (spent, budget) => `${budget} میں سے ${spent} خرچ ہوئے`,
+    sampleNotice: "نمونہ معلومات۔ بچت بینک کی رقم میں شامل ہے؛ کیمپس کی رقم الگ ہے اور اس کا استعمال محدود ہے۔",
+  },
+};
+
 type InterfaceCopy = {
+  overview: OverviewCopy;
+  balances: BalanceCopy;
   accessTools: string;
   personalize: string;
   accessibilityTools: string;
@@ -49,6 +149,8 @@ type InterfaceCopy = {
 };
 
 const english: InterfaceCopy = {
+  overview: overviewTranslations.en,
+  balances: balanceTranslations.en,
   accessTools: "Access tools",
   personalize: "MAKE IT YOURS",
   accessibilityTools: "Accessibility tools",
@@ -70,22 +172,22 @@ const english: InterfaceCopy = {
   stopReading: "Stop reading",
   readingStatus: "Reading this view aloud.",
   speechUnavailable: "Text-to-speech is not available in this browser.",
-  nav: { main: "Overview", activity: "Recent activity", savings: "Savings goal", finbot: "Ask FinBot", dining: "Dining planner" },
+  nav: { main: "Overview", activity: "Activity", savings: "Savings", finbot: "FinBot", dining: "Dining" },
   views: {
-    main: { title: "Make room for what matters.", description: "A clearer view of today. A little more confidence for tomorrow." },
-    activity: { title: "The little things add up.", description: "A closer look at your latest sample purchases." },
-    savings: { title: "A little closer every day.", description: "Make space for your next chapter, one contribution at a time." },
-    finbot: { title: "Let’s talk money.", description: "Explore your questions with a sample conversation." },
+    main: { title: "Your budget", description: "A clearer view of today. A little more confidence for tomorrow." },
+    activity: { title: "Transactions", description: "A closer look at your latest sample purchases." },
+    savings: { title: "Your savings", description: "Make space for your next chapter, one contribution at a time." },
+    finbot: { title: "FinBot", description: "Explore your questions with a sample conversation." },
   },
   workspace: "My workspace",
   talkToFinbot: "Talk it through with FinBot",
   darkMode: "Dark mode",
   lightMode: "Light mode",
-  demoSample: "Demo · Sample data",
-  plannerSample: "Planner · Sample inputs",
-  diningKicker: "CAMPUS DINING MEETS YOUR BUDGET",
-  diningTitle: "Make every meal—and dollar—count.",
-  diningDescription: "Build a school-year meal rhythm around your Virginia Tech plan, schedule, preferences, and restricted campus balances.",
+  demoSample: "Sample data",
+  plannerSample: "Sample inputs",
+  diningKicker: "VIRGINIA TECH DINING",
+  diningTitle: "Make every meal & dollar count.",
+  diningDescription: "Plan your week around your dining plan, class schedule, and campus balance.",
 };
 
 const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> = {
@@ -97,7 +199,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "概览", activity: "近期活动", savings: "储蓄目标", finbot: "询问 FinBot", dining: "餐饮规划" },
     views: { main: { title: "为重要的事留出空间。", description: "更清楚地了解今天，更自信地迎接明天。" }, activity: { title: "小支出也会累积。", description: "查看最近的示例消费。" }, savings: { title: "每天都更近一步。", description: "一次一点，为下一阶段做好准备。" }, finbot: { title: "聊聊钱吧。", description: "通过示例对话探索你的问题。" } },
     workspace: "我的工作区", talkToFinbot: "与 FinBot 聊一聊", darkMode: "深色模式", lightMode: "浅色模式", demoSample: "演示 · 示例数据", plannerSample: "规划器 · 示例输入",
-    diningKicker: "校园餐饮与预算相结合", diningTitle: "让每一餐、每一元都物有所值。", diningDescription: "根据你的 Virginia Tech 餐饮计划、日程、偏好和校园余额，制定一学年的用餐节奏。",
+    diningKicker: "校园餐饮与预算相结合", diningTitle: "让每一餐、每一元都物有所值。", diningDescription: "根据你的 弗吉尼亚理工大学 餐饮计划、日程、偏好和校园余额，制定一学年的用餐节奏。",
   },
   hi: {
     accessTools: "सुलभता टूल", personalize: "अपने अनुसार बनाएँ", accessibilityTools: "सुलभता टूल", closeAccessTools: "सुलभता टूल बंद करें",
@@ -107,7 +209,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "अवलोकन", activity: "हाल की गतिविधि", savings: "बचत लक्ष्य", finbot: "FinBot से पूछें", dining: "भोजन योजना" },
     views: { main: { title: "ज़रूरी चीज़ों के लिए जगह बनाएँ।", description: "आज की साफ़ तस्वीर। कल के लिए थोड़ा अधिक भरोसा।" }, activity: { title: "छोटी चीज़ें जुड़ती जाती हैं।", description: "अपनी हाल की नमूना खरीदारी को करीब से देखें।" }, savings: { title: "हर दिन थोड़ा और करीब।", description: "एक बार में एक योगदान से अगले अध्याय के लिए जगह बनाएँ।" }, finbot: { title: "पैसों की बात करें।", description: "एक नमूना बातचीत के साथ अपने सवाल जानें।" } },
     workspace: "मेरा कार्यक्षेत्र", talkToFinbot: "FinBot से बात करें", darkMode: "डार्क मोड", lightMode: "लाइट मोड", demoSample: "डेमो · नमूना डेटा", plannerSample: "योजनाकार · नमूना इनपुट",
-    diningKicker: "कैंपस भोजन और आपका बजट", diningTitle: "हर भोजन और हर डॉलर को सार्थक बनाएँ।", diningDescription: "अपने Virginia Tech प्लान, समय, पसंद और कैंपस बैलेंस के अनुसार पूरे सत्र की भोजन योजना बनाएँ।",
+    diningKicker: "कैंपस भोजन और आपका बजट", diningTitle: "हर भोजन और हर डॉलर को सार्थक बनाएँ।", diningDescription: "अपने वर्जीनिया टेक प्लान, समय, पसंद और कैंपस बैलेंस के अनुसार पूरे सत्र की भोजन योजना बनाएँ।",
   },
   es: {
     accessTools: "Accesibilidad", personalize: "HAZLO TUYO", accessibilityTools: "Herramientas de accesibilidad", closeAccessTools: "Cerrar herramientas de accesibilidad",
@@ -117,7 +219,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "Resumen", activity: "Actividad reciente", savings: "Meta de ahorro", finbot: "Preguntar a FinBot", dining: "Planificador de comidas" },
     views: { main: { title: "Haz espacio para lo importante.", description: "Una visión más clara de hoy. Un poco más de confianza para mañana." }, activity: { title: "Los pequeños gastos se suman.", description: "Una mirada más cercana a tus compras de muestra recientes." }, savings: { title: "Un poco más cerca cada día.", description: "Prepárate para tu próxima etapa, una aportación a la vez." }, finbot: { title: "Hablemos de dinero.", description: "Explora tus preguntas con una conversación de muestra." } },
     workspace: "Mi espacio", talkToFinbot: "Hablar con FinBot", darkMode: "Modo oscuro", lightMode: "Modo claro", demoSample: "Demo · Datos de muestra", plannerSample: "Planificador · Datos de muestra",
-    diningKicker: "COMEDOR UNIVERSITARIO Y TU PRESUPUESTO", diningTitle: "Haz que cada comida y cada dólar cuenten.", diningDescription: "Organiza tus comidas del curso según tu plan de Virginia Tech, horario, preferencias y saldos del campus.",
+    diningKicker: "COMEDOR UNIVERSITARIO Y TU PRESUPUESTO", diningTitle: "Haz que cada comida y cada dólar cuenten.", diningDescription: "Organiza tus comidas del curso según tu plan del Tecnológico de Virginia, horario, preferencias y saldos del campus.",
   },
   ar: {
     accessTools: "أدوات الوصول", personalize: "اجعلها تناسبك", accessibilityTools: "أدوات إمكانية الوصول", closeAccessTools: "إغلاق أدوات إمكانية الوصول",
@@ -127,7 +229,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "نظرة عامة", activity: "النشاط الأخير", savings: "هدف الادخار", finbot: "اسأل FinBot", dining: "مخطط الوجبات" },
     views: { main: { title: "اترك مساحة لما يهم.", description: "رؤية أوضح لليوم وثقة أكبر بالغد." }, activity: { title: "الأشياء الصغيرة تتراكم.", description: "نظرة أقرب على مشترياتك التجريبية الأخيرة." }, savings: { title: "أقرب قليلًا كل يوم.", description: "استعد لخطوتك التالية، مساهمة بعد أخرى." }, finbot: { title: "لنتحدث عن المال.", description: "استكشف أسئلتك من خلال محادثة تجريبية." } },
     workspace: "مساحة عملي", talkToFinbot: "تحدث مع FinBot", darkMode: "الوضع الداكن", lightMode: "الوضع الفاتح", demoSample: "عرض · بيانات تجريبية", plannerSample: "مخطط · مدخلات تجريبية",
-    diningKicker: "وجبات الحرم تلتقي بميزانيتك", diningTitle: "اجعل كل وجبة وكل دولار مهمًا.", diningDescription: "ابنِ نظام وجبات للعام الدراسي حول خطة Virginia Tech وجدولك وتفضيلاتك وأرصدة الحرم.",
+    diningKicker: "وجبات الحرم تلتقي بميزانيتك", diningTitle: "اجعل كل وجبة وكل دولار مهمًا.", diningDescription: "ابنِ نظام وجبات للعام الدراسي حول خطة فيرجينيا تك وجدولك وتفضيلاتك وأرصدة الحرم.",
   },
   fr: {
     accessTools: "Outils d’accès", personalize: "À VOTRE FAÇON", accessibilityTools: "Outils d’accessibilité", closeAccessTools: "Fermer les outils d’accessibilité",
@@ -137,7 +239,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "Vue d’ensemble", activity: "Activité récente", savings: "Objectif d’épargne", finbot: "Demander à FinBot", dining: "Planificateur de repas" },
     views: { main: { title: "Faites de la place pour l’essentiel.", description: "Une vision plus claire d’aujourd’hui. Un peu plus de confiance pour demain." }, activity: { title: "Les petites dépenses s’additionnent.", description: "Regardez de plus près vos derniers achats d’exemple." }, savings: { title: "Un peu plus près chaque jour.", description: "Préparez votre prochain chapitre, une contribution à la fois." }, finbot: { title: "Parlons d’argent.", description: "Explorez vos questions avec une conversation d’exemple." } },
     workspace: "Mon espace", talkToFinbot: "Parler avec FinBot", darkMode: "Mode sombre", lightMode: "Mode clair", demoSample: "Démo · Données fictives", plannerSample: "Planificateur · Exemples",
-    diningKicker: "LA RESTAURATION DU CAMPUS ET VOTRE BUDGET", diningTitle: "Faites compter chaque repas et chaque dollar.", diningDescription: "Organisez vos repas de l’année selon votre forfait Virginia Tech, votre emploi du temps, vos préférences et vos soldes campus.",
+    diningKicker: "LA RESTAURATION DU CAMPUS ET VOTRE BUDGET", diningTitle: "Faites compter chaque repas et chaque dollar.", diningDescription: "Organisez vos repas de l’année selon votre forfait de l’Institut technologique de Virginie, votre emploi du temps, vos préférences et vos soldes campus.",
   },
   bn: {
     accessTools: "অ্যাক্সেস টুল", personalize: "নিজের মতো করুন", accessibilityTools: "অ্যাক্সেসিবিলিটি টুল", closeAccessTools: "অ্যাক্সেসিবিলিটি টুল বন্ধ করুন",
@@ -147,7 +249,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "সংক্ষিপ্ত বিবরণ", activity: "সাম্প্রতিক কার্যকলাপ", savings: "সঞ্চয়ের লক্ষ্য", finbot: "FinBot-কে জিজ্ঞাসা", dining: "খাবার পরিকল্পনা" },
     views: { main: { title: "যা গুরুত্বপূর্ণ তার জন্য জায়গা রাখুন।", description: "আজকে আরও পরিষ্কারভাবে দেখুন, আগামীকাল নিয়ে আরও আত্মবিশ্বাসী হন।" }, activity: { title: "ছোট খরচও জমে ওঠে।", description: "সাম্প্রতিক নমুনা কেনাকাটাগুলো দেখুন।" }, savings: { title: "প্রতিদিন একটু করে কাছে।", description: "একটি করে অবদান দিয়ে পরের অধ্যায়ের জন্য প্রস্তুত হন।" }, finbot: { title: "টাকার কথা বলি।", description: "একটি নমুনা কথোপকথনে আপনার প্রশ্নগুলো জানুন।" } },
     workspace: "আমার ওয়ার্কস্পেস", talkToFinbot: "FinBot-এর সঙ্গে কথা বলুন", darkMode: "ডার্ক মোড", lightMode: "লাইট মোড", demoSample: "ডেমো · নমুনা ডেটা", plannerSample: "পরিকল্পক · নমুনা ইনপুট",
-    diningKicker: "ক্যাম্পাসের খাবার ও আপনার বাজেট", diningTitle: "প্রতিটি খাবার ও ডলারকে কাজে লাগান।", diningDescription: "Virginia Tech পরিকল্পনা, সময়সূচি, পছন্দ ও ক্যাম্পাস ব্যালেন্স অনুযায়ী বছরের খাবারের ছন্দ তৈরি করুন।",
+    diningKicker: "ক্যাম্পাসের খাবার ও আপনার বাজেট", diningTitle: "প্রতিটি খাবার ও ডলারকে কাজে লাগান।", diningDescription: "ভার্জিনিয়া টেক পরিকল্পনা, সময়সূচি, পছন্দ ও ক্যাম্পাস ব্যালেন্স অনুযায়ী বছরের খাবারের ছন্দ তৈরি করুন।",
   },
   pt: {
     accessTools: "Acessibilidade", personalize: "DEIXE DO SEU JEITO", accessibilityTools: "Ferramentas de acessibilidade", closeAccessTools: "Fechar ferramentas de acessibilidade",
@@ -157,7 +259,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "Visão geral", activity: "Atividade recente", savings: "Meta de economia", finbot: "Perguntar ao FinBot", dining: "Planejador de refeições" },
     views: { main: { title: "Abra espaço para o que importa.", description: "Uma visão mais clara de hoje. Um pouco mais de confiança para amanhã." }, activity: { title: "As pequenas coisas se somam.", description: "Veja de perto suas compras de exemplo mais recentes." }, savings: { title: "Um pouco mais perto a cada dia.", description: "Prepare seu próximo capítulo, uma contribuição de cada vez." }, finbot: { title: "Vamos falar de dinheiro.", description: "Explore suas perguntas com uma conversa de exemplo." } },
     workspace: "Meu espaço", talkToFinbot: "Conversar com o FinBot", darkMode: "Modo escuro", lightMode: "Modo claro", demoSample: "Demo · Dados de exemplo", plannerSample: "Planejador · Exemplos",
-    diningKicker: "ALIMENTAÇÃO NO CAMPUS E SEU ORÇAMENTO", diningTitle: "Faça cada refeição e cada dólar valerem.", diningDescription: "Monte uma rotina de refeições para o ano com seu plano Virginia Tech, horários, preferências e saldos do campus.",
+    diningKicker: "ALIMENTAÇÃO NO CAMPUS E SEU ORÇAMENTO", diningTitle: "Faça cada refeição e cada dólar valerem.", diningDescription: "Monte uma rotina de refeições para o ano com seu plano do Instituto Tecnológico da Virgínia, horários, preferências e saldos do campus.",
   },
   ru: {
     accessTools: "Доступность", personalize: "НАСТРОЙТЕ ПОД СЕБЯ", accessibilityTools: "Настройки доступности", closeAccessTools: "Закрыть настройки доступности",
@@ -167,7 +269,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "Обзор", activity: "Недавние операции", savings: "Цель накопления", finbot: "Спросить FinBot", dining: "План питания" },
     views: { main: { title: "Освободите место для важного.", description: "Больше ясности сегодня. Больше уверенности завтра." }, activity: { title: "Мелочи складываются.", description: "Посмотрите внимательнее на последние тестовые покупки." }, savings: { title: "Каждый день немного ближе.", description: "Готовьтесь к следующему этапу, шаг за шагом." }, finbot: { title: "Поговорим о деньгах.", description: "Разберите свои вопросы в тестовом диалоге." } },
     workspace: "Моё пространство", talkToFinbot: "Поговорить с FinBot", darkMode: "Тёмная тема", lightMode: "Светлая тема", demoSample: "Демо · Тестовые данные", plannerSample: "Планировщик · Тестовые данные",
-    diningKicker: "ПИТАНИЕ В КАМПУСЕ И ВАШ БЮДЖЕТ", diningTitle: "Пусть каждый приём пищи и каждый доллар имеют значение.", diningDescription: "Составьте план питания на учебный год с учётом плана Virginia Tech, расписания, предпочтений и баланса кампуса.",
+    diningKicker: "ПИТАНИЕ В КАМПУСЕ И ВАШ БЮДЖЕТ", diningTitle: "Пусть каждый приём пищи и каждый доллар имеют значение.", diningDescription: "Составьте план питания на учебный год с учётом плана Вирджиния Тек, расписания, предпочтений и баланса кампуса.",
   },
   ur: {
     accessTools: "رسائی کے ٹولز", personalize: "اپنی پسند کے مطابق", accessibilityTools: "رسائی کے ٹولز", closeAccessTools: "رسائی کے ٹولز بند کریں",
@@ -177,13 +279,13 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
     nav: { main: "جائزہ", activity: "حالیہ سرگرمی", savings: "بچت کا ہدف", finbot: "FinBot سے پوچھیں", dining: "کھانے کی منصوبہ بندی" },
     views: { main: { title: "اہم چیزوں کے لیے جگہ بنائیں۔", description: "آج کی واضح تصویر، کل کے لیے زیادہ اعتماد۔" }, activity: { title: "چھوٹی چیزیں جمع ہوتی ہیں۔", description: "اپنی حالیہ نمونہ خریداری کو قریب سے دیکھیں۔" }, savings: { title: "ہر دن تھوڑا اور قریب۔", description: "ایک وقت میں ایک حصہ، اپنے اگلے مرحلے کے لیے تیاری کریں۔" }, finbot: { title: "پیسے کی بات کریں۔", description: "نمونہ گفتگو کے ساتھ اپنے سوالات دریافت کریں۔" } },
     workspace: "میرا ورک اسپیس", talkToFinbot: "FinBot سے بات کریں", darkMode: "ڈارک موڈ", lightMode: "لائٹ موڈ", demoSample: "ڈیمو · نمونہ ڈیٹا", plannerSample: "منصوبہ ساز · نمونہ معلومات",
-    diningKicker: "کیمپس ڈائننگ اور آپ کا بجٹ", diningTitle: "ہر کھانے اور ہر ڈالر کو کارآمد بنائیں۔", diningDescription: "اپنے Virginia Tech پلان، شیڈول، ترجیحات اور کیمپس بیلنس کے مطابق تعلیمی سال کا کھانے کا معمول بنائیں۔",
+    diningKicker: "کیمپس ڈائننگ اور آپ کا بجٹ", diningTitle: "ہر کھانے اور ہر ڈالر کو کارآمد بنائیں۔", diningDescription: "اپنے ورجینیا ٹیک پلان، شیڈول، ترجیحات اور کیمپس بیلنس کے مطابق تعلیمی سال کا کھانے کا معمول بنائیں۔",
   },
 };
 
 export function getInterfaceCopy(language: LanguageCode): InterfaceCopy {
   if (language === "en") return english;
-  return { ...english, ...translations[language] };
+  return { ...english, ...translations[language], balances: balanceTranslations[language], overview: overviewTranslations[language] };
 }
 
 export function isLanguageCode(value: unknown): value is LanguageCode {

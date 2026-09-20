@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getInterfaceCopy, getSpeechTag, isLanguageCode, languageOptions, type LanguageCode } from "./interface-language";
+import { publishNotification } from "@/features/notifications/use-notifications";
 
 export type AccessibilityPreferences = {
   colorPalette: "hokie" | "ocean" | "berry";
@@ -78,6 +79,7 @@ export function useAccessibilityPreferences() {
     key: Key,
     value: AccessibilityPreferences[Key],
   ) {
+    if (preferences[key] === value) return;
     const next = JSON.stringify({ ...preferences, [key]: value });
     fallbackSnapshot = next;
     try {
@@ -86,6 +88,9 @@ export function useAccessibilityPreferences() {
       // The in-memory preference still applies if storage is unavailable.
     }
     window.dispatchEvent(new Event(eventName));
+    const labels = { textScale: "Text size", colorPalette: "Color palette", contrast: "Contrast", motion: "Motion", language: "Language" };
+    const selected = key === "textScale" ? `${value}%` : key === "language" ? languageOptions.find((option) => option.code === value)?.label ?? String(value) : String(value);
+    publishNotification({ id: `preference-${key}`, kind: "system", title: `${labels[key]} updated`, message: `${labels[key]} is now ${selected}.`, sample: false });
   }
 
   return { preferences, updatePreference };
@@ -110,6 +115,12 @@ export function AccessibilityControls({
   const [speechState, setSpeechState] = useState<"idle" | "speaking" | "unsupported">("idle");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const closeForNotifications = () => setOpen(false);
+    window.addEventListener("wallet-notifications-open", closeForNotifications);
+    return () => window.removeEventListener("wallet-notifications-open", closeForNotifications);
+  }, []);
 
   useEffect(() => {
     if (open) closeRef.current?.focus();

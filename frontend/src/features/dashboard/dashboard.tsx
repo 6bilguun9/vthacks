@@ -3,11 +3,13 @@
 import { useSyncExternalStore, type CSSProperties, type MouseEvent } from "react";
 import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
-import { ArrowLeftRight, LayoutDashboard, Sparkles, Target, Utensils } from "lucide-react";
+import Image from "next/image";
+import CampusSidebar from "./CampusSidebar";
+import TransactionIcon from "./TransactionIcon";
+import NotificationBell from "@/features/notifications/NotificationBell";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
 import { getInterfaceCopy, isRtlLanguage } from "./interface-language";
 import { useDashboardTheme } from "./theme-preference";
-import "./dashboard.css";
 
 import { demoData, demoSummary, formatMoney as money } from "./demo-data";
 
@@ -16,6 +18,11 @@ const { spending, recentTransactions: transactions, savingsGoal: goal } = demoDa
 function Balance({ amount }: { amount: number }) {
   const [whole, cents] = money(amount).split(".");
   return <h2>{whole}<span>.{cents}</span></h2>;
+}
+
+function AmountSentence({ template, amount }: { template: string; amount: string }) {
+  const [before, after] = template.split("{amount}");
+  return <>{before}<strong><bdi>{amount}</bdi></strong>{after}</>;
 }
 
 // Each chart segment follows its category's share of the sample spending.
@@ -31,10 +38,10 @@ const chartBackground = demoSummary.totalSpentCents > 0
   : "#efeff2";
 
 const views = {
-  main: { icon: LayoutDashboard },
-  activity: { icon: ArrowLeftRight },
-  savings: { icon: Target },
-  finbot: { icon: Sparkles },
+  main: { label: "Overview", title: "Your budget" },
+  activity: { label: "Activity", title: "Transactions" },
+  savings: { label: "Savings", title: "Your savings" },
+  finbot: { label: "FinBot", title: "FinBot" },
 };
 type View = keyof typeof views;
 function subscribeView(callback: () => void) {
@@ -65,7 +72,12 @@ export default function Dashboard() {
   const { preferences, updatePreference } = useAccessibilityPreferences();
   const copy = getInterfaceCopy(preferences.language);
   const viewCopy = copy.views[view];
-  const readText = preferences.language === "en" ? getViewSummary(view) : `${viewCopy.title} ${viewCopy.description}`;
+  const overview = copy.overview;
+  const budgetNote = demoSummary.budgetRemainingCents >= 0 ? overview.remainingBudget : overview.overBudget;
+  const budgetRemaining = money(Math.abs(demoSummary.budgetRemainingCents));
+  const spendingDescription = `${overview.totalSpent}: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${overview.categories[item.name]}: ${money(item.amountCents)}`).join(", ")}`;
+  const overviewSummary = `${viewCopy.title}. ${copy.demoSample}. ${copy.balances.bankBalance}: ${money(demoData.bankBalanceCents)}. ${copy.balances.checkingDescription}. ${overview.walletName}: ${money(demoData.walletBalanceCents)}. ${copy.balances.walletDescription}. ${overview.milestone.replace("{amount}", money(goal.savedCents, 0))} ${spendingDescription}. ${budgetNote.replace("{amount}", budgetRemaining)}`;
+  const readText = view === "main" ? overviewSummary : preferences.language === "en" ? getViewSummary(view) : `${viewCopy.title} ${viewCopy.description}`;
   return (
     <div
       className="dashboard"
@@ -78,59 +90,45 @@ export default function Dashboard() {
       data-motion={preferences.motion}
       style={{ "--text-scale": preferences.textScale / 100 } as CSSProperties}
     >
-      <a className="skip-link" href="#main">Skip to dashboard</a>
-      <aside className="sidebar">
-        <a className="brand" href="#main" onClick={(event) => navigate(event, "main")}><span className="brand-icon">hw<span>•</span></span><span>hokie<span className="brand-light">wallet</span></span></a>
-        <p className="nav-label">YOUR MONEY, SIMPLIFIED</p>
-        <nav aria-label="Main navigation">
-          {(Object.keys(views) as View[]).map((key) => {
-            const Icon = views[key].icon;
-            return (
-              <a key={key} className={view === key ? "nav-active" : undefined} href={`#${key}`} onClick={(event) => navigate(event, key)} aria-current={view === key ? "page" : undefined}>
-                <span className="nav-icon" aria-hidden="true"><Icon /></span>
-                <span className="nav-text">{copy.nav[key]}</span>
-              </a>
-            );
-          })}
-          <Link href="/dining"><span className="nav-icon" aria-hidden="true"><Utensils /></span><span className="nav-text">{copy.nav.dining}</span></Link>
-        </nav>
-        <div className="sidebar-note"><span className="little-star" aria-hidden="true">✳</span><h3>Small steps.<br />Big possibilities.</h3><p>A little clarity goes a long way. Make room for what matters.</p><span className="hokie-tag">MADE FOR HOKIES</span></div>
-        <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>
-      </aside>
+      <a className="skip-link" href="#main">{overview.skipDashboard}</a>
+      <CampusSidebar activeView={view} labels={copy.nav} copy={overview} onNavigate={navigate} />
       <main id="main">
-        <header className="topbar"><span>{copy.workspace} <span className="breadcrumb">/ {copy.nav[view]}</span></span><div className="topbar-actions"><AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}</button><span className="demo-badge"><span /> {copy.demoSample}</span></div></header>
+        <header className="topbar"><span className="page-location">{copy.nav[view]}</span><div className="topbar-actions"><NotificationBell onViewGoal={(event) => navigate(event, "savings")} /><AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} /><button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}</button><span className="demo-badge"><span /> {copy.demoSample}</span></div></header>
         <div className="content">
-          <div className="view-heading" key={view}>
-          <section className="welcome"><div><p className="eyebrow">YOUR CAMPUS. YOUR PLANS. YOUR MONEY.</p><h1>{viewCopy.title}</h1><p>{viewCopy.description}</p></div><div className="welcome-actions"><span className="date-label">{demoData.month} {demoData.year} · Sample profile</span><a className="coach-link" href="#finbot" onClick={(event) => navigate(event, "finbot")}>{copy.talkToFinbot} <span aria-hidden="true">↗</span></a></div></section>
-          </div>
+          {view !== "finbot" && <div className="view-heading" key={view}>
+            <section className="welcome"><h1>{viewCopy.title}</h1><span className="date-label">{overview.month} {demoData.year}</span></section>
+          </div>}
           <div hidden={view !== "main"} className="view-panel overview-view">
-          <section className="balance-grid" aria-label="Account overview">
-            <article className="balance-card"><div className="card-label">Bank balance <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> Sample checking cash · includes goal allocation</p></article>
-            <article className="balance-card wallet-card"><div className="card-label">Hokie Wallet <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>Restricted campus funds · not bank cash <span aria-hidden="true">↗</span></p></article>
-            <article className="balance-card"><div className="card-label">Spent this month <span className="card-icon" aria-hidden="true">↗</span></div><Balance amount={demoSummary.totalSpentCents} /><p>Of your {money(demoData.monthlyBudgetCents, 0)} monthly budget</p><div className="budget-track" role="progressbar" aria-label="Monthly budget spent" aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${money(demoSummary.totalSpentCents)} spent of ${money(demoData.monthlyBudgetCents)}`}><span style={{ width: `${demoSummary.budgetPercent}%` }} /></div></article>
+          <section className="balance-grid" aria-label={copy.balances.accountOverview}>
+            <article className="balance-card"><div className="card-label">{copy.balances.bankBalance} <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> {copy.balances.checkingDescription}</p></article>
+            <article className="balance-card wallet-card"><div className="card-label">{overview.walletName} <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>{copy.balances.walletDescription} <span aria-hidden="true">↗</span></p></article>
+            <article className="balance-card"><div className="card-label">{copy.balances.monthlySpending} <span className="card-icon" aria-hidden="true">↗</span></div><Balance amount={demoSummary.totalSpentCents} /><p>{copy.balances.monthlyBudget(money(demoData.monthlyBudgetCents, 0))}</p><div className="budget-track" role="progressbar" aria-label={copy.balances.budgetSpent} aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={copy.balances.spentOfBudget(money(demoSummary.totalSpentCents), money(demoData.monthlyBudgetCents))}><span style={{ width: `${demoSummary.budgetPercent}%` }} /></div></article>
           </section>
-          <p className="sample-notice">Sample data only · Fixed September 2026 snapshot. Goal allocations are reserved within bank cash. Campus funds are restricted. Illustrations do not establish affordability.</p>
-          <section className="milestone-strip" aria-label="Sample savings milestone">
+          <p className="sample-notice">{copy.balances.sampleNotice}</p>
+          <section className="milestone-strip" aria-label={overview.milestoneLabel}>
             <span className="milestone-mark" aria-hidden="true">◎</span>
-            <div><p className="eyebrow">ONE GOAL. STEADY PROGRESS.</p><p><strong>{money(goal.savedCents, 0)} set aside</strong> for your {goal.name.toLowerCase()}.</p></div>
-            <a href="#savings" onClick={(event) => navigate(event, "savings")}>See your progress <span aria-hidden="true">↗</span></a>
+            <div><p><AmountSentence template={overview.milestone} amount={money(goal.savedCents, 0)} /></p></div>
+            <a href="#savings" onClick={(event) => navigate(event, "savings")}>{overview.seeProgress} <span aria-hidden="true">↗</span></a>
           </section>
           </div>
           <div className={`detail-grid view-${view}`}>
-            <section hidden={view !== "main"} className="panel spending-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE BIG PICTURE</p><h2>A month in spending</h2></div><span className="subtle-pill">{demoData.month}</span></div><div className="spending-content"><div className="donut" role="img" style={{ background: chartBackground }} aria-label={`Total spending: ${money(demoSummary.totalSpentCents)}. ${spending.map((item) => `${item.name}: ${money(item.amountCents)}`).join(", ")}`}><div><span>Total spent</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>this month</small></div></div><div className="legend">{spending.map((item, index) => <div className="legend-row" key={item.name}><span className={`legend-dot legend-dot-${index + 1}`} aria-hidden="true" /><span className="legend-symbol" aria-hidden="true">{["●", "◆", "■"][index]}</span><span>{item.name}</span><strong>{money(item.amountCents)}</strong></div>)}<p className="budget-note">{demoSummary.budgetRemainingCents >= 0 ? <>You have <strong>{money(demoSummary.budgetRemainingCents)}</strong> left in your budget.</> : <>You are <strong>{money(Math.abs(demoSummary.budgetRemainingCents))}</strong> over your budget.</>}</p></div></div></section>
+            <section hidden={view !== "main"} className="panel spending-panel view-panel">
+              <div className="section-heading"><div><p className="eyebrow">{overview.spendingEyebrow}</p><h2>{overview.spendingTitle}</h2></div><span className="subtle-pill">{overview.month}</span></div>
+              <div className="spending-content">
+                <div className="donut" role="img" style={{ background: chartBackground }} aria-label={spendingDescription}><div><span>{overview.totalSpent}</span><strong>{money(demoSummary.totalSpentCents)}</strong><small>{overview.thisMonth}</small></div></div>
+                <div className="legend">{spending.map((item, index) => <div className="legend-row" key={item.name}><span className={`legend-dot legend-dot-${index + 1}`} aria-hidden="true" /><span className="legend-symbol" aria-hidden="true">{["●", "◆", "■"][index]}</span><span>{overview.categories[item.name]}</span><strong>{money(item.amountCents)}</strong></div>)}<p className="budget-note"><AmountSentence template={budgetNote} amount={budgetRemaining} /></p></div>
+              </div>
+            </section>
             <section hidden={view !== "savings"} className="panel savings-panel view-panel"><div className="section-heading"><div><p className="eyebrow">LOOKING AHEAD</p><h2>A little closer every day</h2></div><span className="goal-icon" aria-hidden="true">◎</span></div><p className="goal-name">{goal.name} <span>Savings goal</span></p><div className="goal-amount"><strong>{money(goal.savedCents, 0)}</strong><span>of {money(goal.targetCents, 0)}</span><b>{demoSummary.savingsPercent}%</b></div><progress value={goal.savedCents} max={goal.targetCents} aria-label={`${goal.name}: ${money(goal.savedCents)} of ${money(goal.targetCents)}`} /><p className="goal-caption">{demoSummary.savingsRemainingCents > 0 ? <>Just <strong>{money(demoSummary.savingsRemainingCents, 0)} to go.</strong> Future you says thanks.</> : "Goal reached. Future you says thanks!"}</p><div className="savings-tip"><span aria-hidden="true">✧</span><p>Little by little adds up.<br /><strong>{demoSummary.savingsIllustration}</strong></p></div></section>
-            <section hidden={view !== "activity"} className="panel activity-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE EVERYDAY DETAILS</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div><ul className="transactions">{transactions.map((item) => <li key={item.id}><span className="transaction-icon" aria-hidden="true">{item.icon}</span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category} · {item.date}</span></div><strong>{money(item.amountCents)}</strong></li>)}</ul><p className="activity-note">A snapshot of your latest sample purchases.</p></section>
+            <section hidden={view !== "activity"} className="panel activity-panel view-panel"><div className="section-heading"><div><p className="eyebrow">THE EVERYDAY DETAILS</p><h2>Recent activity</h2></div><span className="subtle-pill">Sample transactions</span></div><ul className="transactions">{transactions.map((item) => <li key={item.id}><span className="transaction-icon" aria-hidden="true"><TransactionIcon name={item.name} category={item.category} /></span><div className="transaction-name"><strong>{item.name}</strong><span>{item.category} · {item.date}</span></div><strong>{money(item.amountCents)}</strong></li>)}</ul><p className="activity-note">A snapshot of your latest sample purchases.</p></section>
             <div hidden={view !== "finbot"} className="chat-view view-panel"><ChatPanel isVisible={view === "finbot"} /></div>
-            <section hidden={view !== "main"} className="panel next-step view-panel">
-              <p className="eyebrow">YOUR NEXT SMALL STEP</p>
-              <h2>A plan starts with a little clarity.</h2>
-              <p>Explore your savings goal or take a closer look at where your sample spending goes.</p>
-              <a href="#savings" onClick={(event) => navigate(event, "savings")}>Explore your savings goal <span aria-hidden="true">↗</span></a>
-              <a href="#activity" onClick={(event) => navigate(event, "activity")}>Review recent activity <span aria-hidden="true">↗</span></a>
+            <section hidden={view !== "main"} className="panel campus-dining-card view-panel" aria-labelledby="campus-dining-title">
+              <Image src="/campus/origami.png" alt={overview.diningPhotoAlt} width={600} height={400} sizes="(max-width: 800px) 100vw, 450px" />
+              <div><span className="campus-caption">Origami · Turner Place</span><h2 id="campus-dining-title">{overview.diningTitle}</h2><Link href="/dining">{overview.diningLink} <span aria-hidden="true">↗</span></Link></div>
             </section>
           </div>
 
-          <footer><span><strong>hokiewallet</strong> · More clarity. Less money stress.</span><span>Built for student life <span aria-hidden="true">↗</span></span></footer>
+          <footer><span>{overview.footer}</span></footer>
         </div>
       </main>
     </div>
@@ -145,7 +143,7 @@ function getViewSummary(view: View) {
     return `Savings goal. ${goal.name}. ${money(goal.savedCents)} saved of ${money(goal.targetCents)}, or ${demoSummary.savingsPercent} percent. ${money(demoSummary.savingsRemainingCents)} remains.`;
   }
   if (view === "finbot") {
-    return "Ask FinBot. This is a scripted demonstration using sample data. You can choose an example prompt or type a question about spending and saving.";
+    return "FinBot. This is a scripted demonstration using sample data. Type a question about spending, balances, or savings. Saved chats appear in the history sidebar.";
   }
   return `Overview. Sample bank balance ${money(demoData.bankBalanceCents)}. Restricted Hokie Wallet balance ${money(demoData.walletBalanceCents)}. Spending this month ${money(demoSummary.totalSpentCents)} of a ${money(demoData.monthlyBudgetCents)} budget. Emergency fund progress is ${demoSummary.savingsPercent} percent.`;
 }
