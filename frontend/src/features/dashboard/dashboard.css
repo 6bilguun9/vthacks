@@ -101,7 +101,8 @@
     .savings-tip { display: flex; align-items: flex-start; gap: 10px; margin-top: 20px; padding: 13px 14px; border-radius: 7px; background: #faf5ee; color: #78634f; }
     .savings-tip > span { font-size: 20px; line-height: 1; }
     .savings-tip p { font-size: 11px; line-height: 1.7; }
-    .finbot-chat { grid-column: 2; grid-row: 1 / span 2; align-self: stretch; scroll-margin-top: 24px; }
+    .chat-view { grid-column: 2; grid-row: 1 / span 2; align-self: stretch; min-width: 0; }
+    .finbot-chat { height: 100%; scroll-margin-top: 24px; }
     .activity-panel { grid-column: 1 / -1; }
     .transactions { margin: 20px 0 0; padding: 0; list-style: none; }
     .transactions li { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid #eee9e6; }
@@ -146,7 +147,7 @@
       .topbar { min-height: 58px; }
       .spending-content { flex-direction: row; }
       .detail-grid { grid-template-columns: 1fr; gap: 18px; }
-      .finbot-chat { grid-column: auto; grid-row: auto; }
+      .chat-view { grid-column: auto; grid-row: auto; }
       .savings-panel, .activity-panel { grid-column: auto; }
       .welcome-action { display: none; }
     }
@@ -196,5 +197,77 @@
       .section-heading { flex-wrap: wrap; }
     }
     @media (prefers-reduced-motion: reduce) { nav a { transition: none; } }
+  }
+}
+
+/* Preserve Carlos's tab navigation, theme preference, and reduced-motion-aware transitions. */
+@keyframes wallet-view-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@layer components {
+  .dashboard {
+    [hidden] { display: none !important; }
+    .topbar-actions { display: flex; gap: 12px; align-items: center; }
+    .theme-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid #d9cec7; border-radius: 8px; color: #63354a; background: #fffaf3; font-size: 12px; }
+    .theme-toggle span { font-size: 19px; }
+    .theme-toggle:hover { background: #f0e3dd; }
+    .view-heading, .view-panel:not([hidden]) { animation: wallet-view-enter 260ms cubic-bezier(.2,.7,.2,1) both; }
+    .detail-grid:not(.view-main) { display: block; max-width: 950px; margin-inline: auto; }
+    &[data-theme="dark"] {
+      color-scheme: dark;
+      background: #19171c;
+      color: #f1e8e6;
+      --dashboard-muted: #c4b8bf;
+      --maroon: #e694af;
+      --foreground: #f1e8e6;
+      --card: #252129;
+      --border: #4a3c48;
+      .sidebar { background: #26151e; border-color: #4a3c48; }
+      .brand-icon { background: #74253f; }
+      nav a { color: #e0cbd3; }
+      nav a:hover { background: #503545; color: #fff; }
+      nav .nav-active { background: #f6eaf0; color: #861f41; }
+      .profile { border-color: #4a3c48; }
+      .avatar { background: #503545; }
+      .topbar { background: #19171c; border-color: #43363e; color: #d4c4cd; }
+      .balance-card, .panel { background: #252129; border-color: #4a3c48; }
+      .bank-card { background: #74253f; border-color: #a75570; }
+      .card-label, .card-label svg, .balance-card p, .eyebrow, .nav-label, .sidebar-note p, .profile small, .breadcrumb, .breadcrumb strong, .sample-notice, .sample-notice strong, .snapshot-heading > span, .goal-amount > span, .goal-caption, .activity-note, .transaction-name span, .transaction-date, .legend-row, .budget-note, footer, footer strong, .api-connection summary, .connection-hint { color: #cabbc5; }
+      .bank-card .card-label, .bank-card .card-label svg, .bank-card p { color: #ffe4ed; }
+      .legend-row strong, .budget-note strong, .goal-caption strong { color: #f7eaef; }
+      .theme-toggle, .subtle-pill { background: #362934; color: #f2c6d5; border-color: #654554; }
+      .theme-toggle:hover { background: #503545; }
+      .demo-badge { background: #372e22; color: #edd3a5; border-color: #5b4b34; }
+      .transactions li, .budget-note, .api-connection { border-color: #4a3c48; }
+      .transaction-icon, .goal-icon { background: #3d3030; color: #e4bc92; }
+      .donut > div { background: #252129; }
+      .donut span, .donut small { color: #cabbc5; }
+      .savings-tip { background: #372d27; color: #e4cdb5; }
+      progress, progress::-webkit-progress-bar, .budget-track { background: #493644; }
+    }
+    @media (max-width: 600px) {
+      .topbar { flex-wrap: wrap; gap: 8px; }
+      .topbar-actions { gap: 8px; }
+      .theme-toggle { font-size: 11px; }
+      .demo-badge { font-size: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .view-heading, .view-panel:not([hidden]) { animation: none; }
+    }
+  }
+}
+/* Match Tailwind's layer so theme colors can override the chat's light utilities. */
+@layer utilities {
+  .dashboard[data-theme="dark"] .chat-view {
+    section, header, input { background-color: #252129; color: #f1e8e6; border-color: #604b59; }
+    [class*="bg-white"], [class*="bg-stone-50"], [class*="bg-stone-100"] { background-color: #342c36; }
+    [class*="text-stone-"] { color: #ded0d8; }
+    [class*="border-stone-"] { border-color: #604b59; }
+    input::placeholder { color: #b9aab4; }
+    button[type="button"] { color: #f2c6d5; }
+    button:hover:not(:disabled) { background-color: #653b51; color: white; }
+    button:disabled { background-color: #463d46; color: #c1b1bc; }
+    :focus-visible { outline-color: #f2c6d5; }
   }
 }

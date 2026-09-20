@@ -10,7 +10,7 @@ type Message = {
   text: string;
 };
 
-export default function ChatPanel() {
+export default function ChatPanel({ isVisible = true }: { isVisible?: boolean }) {
   // State remembers values between renders and updates the screen when they change.
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
@@ -32,8 +32,8 @@ export default function ChatPanel() {
 
   useEffect(() => {
     const conversation = conversationRef.current;
-    if (conversation) conversation.scrollTop = conversation.scrollHeight;
-  }, [messages, isThinking]);
+    if (isVisible && conversation) conversation.scrollTop = conversation.scrollHeight;
+  }, [messages, isThinking, isVisible]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); // Keep submitting the form from refreshing the page.
@@ -141,7 +141,7 @@ export default function ChatPanel() {
           {suggestedQuestions.map((example) => (
             <button
               key={example.label}
-              aria-label={example.question}
+              aria-label={`${example.label}: ${example.question}`}
               title={example.question}
               type="button"
               disabled={isThinking}
@@ -182,7 +182,7 @@ export default function ChatPanel() {
           </div>
         </form>
         <p className="mt-3 text-[11px] leading-5 text-stone-500">
-          Demo conversation · History resets when you refresh or leave.
+          Demo conversation · History resets on refresh or when you leave the dashboard.
         </p>
       </div>
     </section>
