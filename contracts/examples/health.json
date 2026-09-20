@@ -1,1 +1,5 @@
-{ "status": "ok", "service": "student-finance-api", "apiVersion": "v1" }
+{
+  "status": "ok",
+  "service": "student-finance-api",
+  "apiVersion": "v1"
+}

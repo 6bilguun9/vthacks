@@ -4,13 +4,13 @@
 
 Help Virginia Tech students understand what they can afford and how purchases affect savings goals. Target an under-24-hour hackathon with two frontend developers and two backend developers.
 
-This repository currently implements a starter and a health check, not the financial application. The decisions below guide subsequent feature work. The individual backend task split remains a later planning task.
+The backend implements the planning workflows below. Hosted Supabase/provider configuration and frontend integration are still activation gates; source implementation does not establish a live integration. See [the handoff](backend-handoff.md) for exact request sequencing and the backend teammate split.
 
 ## Applications
 
 ```text
 Browser / Next.js frontend
-        | versioned HTTP JSON + future guest bearer token
+        | versioned HTTP JSON + guest bearer token
 Fastify backend
         |-- authorized services --> Supabase
         |-- read-only banking adapter --> Nessie sandbox
@@ -22,7 +22,7 @@ Fastify backend
 
 The app directories are independent npm projects and deployment roots. Communication uses the API contract, not cross-directory imports. The coach and planner share backend infrastructure but have separate registered agent identities. All financial calculations live in the backend.
 
-Frontend stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, and Zod. Backend stack: Node 24, Fastify, TypeScript, Zod, and future Supabase access. Add charts/forms libraries when the corresponding feature needs them. No vector database, autonomous agent framework, or separate Python service is required.
+Frontend stack: Next.js, React, TypeScript, Tailwind, shadcn/ui, and Zod. Backend stack: Node 24, Fastify, TypeScript, Zod, and Supabase. Add charts/forms libraries when the corresponding feature needs them. No vector database, autonomous agent framework, or separate Python service is required.
 
 ## User experience
 
@@ -78,7 +78,7 @@ Send only required financial fields to ARC; omit personal identifiers and raw tr
 
 ANS registration/discovery is real integration work, not a badge. The coach resolves the planner's configured host/version, validates the destination, and authenticates the request. Sign the audience, body, timestamp, and nonce; reject expiry/replay. Never allow user/model-chosen URLs. An outage may use the local engine only if the UI clearly labels the fallback.
 
-## Public-release requirements, not implemented in the starter
+## Public-release requirements to verify in the hosted environment
 
 - Anonymous guest sessions, RLS isolation, and server authorization on every private endpoint.
 - Turnstile at guest creation; Postgres-backed rate counters and expiring concurrency leases.

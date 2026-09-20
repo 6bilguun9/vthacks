@@ -12,10 +12,10 @@ describe("dining planner", () => {
     expect(response.statusCode).toBe(422);
   });
 
-  it("returns a safe unavailable response when ARC is not configured", async () => {
+  it("does not expose the AI provider without configured guest authentication", async () => {
     const app = createApp(readConfig({ LOG_LEVEL: "silent" })); apps.push(app);
     const response = await app.inject({ method: "POST", url: "/api/v1/dining-plans", payload: { diningPlan: "Unlimited", studentStatus: "First-year, on campus", diningBalanceCents: 22500, hokiePassportBalanceCents: 0, weeksRemaining: 15, preferences: "vegetarian" } });
     expect(response.statusCode).toBe(503);
-    expect(response.json()).toEqual({ error: { code: "ARC_UNAVAILABLE", message: "The meal-planning agent is temporarily unavailable." } });
+    expect(response.json().error.code).toBe("STORAGE_UNAVAILABLE");
   });
 });
