@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { AppConfig } from "../config/env.js";
 import { DINING_SYSTEM_PROMPT } from "../agents/dining-prompt.js";
 import { AiUnavailableError, completeWithAi, getAiProvider } from "../integrations/ai.js";
-import { normalizeDiningResult } from "../agents/dining.js";
+import { diningMealLabelSchema, normalizeDiningResult } from "../agents/dining.js";
 import type { FinancialRouteOptions } from "./financial.js";
 
 const requestSchema = z.object({
@@ -30,7 +30,7 @@ const notesSchema = z.preprocess((value) => {
   if (Array.isArray(value)) return value.slice(0, 10);
   return value;
 }, z.array(z.string().max(500)).max(10));
-const mealSchema = z.object({ label: z.enum(["Breakfast", "Lunch", "Dinner"]), venue: z.string().min(1).max(100), suggestion: z.string().min(1).max(240), payment: paymentSchema, estimatedCostCents: z.number().int().nonnegative().safe() }).strict();
+const mealSchema = z.object({ label: diningMealLabelSchema, venue: z.string().min(1).max(100), suggestion: z.string().min(1).max(240), payment: paymentSchema, estimatedCostCents: z.number().int().nonnegative().safe() }).strict();
 const responseSchema = z.object({
   strategy: z.string().min(1).max(2000),
   days: z.array(z.object({ day: z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]), meals: z.array(mealSchema).length(3) }).strict()).length(7),
@@ -65,9 +65,11 @@ export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?
     const prompt = `Create a representative weekly plan for this student. Return JSON with strategy; days; weeklyDiningSpendCents; projectedDiningSpendCents; remainingDiningBalanceCents; assumptions; warnings; hoursUrl; source; model. Each day has day and three meals; each meal has label, venue, suggestion, payment, estimatedCostCents. The payment value must be exactly one of: swipe, meal_exchange, dining_balance, hokie_passport, other.\n\n${JSON.stringify(input)}\n\nThe active AI model is ${provider.model}. Set source to ${provider.source} and model to that exact value. Current balances, not original plan values, control the budget.`;
     try {
       const complete = options.complete ?? completeWithAi;
-      const completionOptions = () => ({ timeoutMs: Math.max(1, deadline - Date.now()), ...(options.fetch ? { fetch: options.fetch } : {}) });
+      const completionOptions = () => ({ timeoutMs: Math.max(1, deadline - Date.now()), maxTokens: 5000, ...(options.fetch ? { fetch: options.fetch } : {}) });
       const raw = await complete(options.config, [{ role: "system", content: DINING_SYSTEM_PROMPT }, { role: "user", content: prompt }], completionOptions());
-      let result = responseSchema.safeParse(parseJsonObject(raw));
+      let draft: unknown;
+      try { draft = parseJsonObject(raw); } catch { draft = null; }
+      let result = responseSchema.safeParse(draft);
       if (!result.success) {
         const issues = result.error.issues.map(({ path, code }) => ({ path: path.join("."), code }));
         request.log.warn({ issues }, "AI dining response failed validation; requesting one repair");
@@ -80,7 +82,10 @@ export const diningPlanRoutes: FastifyPluginAsync<{ config: AppConfig; complete?
       if (!result.success) return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "The AI provider returned a meal plan that could not be safely validated." } });
       return reply.header("Cache-Control", "no-store").send(normalizeDiningResult(input, { ...result.data, source: provider.source, model: provider.model }));
     } catch (error) {
-      if (error instanceof AiUnavailableError) return reply.code(503).send({ error: { code: "AI_UNAVAILABLE", message: "The meal-planning agent is temporarily unavailable." } });
+      if (error instanceof AiUnavailableError) {
+        request.log.warn({ provider: provider.provider, reason: error.message }, "AI dining provider unavailable");
+        return reply.code(503).send({ error: { code: "AI_UNAVAILABLE", message: "The meal-planning agent is temporarily unavailable." } });
+      }
       request.log.warn("AI dining response was invalid");
       return reply.code(502).send({ error: { code: "INVALID_PROVIDER_RESPONSE", message: "The AI provider returned a meal plan that could not be safely validated." } });
     } finally { await release(); }

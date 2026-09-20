@@ -2,8 +2,13 @@ import { z } from "zod";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
 const labels = ["Breakfast", "Lunch", "Dinner"] as const;
+export const diningMealLabelSchema = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+  const normalized = value.trim().toLowerCase();
+  return labels.find((label) => label.toLowerCase() === normalized) ?? value;
+}, z.enum(labels));
 const payment = z.enum(["swipe", "meal_exchange", "dining_balance", "hokie_passport", "other"]);
-const meal = z.object({ label: z.enum(labels), venue: z.string().min(1).max(100), suggestion: z.string().min(1).max(240), payment, estimatedCostCents: z.number().int().nonnegative().safe() }).strict();
+const meal = z.object({ label: diningMealLabelSchema, venue: z.string().min(1).max(100), suggestion: z.string().min(1).max(240), payment, estimatedCostCents: z.number().int().nonnegative().safe() }).strict();
 const draftSchema = z.object({
   strategy: z.string().min(1).max(2000),
   days: z.array(z.object({ day: z.enum(days), meals: z.array(meal).length(3) }).strict()).length(7),

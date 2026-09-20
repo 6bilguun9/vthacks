@@ -43,6 +43,7 @@ describe("ARC adapter", () => {
     });
     expect(JSON.parse(String(init.body))).toMatchObject({
       model: "openrouter/free",
+      max_tokens: 3000,
       response_format: { type: "json_object" },
       provider: { require_parameters: true },
     });
