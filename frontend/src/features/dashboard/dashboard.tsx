@@ -88,12 +88,12 @@ export default function Dashboard() {
             <section className="welcome"><h1>{viewCopy.title}</h1><span className="date-label">{demoData.month} {demoData.year}</span></section>
           </div>}
           <div hidden={view !== "main"} className="view-panel overview-view">
-          <section className="balance-grid" aria-label="Account overview">
-            <article className="balance-card"><div className="card-label">Bank balance <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> Sample checking cash · includes goal allocation</p></article>
-            <article className="balance-card wallet-card"><div className="card-label">Hokie Wallet <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>Restricted campus funds · not bank cash <span aria-hidden="true">↗</span></p></article>
-            <article className="balance-card"><div className="card-label">Spent this month <span className="card-icon" aria-hidden="true">↗</span></div><Balance amount={demoSummary.totalSpentCents} /><p>Of your {money(demoData.monthlyBudgetCents, 0)} monthly budget</p><div className="budget-track" role="progressbar" aria-label="Monthly budget spent" aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={`${money(demoSummary.totalSpentCents)} spent of ${money(demoData.monthlyBudgetCents)}`}><span style={{ width: `${demoSummary.budgetPercent}%` }} /></div></article>
+          <section className="balance-grid" aria-label={copy.balances.accountOverview}>
+            <article className="balance-card"><div className="card-label">{copy.balances.bankBalance} <span className="card-icon" aria-hidden="true">▥</span></div><Balance amount={demoData.bankBalanceCents} /><p><span className="status-dot" /> {copy.balances.checkingDescription}</p></article>
+            <article className="balance-card wallet-card"><div className="card-label">Hokie Wallet <span className="card-icon" aria-hidden="true">▱</span></div><Balance amount={demoData.walletBalanceCents} /><p>{copy.balances.walletDescription} <span aria-hidden="true">↗</span></p></article>
+            <article className="balance-card"><div className="card-label">{copy.balances.monthlySpending} <span className="card-icon" aria-hidden="true">↗</span></div><Balance amount={demoSummary.totalSpentCents} /><p>{copy.balances.monthlyBudget(money(demoData.monthlyBudgetCents, 0))}</p><div className="budget-track" role="progressbar" aria-label={copy.balances.budgetSpent} aria-valuenow={demoSummary.budgetPercent} aria-valuemin={0} aria-valuemax={100} aria-valuetext={copy.balances.spentOfBudget(money(demoSummary.totalSpentCents), money(demoData.monthlyBudgetCents))}><span style={{ width: `${demoSummary.budgetPercent}%` }} /></div></article>
           </section>
-          <p className="sample-notice">Sample snapshot. Savings are included in bank cash; campus funds are separate and restricted.</p>
+          <p className="sample-notice">{copy.balances.sampleNotice}</p>
           <section className="milestone-strip" aria-label="Sample savings milestone">
             <span className="milestone-mark" aria-hidden="true">◎</span>
             <div><p><strong>{money(goal.savedCents, 0)} saved</strong> toward your {goal.name.toLowerCase()}.</p></div>

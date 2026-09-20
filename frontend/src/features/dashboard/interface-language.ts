@@ -13,7 +13,104 @@ export const languageOptions: ReadonlyArray<{ code: LanguageCode; label: string;
   { code: "ur", label: "اردو (Urdu)", speechTag: "ur-PK" },
 ];
 
+type BalanceCopy = {
+  accountOverview: string;
+  bankBalance: string;
+  checkingDescription: string;
+  walletDescription: string;
+  monthlySpending: string;
+  monthlyBudget: (budget: string) => string;
+  budgetSpent: string;
+  spentOfBudget: (spent: string, budget: string) => string;
+  sampleNotice: string;
+};
+
+// Every supported language must include the full balance-card copy.
+const balanceTranslations: Record<LanguageCode, BalanceCopy> = {
+  en: {
+    accountOverview: "Account overview", bankBalance: "Bank balance",
+    checkingDescription: "Sample checking cash · includes goal allocation",
+    walletDescription: "Restricted campus funds · not bank cash",
+    monthlySpending: "Spent this month", monthlyBudget: (budget) => `Of your ${budget} monthly budget`,
+    budgetSpent: "Monthly budget spent", spentOfBudget: (spent, budget) => `${spent} spent of ${budget}`,
+    sampleNotice: "Sample snapshot. Savings are included in bank cash; campus funds are separate and restricted.",
+  },
+  zh: {
+    accountOverview: "账户概览", bankBalance: "银行余额",
+    checkingDescription: "示例活期账户资金 · 含储蓄目标预留金额",
+    walletDescription: "限用途校园资金 · 非银行资金",
+    monthlySpending: "本月支出", monthlyBudget: (budget) => `每月预算为 ${budget}`,
+    budgetSpent: "已使用的月度预算", spentOfBudget: (spent, budget) => `预算 ${budget}，已支出 ${spent}`,
+    sampleNotice: "示例数据。储蓄已包含在银行资金中；校园资金单独列出，且用途受限。",
+  },
+  hi: {
+    accountOverview: "खातों का अवलोकन", bankBalance: "बैंक बैलेंस",
+    checkingDescription: "नमूना चेकिंग खाते की राशि · लक्ष्य के लिए आरक्षित राशि शामिल है",
+    walletDescription: "सीमित उपयोग की कैंपस राशि · बैंक की राशि नहीं",
+    monthlySpending: "इस महीने का खर्च", monthlyBudget: (budget) => `आपके ${budget} मासिक बजट में से`,
+    budgetSpent: "मासिक बजट में से खर्च", spentOfBudget: (spent, budget) => `${budget} में से ${spent} खर्च`,
+    sampleNotice: "नमूना विवरण। बचत बैंक की राशि में शामिल है; कैंपस की राशि अलग है और उसका उपयोग सीमित है।",
+  },
+  es: {
+    accountOverview: "Resumen de cuentas", bankBalance: "Saldo bancario",
+    checkingDescription: "Saldo de cuenta corriente de muestra · incluye la reserva para la meta",
+    walletDescription: "Fondos del campus de uso restringido · no son saldo bancario",
+    monthlySpending: "Gastado este mes", monthlyBudget: (budget) => `De tu presupuesto mensual de ${budget}`,
+    budgetSpent: "Presupuesto mensual gastado", spentOfBudget: (spent, budget) => `${spent} gastados de ${budget}`,
+    sampleNotice: "Datos de muestra. Los ahorros están incluidos en el saldo bancario; los fondos del campus son independientes y de uso restringido.",
+  },
+  ar: {
+    accountOverview: "نظرة عامة على الحسابات", bankBalance: "الرصيد البنكي",
+    checkingDescription: "رصيد تجريبي للحساب الجاري · يشمل المبلغ المخصص للهدف",
+    walletDescription: "أموال جامعية مقيّدة الاستخدام · ليست رصيدًا بنكيًا",
+    monthlySpending: "الإنفاق هذا الشهر", monthlyBudget: (budget) => `من ميزانيتك الشهرية البالغة ${budget}`,
+    budgetSpent: "المبلغ المنفق من الميزانية الشهرية", spentOfBudget: (spent, budget) => `تم إنفاق ${spent} من ${budget}`,
+    sampleNotice: "بيانات تجريبية. المدخرات مشمولة في الرصيد البنكي؛ أموال الجامعة منفصلة ومقيّدة الاستخدام.",
+  },
+  fr: {
+    accountOverview: "Aperçu des comptes", bankBalance: "Solde bancaire",
+    checkingDescription: "Solde de compte courant fictif · inclut la réserve pour l’objectif",
+    walletDescription: "Fonds du campus à usage restreint · hors solde bancaire",
+    monthlySpending: "Dépenses du mois", monthlyBudget: (budget) => `Sur votre budget mensuel de ${budget}`,
+    budgetSpent: "Budget mensuel dépensé", spentOfBudget: (spent, budget) => `${spent} dépensés sur ${budget}`,
+    sampleNotice: "Données fictives. L’épargne est incluse dans le solde bancaire ; les fonds du campus sont distincts et à usage restreint.",
+  },
+  bn: {
+    accountOverview: "অ্যাকাউন্টের সারসংক্ষেপ", bankBalance: "ব্যাংক ব্যালেন্স",
+    checkingDescription: "নমুনা চেকিং অ্যাকাউন্টের অর্থ · লক্ষ্যের জন্য সংরক্ষিত অর্থসহ",
+    walletDescription: "সীমিত ব্যবহারের ক্যাম্পাস তহবিল · ব্যাংকের অর্থ নয়",
+    monthlySpending: "এই মাসের খরচ", monthlyBudget: (budget) => `আপনার ${budget} মাসিক বাজেটের মধ্যে`,
+    budgetSpent: "মাসিক বাজেট থেকে খরচ", spentOfBudget: (spent, budget) => `${budget} থেকে ${spent} খরচ হয়েছে`,
+    sampleNotice: "নমুনা তথ্য। সঞ্চয় ব্যাংকের অর্থের মধ্যেই অন্তর্ভুক্ত; ক্যাম্পাসের অর্থ আলাদা এবং এর ব্যবহার সীমিত।",
+  },
+  pt: {
+    accountOverview: "Resumo das contas", bankBalance: "Saldo bancário",
+    checkingDescription: "Saldo de conta corrente de exemplo · inclui a reserva para a meta",
+    walletDescription: "Fundos do campus de uso restrito · não são saldo bancário",
+    monthlySpending: "Gasto neste mês", monthlyBudget: (budget) => `Do seu orçamento mensal de ${budget}`,
+    budgetSpent: "Orçamento mensal gasto", spentOfBudget: (spent, budget) => `${spent} gastos de ${budget}`,
+    sampleNotice: "Dados de exemplo. A poupança está incluída no saldo bancário; os fundos do campus são separados e de uso restrito.",
+  },
+  ru: {
+    accountOverview: "Обзор счетов", bankBalance: "Банковский баланс",
+    checkingDescription: "Пример остатка на текущем счёте · включает резерв на цель",
+    walletDescription: "Средства кампуса с ограниченным использованием · не банковские средства",
+    monthlySpending: "Потрачено за месяц", monthlyBudget: (budget) => `Из месячного бюджета ${budget}`,
+    budgetSpent: "Потраченная часть месячного бюджета", spentOfBudget: (spent, budget) => `Потрачено ${spent} из ${budget}`,
+    sampleNotice: "Тестовые данные. Накопления включены в банковский баланс; средства кампуса учитываются отдельно и имеют ограничения по использованию.",
+  },
+  ur: {
+    accountOverview: "اکاؤنٹس کا جائزہ", bankBalance: "بینک بیلنس",
+    checkingDescription: "نمونہ چیکنگ اکاؤنٹ کی رقم · ہدف کے لیے مختص رقم شامل ہے",
+    walletDescription: "محدود استعمال کے کیمپس فنڈز · بینک کی رقم نہیں",
+    monthlySpending: "اس ماہ کا خرچ", monthlyBudget: (budget) => `آپ کے ${budget} ماہانہ بجٹ میں سے`,
+    budgetSpent: "ماہانہ بجٹ میں سے خرچ", spentOfBudget: (spent, budget) => `${budget} میں سے ${spent} خرچ ہوئے`,
+    sampleNotice: "نمونہ معلومات۔ بچت بینک کی رقم میں شامل ہے؛ کیمپس کی رقم الگ ہے اور اس کا استعمال محدود ہے۔",
+  },
+};
+
 type InterfaceCopy = {
+  balances: BalanceCopy;
   accessTools: string;
   personalize: string;
   accessibilityTools: string;
@@ -49,6 +146,7 @@ type InterfaceCopy = {
 };
 
 const english: InterfaceCopy = {
+  balances: balanceTranslations.en,
   accessTools: "Access tools",
   personalize: "MAKE IT YOURS",
   accessibilityTools: "Accessibility tools",
@@ -183,7 +281,7 @@ const translations: Record<Exclude<LanguageCode, "en">, Partial<InterfaceCopy>> 
 
 export function getInterfaceCopy(language: LanguageCode): InterfaceCopy {
   if (language === "en") return english;
-  return { ...english, ...translations[language] };
+  return { ...english, ...translations[language], balances: balanceTranslations[language] };
 }
 
 export function isLanguageCode(value: unknown): value is LanguageCode {
