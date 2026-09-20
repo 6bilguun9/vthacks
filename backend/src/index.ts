@@ -1,20 +1,21 @@
 import Fastify from "fastify";
-import { createApp } from "./create-app.js";
+import { createApp, createFastifyOptions } from "./create-app.js";
 import { readConfig } from "./config/env.js";
 
 const config = readConfig();
-const app = createApp(config, {}, Fastify);
+const fastify = Fastify(createFastifyOptions(config));
+createApp(config, {}, fastify);
 
 async function shutdown() {
-  await app.close();
+  await fastify.close();
 }
 
 process.once("SIGINT", () => { void shutdown(); });
 process.once("SIGTERM", () => { void shutdown(); });
 
 try {
-  await app.listen({ port: config.PORT, host: config.HOST });
+  await fastify.listen({ port: config.PORT, host: config.HOST });
 } catch {
-  app.log.error("Unable to start the API. Check the port and server configuration.");
+  fastify.log.error("Unable to start the API. Check the port and server configuration.");
   process.exitCode = 1;
 }
