@@ -3,7 +3,7 @@
   "info": {
     "title": "VT Student Savings Planner API",
     "version": "0.1.0",
-    "description": "Health and ARC-backed dining planning are implemented. Other paths remain planned. All demo financial examples are synthetic."
+    "description": "All documented API routes are implemented. Provider-dependent behavior requires configuration. All demo financial examples are synthetic."
   },
   "servers": [
     {
