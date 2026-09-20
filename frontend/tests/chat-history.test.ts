@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { emptyHistory, groupConversations, historyReducer, readHistory } from "../src/features/chat/conversation-history";
+import { emptyHistory, filterConversations, groupConversations, historyReducer, readHistory } from "../src/features/chat/conversation-history";
 
 const morning = new Date(2026, 8, 19, 9).getTime();
 const first = () => historyReducer(emptyHistory, { type: "ask", id: "spending", question: "  What have I spent this month?  ", at: morning });
 
 describe("FinBot conversation history", () => {
+  it("renames a conversation without changing its messages or activity date", () => {
+    const state = first();
+    const result = historyReducer(state, { type: "rename", id: "spending", title: "  My September budget  " });
+    expect(result.conversations[0]?.title).toBe("My September budget");
+    expect(result.conversations[0]?.messages).toEqual(state.conversations[0]?.messages);
+    expect(result.conversations[0]?.updatedAt).toBe(morning);
+    expect(readHistory(JSON.stringify(result)).history.conversations[0]?.title).toBe("My September budget");
+    expect(historyReducer(state, { type: "rename", id: "spending", title: "   " })).toEqual(state);
+    expect(historyReducer(state, { type: "rename", id: "spending", title: "x".repeat(81) })).toEqual(state);
+  });
+
+  it("finds chats by title or message without changing their date order", () => {
+    const state = historyReducer(first(), { type: "reply", id: "spending", questionIndex: 0, text: "Sample transportation total: $60", at: morning + 900 });
+    expect(filterConversations(state.conversations, "  TRANSPORTATION  ").map((c) => c.id)).toEqual(["spending"]);
+    expect(filterConversations(state.conversations, "spent").map((c) => c.id)).toEqual(["spending"]);
+    expect(filterConversations(state.conversations, "rent")).toEqual([]);
+    expect(filterConversations(state.conversations, "  ")).toEqual(state.conversations);
+  });
+
   it("names a new conversation from its first question and keeps it when continuing", () => {
     const started = first();
     expect(started.activeId).toBe("spending");

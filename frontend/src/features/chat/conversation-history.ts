@@ -24,6 +24,7 @@ export type HistoryAction =
   | { type: "new" }
   | { type: "select"; id: string }
   | { type: "remove"; id: string }
+  | { type: "rename"; id: string; title: string }
   | { type: "ask"; id: string; question: string; at: number }
   | { type: "reply"; id: string; questionIndex: number; text: string; at: number };
 
@@ -37,6 +38,11 @@ export function historyReducer(state: ChatHistory, action: HistoryAction): ChatH
     return { ...state, activeId: state.activeId === action.id ? null : state.activeId, conversations: state.conversations.filter((chat) => chat.id !== action.id) };
   }
   const existing = state.conversations.find((chat) => chat.id === action.id);
+  if (action.type === "rename") {
+    const title = action.title.trim();
+    if (!existing || !title || title.length > 80) return state;
+    return { ...state, conversations: state.conversations.map((chat) => chat.id === action.id ? { ...chat, title } : chat) };
+  }
   if (action.type === "ask") {
     const question = action.question.trim();
     if (!question || existing?.messages.at(-1)?.role === "user") return state;
@@ -58,6 +64,13 @@ export function readHistory(raw: string | null): { history: ChatHistory; warning
   } catch {
     return { history: emptyHistory, warning: "Saved chats could not be read. You can start a new conversation." };
   }
+}
+
+export function filterConversations(conversations: Conversation[], query: string) {
+  const search = query.trim().toLocaleLowerCase();
+  if (!search) return conversations;
+  return conversations.filter((chat) => chat.title.toLocaleLowerCase().includes(search)
+    || chat.messages.some((message) => message.text.toLocaleLowerCase().includes(search)));
 }
 
 function dateKey(date: Date) {
