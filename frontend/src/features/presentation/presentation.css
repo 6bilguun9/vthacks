@@ -77,9 +77,10 @@
 /* The problem is a question that a balance alone cannot answer. */
 .pc-problem { display: grid; grid-template-columns: 1.05fr 1fr; grid-template-rows: 1fr auto; gap: 30px 5%; align-items: center; }
 .pc-problem h1 { font-size: clamp(42px, 5.5vw, 86px); }
+.pc-problem-copy > .pc-sample { margin-top: 18px; }
 .pc-problem > .pc-footnote { grid-column: 1 / -1; max-width: 740px; }
 .pc-receipt-scene { height: 100%; max-height: 470px; position: relative; display: flex; align-items: center; justify-content: center; }
-.pc-receipt { background: white; box-shadow: 0 15px 50px #65453612; padding: 30px 24px 38px; width: 305px; transform: rotate(-4deg); clip-path: polygon(0 0,100% 0,100% 96%,95% 100%,90% 96%,85% 100%,80% 96%,75% 100%,70% 96%,65% 100%,60% 96%,55% 100%,50% 96%,45% 100%,40% 96%,35% 100%,30% 96%,25% 100%,20% 96%,15% 100%,10% 96%,5% 100%,0 96%); }
+.pc-receipt { background: white; box-shadow: 0 15px 50px #65453612; padding: 30px 24px 66px; width: 305px; transform: rotate(-4deg); clip-path: polygon(0 0,100% 0,100% 96%,95% 100%,90% 96%,85% 100%,80% 96%,75% 100%,70% 96%,65% 100%,60% 96%,55% 100%,50% 96%,45% 100%,40% 96%,35% 100%,30% 96%,25% 100%,20% 96%,15% 100%,10% 96%,5% 100%,0 96%); }
 .pc-receipt > strong { display: block; font-size: 53px; letter-spacing: -.06em; margin: 8px 0; }
 .pc-receipt-rule { border-bottom: 1px dashed #c7b9b1; margin: 18px 0; }
 .pc-receipt > span:not(.pc-sample) { font-size: 11px; }
