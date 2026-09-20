@@ -1,6 +1,8 @@
 # Hokie Wallet presentation
 
-The current animated presentation has nine scenes and a four-minute (240-second) timeline. It explains the Hokie student problem, shows the product, and illustrates the implemented backend and sponsor contributions. The browser presentation and portable HTML share the same current script.
+The current animated presentation has nine scenes and a four-minute (240-second) timeline. It explains the Hokie student problem, shows the product, and illustrates the implemented backend and sponsor contributions. The browser presentation and portable HTML share the same current script. The team name is **sudo win**, lowercase with a space.
+
+The [organizer guide](https://vthacks.com/guide) lists **three minutes to present and one minute for questions**. A separate three-minute script in [speaker-notes.md](speaker-notes.md#three-minute-rehearsal-script) uses the same nine scenes with manual advancement. Use that version for judging unless an organizer confirms four minutes of speaking time.
 
 ## Standalone presentation
 
@@ -52,9 +54,11 @@ The script targets four minutes, with one minute per teammate:
 | Carlos | 0:00–1:00 | Purpose, student problem, dashboard |
 | Neha | 1:00–2:00 | FinBot and accessibility |
 | Grant | 2:00–3:00 | Dining planner and backend connection |
-| Bilguun | 3:00–4:00 | Agent communication and challenge alignment |
+| Bilguun | 3:00–4:00 | Agent communication, purchase impact, and closing |
 
-`speaker-notes.md` contains the same current speaking script for rehearsal: 495 words, or about 124 words per minute. The nine scene durations remain 15, 20, 25, 35, 25, 40, 20, 40, and 20 seconds. Practice the handoffs with a timer.
+`speaker-notes.md` contains the same current speaking script for rehearsal: 478 words, or about 120 words per minute. The nine scene durations remain 15, 20, 25, 35, 25, 40, 20, 40, and 20 seconds. Practice the handoffs with a timer.
+
+The three-minute version has 324 words and gives each speaker 45 seconds. Its manual scene targets are 12, 14, 19, 25, 20, 25, 20, 30, and 15 seconds. Leave automatic playback off and use a separate stopwatch for that version. Manual navigation also pauses the scene reveals, so the written rehearsal guide gives operator cues for showing the FinBot reply, sample meal week, backend steps, and final seven-day agent comparison. It also includes short answers to likely questions and a clear summary of verified integrations.
 
 ## Images and integration status
 
@@ -66,22 +70,22 @@ The backend connection scene explains four steps across its 20 seconds: **Verify
 
 The current backend supports VT ARC and OpenRouter with explicit server-side selection. ARC is the default; selecting OpenRouter does not enable automatic fallback between providers. This source support is separate from verifying a successful hosted provider request. Pinned implementation sources are available in the presenter notes.
 
-FinBot still uses scripted replies, the frontend’s authenticated backend connection is pending, and live ANS execution still needs verification. Update those statements only after verifying the connected flow.
+The presentation uses scripted FinBot replies. The product's authenticated frontend connection is implemented, including plan previews and explicit saves, but the complete hosted guest flow still needs verification. A live read-only Nessie check retrieved two sandbox accounts and four purchases. A live ANS lookup resolved the Planner endpoint. These checks do not establish a successful full signed agent exchange, hosted student save, or live AI response. The latest ARC request returned 403, and no OpenRouter credential was configured. Keep those distinctions when answering questions.
 
 ## Student problem and sponsor fit
 
 The problem is coordinating dining benefits, cash, and savings for everyday decisions. Virginia Tech already offers balances/history, dining calculators, and financial coaching; this prototype does not claim those resources are missing. Official VT sources and code evidence are available in the notes dialog.
 
-The presentation connects concrete work to the [official sponsor categories](https://vthacks-14.devpost.com/):
+The presentation connects concrete work to the [official sponsor categories](https://vthacks-14.devpost.com/). The current evidence supports these descriptions:
 
-- **Capital One — Best Use of Nessie:** read-only sandbox banking context for a saved financial plan.
-- **GoDaddy — Best Use of ANS:** configured Planner discovery and signed, authenticated Coach-to-Planner requests.
-- **Deloitte × Databricks — AI Agent for the Virginia Tech Student Experience:** campus-specific dining planning and clearer student money decisions.
+- **Capital One — Best Use of Nessie:** implemented read-only banking context with a verified sandbox retrieval.
+- **GoDaddy — Best Use of ANS:** verified Planner discovery and an implemented signed, authenticated Coach-to-Planner path. The full remote invocation still needs a live check.
+- **Deloitte × Databricks — AI Agent for the Virginia Tech Student Experience:** the student problem fits the theme, but the challenge requires the Databricks platform. We have no verified Databricks integration, so thematic fit does not establish eligibility. This distinction belongs in Q&A, not a claim of qualification in the spoken closing.
 
-These are project contributions and thematic fit, not a claim of confirmed prize eligibility, verified live providers, or Databricks platform integration.
+The presenters should describe what they built and verified. None of these descriptions guarantees prize eligibility or a judging result.
 
 ## PowerPoint fallback
 
 `Hokie_Wallet_Four_Minute_Pitch.pptx` remains an earlier fallback. Open it in PowerPoint or import it into Google Slides. Its nine slides contain editable diagrams, text, and the previous speaker notes; the PowerPoint has not been updated with this revision’s script or synthetic agent comparison. Use the browser presentation or portable HTML for the current version.
 
-The deck follows the requested four-minute duration. The [organizer guide](https://vthacks.com/guide) currently lists three minutes to present and one minute for questions, while [Devpost](https://vthacks-14.devpost.com/) describes four minutes. Confirm the allotted speaking time with the judges.
+The deck follows the requested four-minute duration. The [organizer guide](https://vthacks.com/guide) separates that slot into three minutes of presentation and one minute of questions, while [Devpost](https://vthacks-14.devpost.com/) describes four minutes. The manual three-minute script is ready for that format.

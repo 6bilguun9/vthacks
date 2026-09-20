@@ -32,9 +32,9 @@ export const presentationScenes = [
     speaker: "Carlos",
     startsAt: 0,
     duration: 15,
-    eyebrow: "Hokie Wallet · sudoWin",
+    eyebrow: "Hokie Wallet · sudo win",
     notes:
-      "Hi, I’m Carlos. Together with Neha, Bilguun, and Grant, we built Hokie Wallet: a budgeting prototype that helps Hokies decide how to use their dining benefits, everyday cash, and savings.",
+      "Hi, I’m Carlos. We’re sudo win. We built Hokie Wallet so students can see their cash and campus balances together, then understand how today’s spending affects the savings they’re working toward.",
   },
   {
     id: "problem",
@@ -44,7 +44,7 @@ export const presentationScenes = [
     duration: 20,
     eyebrow: "The student question",
     notes:
-      "Virginia Tech already provides balances, transaction history, dining calculators, and financial coaching. Our problem is connecting those pieces to a daily decision: which benefit should cover lunch, and what money should I protect for later? Dining benefits have different rules, while bills and savings still need bank cash.",
+      "As Hokies, we keep checking different places for dining dollars, bank balances, and purchases. Those numbers still leave us asking: can I cover lunch and stay on track for a laptop? Virginia Tech offers useful tools. We’re bringing that daily planning into one place.",
   },
   {
     id: "overview",
@@ -54,7 +54,7 @@ export const presentationScenes = [
     duration: 25,
     eyebrow: "Overview · Activity · Savings",
     notes:
-      "Neha and I built the frontend around that decision. Overview puts bank cash, campus funds, and spending in context. Activity explains recent purchases; Savings shows progress toward a goal. These are sample balances. Campus funds stay separate from cash, and savings are reserved within bank cash, never counted twice.",
+      "Neha and I built the dashboard around that question. Overview brings balances and spending together. Activity shows purchases, and Savings tracks the goal. These screens use sample data. Dining dollars stay separate from bank cash, so a meal balance never looks like money available to pay rent. Neha will show FinBot.",
   },
   {
     id: "finbot",
@@ -64,7 +64,7 @@ export const presentationScenes = [
     duration: 35,
     eyebrow: "Ask FinBot",
     notes:
-      "I’m Neha. FinBot gives students a familiar place to ask about their money instead of interpreting every number alone. I worked on saved conversations, renaming chats, and a multiline message box. Students can return to a question when their plans change. This frontend demonstration uses scripted replies. Later, we’ll show how the implemented backend separates understanding a question from calculating its financial impact.",
+      "I’m Neha. A balance is easier to act on when you can ask a question. FinBot gives students that familiar conversation: “Would this purchase delay my goal?” I worked on returning to saved conversations and making chats easier to manage. The replies shown here are scripted. The connected interface is implemented, and we’ll explain how the backend checks the numbers behind an answer.",
   },
   {
     id: "accessibility",
@@ -74,7 +74,7 @@ export const presentationScenes = [
     duration: 25,
     eyebrow: "Built for different needs",
     notes:
-      "Financial guidance should also be comfortable to use. Students can adjust text size, choose clearer color palettes, reduce motion, or listen to the current view. Ten language options translate core interface labels. These controls stay available in dining, keeping the same experience as students move from understanding their money to planning meals.",
+      "Financial guidance should be comfortable to use. Students can adjust text size, choose clearer color palettes, reduce motion, or listen to the current view. Ten language options translate core interface labels. Those controls stay available in dining. Grant will show how meal planning connects to the backend.",
   },
   {
     id: "dining",
@@ -84,7 +84,7 @@ export const presentationScenes = [
     duration: 40,
     eyebrow: "Dining planner",
     notes:
-      "I’m Grant. Dining turns a balance into a practical week. Students provide their dining plan, remaining funds, weeks left, and preferences. OpenRouter or VT ARC drafts meal suggestions; our backend then checks the structure, adds up each meal, and rejects a plan that exceeds the supplied campus balances. We ask for swipes and exchanges first. Prices remain estimates, and students can check current dining hours. Students can use what they already paid for while protecting cash for other needs.",
+      "I’m Grant. Dining starts with a student’s remaining funds, weeks, and preferences. The workflow we built asks an AI provider to draft a week. Our backend then checks payment methods, adds up meal estimates, and rejects suggestions that exceed those campus balances. Prioritizing swipes and exchanges can help preserve cash. This screen shows a sample plan, and meal prices still need checking. The goal is practical: use the dining benefits you’ve already paid for.",
   },
   {
     id: "backend",
@@ -94,7 +94,7 @@ export const presentationScenes = [
     duration: 20,
     eyebrow: "How the backend connects",
     notes:
-      "First, our API verifies the student’s guest token. It loads their Supabase plan, Nessie sandbox snapshot, and entered campus balances. Then it returns a calculated preview. The preview stays hypothetical until the student explicitly saves it. These backend steps are implemented; connecting them to the frontend remains unfinished.",
+      "Our API verifies a guest session, then loads the student’s saved Supabase plan and Nessie sandbox context. Campus balances are entered separately. Students preview changes before saving. The frontend connection is implemented. Hosted verification remains. Bilguun will explain how the agents use that context.",
   },
   {
     id: "agents",
@@ -104,7 +104,7 @@ export const presentationScenes = [
     duration: 40,
     eyebrow: "Coach ↔ Planner",
     notes:
-      "I’m Bilguun. For a purchase question, the Coach uses our selected AI provider to extract the amount, date, and goal. Missing details trigger a question. GoDaddy ANS locates the Planner, and a signed request carries the student’s authorization. The Planner uses financial code to compare the plan before and after; the Coach explains those numbers. Here, our synthetic example spends fifty dollars of discretionary money and one hundred from a Laptop goal. Its completion moves seven days later. Students understand the consequence before choosing to save.",
+      "I’m Bilguun. The Coach extracts the purchase details. GoDaddy ANS discovers the Planner, and our signed request design carries the student’s authorization. The Planner calculates the impact with financial code, then the Coach explains it. We’ve verified discovery, but the full hosted exchange still needs a live check. In this synthetic example, a hundred and fifty dollar purchase uses fifty dollars of spending money and one hundred from a Laptop goal. Its completion moves seven days later. The student sees that tradeoff before saving.",
   },
   {
     id: "closing",
@@ -114,7 +114,7 @@ export const presentationScenes = [
     duration: 20,
     eyebrow: "Made for Hokies",
     notes:
-      "These contributions fit three challenges: Capital One’s Nessie provides banking context; GoDaddy ANS connects specialized agents; dining guidance addresses Deloitte and Databricks’ Virginia Tech student-experience theme. We help Hokies choose today’s meal while protecting tomorrow’s bills and savings. Thank you.",
+      "Capital One Nessie gives us banking context, and GoDaddy ANS gives our agents a discoverable connection. Together, they support the student question we started with: can I afford this today and still reach my goal? We’re sudo win. Thank you.",
   },
 ] as const satisfies readonly PresentationScene[];
 
@@ -149,13 +149,13 @@ export const sourceLinks = [
     label: "VTHacks 14 organizer guide",
     href: "https://vthacks.com/guide",
     description:
-      "Official event and challenge guidance. This requested script targets four minutes; confirm the judges’ speaking-time allowance before presenting.",
+      "The guide lists three minutes to present and one minute for questions. The default script preserves the requested four-minute talk. Use the separate three-minute rehearsal script unless the judges confirm four minutes of speaking time.",
   },
   {
     label: "VTHacks 14 official prize categories",
     href: "https://vthacks-14.devpost.com/",
     description:
-      "Lists Capital One’s Best Use of Nessie, GoDaddy’s Best Use of ANS, and Deloitte × Databricks’ AI Agent for the Virginia Tech Student Experience. The presentation describes project contributions, not confirmed prize eligibility or Databricks platform integration.",
+      "Lists Capital One’s Best Use of Nessie, GoDaddy’s Best Use of ANS, and the Deloitte × Databricks student-experience challenge. The last challenge requires the Databricks platform. Our campus theme alone does not establish eligibility, and we have no verified Databricks integration.",
   },
   {
     label: "Synthetic Laptop goal comparison used in the replay",
@@ -191,12 +191,18 @@ export const sourceLinks = [
     label: "Project architecture and financial rules",
     href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/docs/architecture.md",
     description:
-      "Backend architecture separates campus funds from bank cash and uses deterministic purchase comparisons. The diagram illustrates implemented code; live ANS verification is not confirmed.",
+      "Backend architecture separates campus funds from bank cash and uses deterministic purchase comparisons. ANS discovery has been checked live. The full signed Coach-to-Planner exchange still needs hosted verification.",
+  },
+  {
+    label: "Implemented frontend guest connection",
+    href: "https://github.com/6bilguun9/vthacks/blob/31f34f61be024154350b00494477d038c5609eb7/frontend/src/features/session/financial-session.tsx",
+    description:
+      "The frontend implements explicit guest connection and authenticated state loading, with separate demo data. Hosted guest signup, presenter access, and an end-to-end save still need verification.",
   },
   {
     label: "Backend activation and integration status",
-    href: "https://github.com/6bilguun9/vthacks/blob/f3fffd09a48788218bfe1abd04e0a56697dedc91/docs/backend-handoff.md",
+    href: "https://github.com/6bilguun9/vthacks/blob/31f34f61be024154350b00494477d038c5609eb7/docs/backend-handoff.md",
     description:
-      "Hosted provider setup and frontend authenticated requests remain activation gates. Current presentation screens use sample balances and scripted FinBot replies.",
+      "The frontend and backend connection is implemented. Hosted authentication, persistence, and AI execution remain verification gates. Presentation screens continue to use sample balances and scripted FinBot replies.",
   },
 ] as const satisfies readonly PresentationSource[];

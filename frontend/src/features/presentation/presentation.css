@@ -31,7 +31,7 @@
 .pc-header { height: 76px; flex: 0 0 76px; display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 0 4.5%; border-bottom: 1px solid var(--pc-line); }
 .pc-brand { display: flex; align-items: center; gap: 9px; color: var(--pc-plum); font-size: 23px; letter-spacing: -.055em; font-weight: 900; text-decoration: none; }
 .pc-brand > span > span { font-weight: 400; }
-.pc-event { font-size: 12px; letter-spacing: .13em; text-transform: uppercase; }
+.pc-event { font-size: 12px; letter-spacing: .13em; }
 .pc-event > span { padding: 0 14px; color: #aa9692; }
 .pc-scene-label { display: flex; align-items: center; gap: 18px; font-size: 12px; }
 .pc-scene-label > span:first-child { background: #eae3d8; border-radius: 20px; padding: 6px 14px; font-weight: 700; }
@@ -178,11 +178,12 @@
 .pc-dining-recipe dl > div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--pc-line); font-size: 12px; }
 .pc-dining-recipe dt { color: var(--pc-muted); }.pc-dining-recipe dd { margin: 0; font-weight: 700; }
 .pc-meal-week { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.pc-dining-content:has(.pc-meal-week), .pc-meal-week { min-height: min-content; }
 .pc-week-summary { display: flex; align-items: center; gap: 15px; margin-bottom: 16px; }
 .pc-week-summary p { font-size: 13px; line-height: 1.4; color: var(--pc-muted); }
 .pc-week-summary p strong { color: var(--pc-ink); }
 .pc-week-summary .pc-sample { margin-left: auto; }
-.pc-meal-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; flex: 1; min-height: 0; }
+.pc-meal-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; flex: 1; min-height: min-content; }
 .pc-meal-day { display: flex; flex-direction: column; gap: 7px; }
 .pc-meal-day h2 { font-size: 14px; color: var(--pc-plum); padding: 0 2px 4px; }
 .pc-meal { padding: 12px 15px; display: flex; flex-direction: column; gap: 4px; background: #ece4d7; border-radius: 6px; flex: 1; }
@@ -352,6 +353,9 @@
   .pitch:not([data-reduced="false"]) .pc-product-crop .pc-product { transform: none; }
 }
 @media (min-width: 1600px) { .pc-stage { padding-top: 40px; padding-bottom: 40px; } .pc-header { height: 90px; flex-basis: 90px; } }
+@media (min-width: 901px) and (min-height: 620px) {
+  .pitch[data-scene="dining"] .pc-stage { overflow-y: auto; }
+}
 @media (max-height: 750px) and (min-width: 901px) {
   .pc-header { height: 60px; flex-basis: 60px; }
   .pc-stage { padding-top: 20px; padding-bottom: 20px; }
@@ -378,6 +382,11 @@
   .pc-request-sources { padding: 19px 24px; }
   .pc-request-sources > div { padding: 10px 0; }
   .pc-dining-method { padding-top: 10px; font-size: 12px; }
+  .pc-week-summary { margin-bottom: 10px; }
+  .pc-meal-day { gap: 5px; }
+  .pc-meal { padding: 6px 10px; gap: 2px; }
+  .pc-meal > strong { font-size: 16px; line-height: 1.2; }
+  .pc-meal-week > .pc-footnote { margin-top: 10px; }
   .pc-api { padding: 20px; }
   .pc-api > strong { font-size: 29px; }
   .pc-comparison { gap: 12px; }

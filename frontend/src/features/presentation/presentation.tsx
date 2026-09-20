@@ -46,7 +46,7 @@ function Intro() {
       <p className="pc-kicker">For the days between dining halls & deadlines</p>
       <h1>Make your<br />dining money<br /><em>last.</em></h1>
       <p className="pc-lede">A student money guide.<br />Built by Hokies, for Hokies.</p>
-      <div className="pc-team"><span>sudoWin</span><p>Carlos · Neha · Grant · Bilguun</p></div>
+      <div className="pc-team"><span>sudo win</span><p>Carlos · Neha · Grant · Bilguun</p></div>
     </div>
     <div className="pc-intro-art">
       <div className="pc-photo"><Image src={presentationMedia.campus} unoptimized loading="eager" alt="Origami dining at Virginia Tech" fill sizes="(max-width: 700px) 90vw, 45vw" /><span>A familiar place. A better plan.</span></div>
@@ -92,7 +92,7 @@ function Chat({ seconds }: { seconds: number }) {
   const [selected, setReply] = useState<boolean | null>(null);
   const reply = selected ?? seconds >= 8;
   return <div className="pc-chat-scene pc-enter">
-    <div className="pc-chat-copy"><p className="pc-kicker">Ask FinBot</p><h1>A place to ask.<br /><em>A place to return.</em></h1><p className="pc-lede">Your questions, with context.<br />Your conversations, kept together.</p><p className="pc-chat-connection">Next connection: the backend Coach turns a supported question into a Planner comparison.</p><div className="pc-chat-features"><span><MessageCircle />Saved conversations</span><span><FileText />Room to explain</span></div><FinBot /></div>
+    <div className="pc-chat-copy"><p className="pc-kicker">Ask FinBot</p><h1>A place to ask.<br /><em>A place to return.</em></h1><p className="pc-lede">Your questions, with context.<br />Your conversations, kept together.</p><p className="pc-chat-connection">Connected mode sends supported questions to the backend Coach for a Planner comparison. Hosted verification remains pending.</p><div className="pc-chat-features"><span><MessageCircle />Saved conversations</span><span><FileText />Room to explain</span></div><FinBot /></div>
     <div className="pc-chat-demo"><div className="pc-chat-top"><span><Sparkles size={19} /> FinBot</span><Sample>Scripted example</Sample></div><div className="pc-chat-body" aria-live="polite" aria-atomic="false"><div className="pc-chat-user">{demoChatExamples[2].question}</div>{reply ? <div className="pc-chat-reply pc-rise"><span className="pc-avatar"><Sparkles size={18} /></span><p>{demoChatExamples[2].answer}</p></div> : <div className="pc-chat-placeholder"><MessageCircle size={34} /><p>A simpler starting point<br />for a complicated question.</p></div>}</div><button className="pc-action pc-chat-action" onClick={() => setReply(!reply)}>{reply ? "Replay the question" : "Show FinBot’s example reply"}{reply ? <RotateCcw size={17} /> : <ArrowRight size={17} />}</button><a className="pc-chat-footer" href={`${presentationAppUrl}#finbot`} target="_blank" rel="noreferrer">Open the full chat experience <ArrowRight size={15} /></a></div>
   </div>;
 }
@@ -102,13 +102,24 @@ function Accessibility() {
   const [palette, setPalette] = useState("plum");
   const [reading, setReading] = useState(false);
   const [speechStatus, setSpeechStatus] = useState("");
-  useEffect(() => () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); }, []);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const cancelReading = useCallback(() => {
+    const utterance = utteranceRef.current;
+    if (!utterance) return;
+    utteranceRef.current = null;
+    // Intentional stops must not surface as browser audio failures.
+    utterance.onend = null;
+    utterance.onerror = null;
+    window.speechSynthesis.cancel();
+  }, []);
+  useEffect(() => cancelReading, [cancelReading]);
   const read = () => {
     if (!("speechSynthesis" in window)) { setSpeechStatus("Read aloud is unavailable in this browser."); return; }
-    if (reading) { window.speechSynthesis.cancel(); setReading(false); return; }
+    if (reading) { cancelReading(); setReading(false); setSpeechStatus(""); return; }
     const utterance = new SpeechSynthesisUtterance(`Sample savings goal. Emergency fund. ${formatMoney(demoData.savingsGoal.savedCents)} of ${formatMoney(demoData.savingsGoal.targetCents)}. Savings are already included in bank cash.`);
-    utterance.onend = () => setReading(false);
-    utterance.onerror = () => { setReading(false); setSpeechStatus("Audio stopped or unavailable. The same information is visible on screen."); };
+    utteranceRef.current = utterance;
+    utterance.onend = () => { utteranceRef.current = null; setReading(false); };
+    utterance.onerror = () => { utteranceRef.current = null; setReading(false); setSpeechStatus("Audio stopped or unavailable. The same information is visible on screen."); };
     window.speechSynthesis.speak(utterance); setReading(true); setSpeechStatus("");
   };
   return <div className="pc-access-scene pc-enter"><div className="pc-heading-row"><div><p className="pc-kicker">Comfort is part of the experience</p><h1>Your wallet.<br /><em>Your way to use it.</em></h1></div><p className="pc-side-note">Try these controls.<br />See the difference.</p></div>
@@ -129,7 +140,7 @@ function Backend({ seconds }: { seconds: number }) {
   const step = selected ?? Math.min(3, Math.floor(seconds / 5));
   const current = backendSteps[step] ?? backendSteps[0];
   return <div className="pc-backend-scene pc-enter">
-    <div className="pc-heading-row"><div><p className="pc-kicker">Grant + Bilguun · The backend we built</p><h1>How the backend<br /><em>connects</em></h1></div><span className="pc-implementation">Implemented request flow<br /><b>Frontend connection pending</b></span></div>
+    <div className="pc-heading-row"><div><p className="pc-kicker">Grant + Bilguun · The backend we built</p><h1>How the backend<br /><em>connects</em></h1></div><span className="pc-implementation">Frontend connection implemented<br /><b>Hosted verification pending</b></span></div>
     <ol className="pc-request-steps" aria-label="Backend request flow">{backendSteps.map((item, i) => <li key={item.label}><button aria-pressed={step === i} onClick={() => setStep(i)}><span>0{i + 1}</span>{item.label}</button>{i < backendSteps.length - 1 && <ArrowRight aria-hidden="true" />}</li>)}</ol>
     <div className="pc-request-story">
       <div className="pc-request-copy" key={step} aria-live="polite" aria-atomic="true"><span className="pc-kicker">Step {step + 1} · {current.label}</span><h2>{current.title}</h2><p>{current.description}</p><div className="pc-request-benefit"><ShieldCheck size={21} /><strong>{current.outcome}</strong></div></div>
@@ -172,7 +183,7 @@ function Agents({ seconds }: { seconds: number }) {
       <div className={`pc-agent-node pc-planner ${step === 2 ? "pc-agent-active" : ""}`}><span className="pc-planner-icon"><Layers size={46} /></span><strong>Planner</strong><span>Code calculates cash flow & goal dates</span><small>Checks bills, buffer & goal funding</small></div>
     </div>}
     <div className="pc-agent-explainer"><div className="pc-stage-picker" aria-label="Agent flow steps">{agentStages.map((stage, i) => <button key={stage.label} onClick={() => setStep(i)} aria-pressed={step === i} aria-label={`${i + 1}. ${stage.label}`}>{i + 1}</button>)}</div><div className="pc-stage-explanation" aria-live="polite" aria-atomic="true"><strong>{stage.title}</strong><p>{stage.detail}</p></div><button className="pc-round-button" aria-label={step === 4 ? "Replay agent flow" : "Next agent flow step"} onClick={() => setStep((step + 1) % agentStages.length)}>{step === 4 ? <RotateCcw /> : <ArrowRight />}</button></div>
-    <p className="pc-footnote">Contract example, not a live account or transaction. Hosted ANS verification and the authenticated frontend connection remain pending.</p>
+    <p className="pc-footnote">Synthetic contract example, not a live agent call or transaction. The signed remote flow and hosted end-to-end connection still need verification.</p>
   </div>;
 }
 
@@ -181,10 +192,10 @@ function Closing() {
     <div className="pc-closing-top"><div><p className="pc-kicker">Why it matters for Hokies</p><h1>Use your benefits.<br /><em>Protect your goals.</em></h1><p className="pc-lede">Choose lunch. Understand a purchase. Plan for next week.</p></div><FinBot /></div>
     <div className="pc-challenges">
       <div><span>Capital One</span><strong>Best Use of Nessie</strong><p>Read-only sandbox balances and purchases give the plan banking context.</p><small>Know what cash your plan starts with.</small></div>
-      <div><span>GoDaddy</span><strong>Best Use of ANS</strong><p>Coach discovers Planner and sends signed requests for a before-and-after comparison.</p><small>See how spending affects your goal.</small></div>
-      <div><span>Deloitte × Databricks</span><strong>AI Agent for the Virginia Tech Student Experience</strong><p>Campus meal benefits, balances, and preferences guide a week of dining.</p><small>Use the benefits you already paid for.</small></div>
+      <div><span>GoDaddy</span><strong>Best Use of ANS</strong><p>Planner discovery is verified. Signed Coach-to-Planner requests are implemented for spending comparisons.</p><small>See how spending affects your goal.</small></div>
+      <div><span>UI/UX · Ut Prosim</span><strong>Built for more Hokies</strong><p>Adjustable text, color choices, reduced motion, and read-aloud make planning easier to access.</p><small>One place to understand your next decision.</small></div>
     </div>
-    <div className="pc-closing-bottom"><span>sudoWin · Carlos & Neha: frontend · Grant & Bilguun: backend</span><a className="pc-action" href={presentationAppUrl} target="_blank" rel="noreferrer">Explore Hokie Wallet <ArrowRight size={18} /></a></div>
+    <div className="pc-closing-bottom"><span>sudo win · Carlos & Neha: frontend · Grant & Bilguun: backend</span><a className="pc-action" href={presentationAppUrl} target="_blank" rel="noreferrer">Explore Hokie Wallet <ArrowRight size={18} /></a></div>
   </div>;
 }
 
@@ -279,7 +290,7 @@ export function Presentation() {
   const seek = (index: number) => dispatch({ type: "seek", index });
   return <div ref={rootRef} className="pitch" data-reduced={reduced ?? "system"} data-scene={scene.id} data-controls={controls}>
     <a className="pc-skip" href="#pitch-scene">Skip presentation controls</a>
-    <header className="pc-header"><a className="pc-brand" href={presentationAppUrl} target="_blank" rel="noreferrer"><Wallet size={24} /><span>hokie<span>Wallet</span></span></a><span className="pc-event">VTHacks 14 <span>/</span> sudoWin</span><div className="pc-scene-label"><span>{scene.speaker}</span><span>{String(playback.index + 1).padStart(2, "0")} / 09</span></div></header>
+    <header className="pc-header"><a className="pc-brand" href={presentationAppUrl} target="_blank" rel="noreferrer"><Wallet size={24} /><span>hokie<span>Wallet</span></span></a><span className="pc-event">VTHacks 14 <span>/</span> sudo win</span><div className="pc-scene-label"><span>{scene.speaker}</span><span>{String(playback.index + 1).padStart(2, "0")} / 09</span></div></header>
     <main id="pitch-scene" className="pc-stage" tabIndex={-1} aria-label={`${scene.title} Presented by ${scene.speaker}`}><Scene key={scene.id} id={scene.id} seconds={playback.elapsed - scene.startsAt} /></main>
     <div className="pc-sr-only" aria-live="polite" aria-atomic="true">Scene {playback.index + 1}: {scene.title} Speaker: {scene.speaker}.</div>
     {controls ? <footer className="pc-controls"><div className="pc-control-main"><div className="pc-navigation"><button className="pc-icon-button" aria-label="Previous scene" disabled={playback.index === 0} onClick={() => seek(playback.index - 1)}><ChevronLeft /></button><button className="pc-icon-button" aria-label="Next scene" disabled={playback.index === presentationScenes.length - 1} onClick={() => seek(playback.index + 1)}><ChevronRight /></button><button className="pc-play" onClick={togglePlayback}>{playback.running ? <Pause size={15} /> : <Play size={15} />}{playback.running ? "Pause" : playback.elapsed === 0 ? "Start 4-minute talk" : playback.elapsed === 240 ? "Replay talk" : "Resume talk"}</button><span className="pc-timer" aria-label={`${formatPresentationTime(playback.elapsed)} elapsed of 4 minutes`}>{formatPresentationTime(playback.elapsed)}<span> / 4:00</span></span></div><nav className="pc-dots" aria-label="Presentation scenes">{presentationScenes.map((item, i) => <button key={item.id} aria-label={`${i + 1}. ${item.title} ${item.speaker}`} aria-current={playback.index === i ? "step" : undefined} title={item.title} onClick={() => seek(i)}><span /></button>)}</nav><div className="pc-utilities"><button className="pc-icon-button" ref={notesButtonRef} aria-label="Open speaker notes" title="Speaker notes (N)" onClick={openNotes}><BookOpen size={18} /></button><button className="pc-icon-button" aria-label="Toggle reduced motion" aria-pressed={effectiveReduced} title={effectiveReduced ? "Motion reduced — turn animations on" : "Reduce motion"} onClick={() => setReduced(!effectiveReduced)}><Eye size={18} /><span className="pc-utility-text">{reduced === null ? effectiveReduced ? "System: reduced" : "System" : effectiveReduced ? "Reduced" : "Motion on"}</span></button><button className="pc-icon-button" aria-label="Toggle fullscreen" title="Fullscreen (F)" onClick={() => void fullscreen()}><Maximize2 size={18} /></button><button className="pc-icon-button" aria-label="Hide presentation controls" title="Hide controls (H)" onClick={() => setControls(false)}><EyeOff size={18} /></button></div></div><div className="pc-progress" role="progressbar" aria-label="Presentation time" aria-valuemin={0} aria-valuemax={totalPresentationSeconds} aria-valuenow={Math.floor(playback.elapsed)}><span style={{ width: `${playback.elapsed / totalPresentationSeconds * 100}%` }} /></div></footer> : <button className="pc-show-controls" onClick={() => setControls(true)}><Eye size={15} /> Show controls</button>}
