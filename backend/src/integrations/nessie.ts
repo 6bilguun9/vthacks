@@ -130,6 +130,7 @@ export function createNessieClient(options: NessieClientOptions) {
     try {
       response = await doFetch(url, {
         method: "GET",
+        redirect: "error",
         headers: { accept: "application/json" },
         signal: AbortSignal.timeout(timeoutMs),
       });

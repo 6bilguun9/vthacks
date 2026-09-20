@@ -2,6 +2,9 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { describe, expect, it } from "vitest";
+import { createApp } from "../src/create-app.js";
+import { readConfig } from "../src/config/env.js";
+import { MemoryInfrastructure } from "./helpers/memory.js";
 
 const require = createRequire(import.meta.url);
 const addFormats = require("ajv-formats") as (ajv: Ajv2020) => void;
@@ -35,6 +38,26 @@ function checkReferences(value: unknown): void {
 }
 
 describe("shared API contract", () => {
+  it("validates actual authorized bootstrap, preview, save, and scenario HTTP responses", async () => {
+    const memory = new MemoryInfrastructure({ token: "contract-user" });
+    const now = new Date("2026-09-19T12:00:00Z");
+    const app = createApp(readConfig({ LOG_LEVEL: "silent" }), { auth: memory.auth, repository: memory.repository, limits: memory.limits, clock: () => now });
+    const headers = { authorization: "Bearer token" };
+    const check = (name: string, value: unknown) => { const validate = ajv.getSchema("urn:vthacks:contracts:v1#/$defs/" + name)!; expect(validate(value), JSON.stringify(validate.errors)).toBe(true); };
+    try {
+      const bootstrap = await app.inject({ method: "POST", url: "/api/v1/session/bootstrap", headers, payload: { source: "fixture" } });
+      expect(bootstrap.statusCode).toBe(200); check("OverviewResponse", bootstrap.json());
+      const state = bootstrap.json();
+      const plan = { ...state.plan, selectedBankAccountIds: ["demo-checking"], incomeComplete: true, expensesComplete: true };
+      const preview = await app.inject({ method: "POST", url: "/api/v1/plan/preview", headers, payload: { expectedVersion: 1, snapshotId: state.snapshot.id, proposedPlan: plan } });
+      expect(preview.statusCode).toBe(200); check("PlanPreviewResponse", preview.json());
+      const saved = await app.inject({ method: "POST", url: "/api/v1/plan/commit", headers, payload: { expectedVersion: 1, snapshotId: state.snapshot.id, idempotencyKey: "contract-save", change: { kind: "replace_plan", plan } } });
+      expect(saved.statusCode).toBe(200); check("Plan", saved.json());
+      const scenario = await app.inject({ method: "POST", url: "/api/v1/scenarios", headers, payload: { snapshotId: state.snapshot.id, planVersion: 2, kind: "purchase", amountCents: 100, date: "2026-09-19", cadence: "once", goalId: null } });
+      expect(scenario.statusCode).toBe(200); check("ScenarioComparison", scenario.json());
+    } finally { await app.close(); }
+  });
+
   it("compiles every schema and resolves every OpenAPI reference", () => {
     for (const name of Object.keys(schemas.$defs)) {
       expect(ajv.getSchema("urn:vthacks:contracts:v1#/$defs/" + name)).toBeDefined();

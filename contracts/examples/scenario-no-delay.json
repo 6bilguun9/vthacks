@@ -1,16 +1,61 @@
 {
-  "scenarioId": "fixture-scenario-no-delay", "snapshotId": "fixture-funded-001", "planVersion": 1, "status": "within_budget",
+  "scenarioId": "fixture-scenario-no-delay",
+  "snapshotId": "fixture-funded-001",
+  "planVersion": 1,
+  "status": "within_budget",
   "before": {
-    "asOf": "2026-09-21", "horizonEnd": "2028-09-21", "feasibility": "feasible", "minimumUnallocatedCashCents": 20000,
-    "goals": [{ "goalId": "sample-laptop", "completionDate": "2026-11-16", "requiredWeeklyCents": 10000 }],
-    "assumptions": ["Independent synthetic scenario: $200 allocated to a $1,000 goal; eight affordable $100 weekly contributions starting September 28.", "Essential payments and a $200 buffer remain funded."], "warnings": []
+    "asOf": "2026-09-21",
+    "horizonEnd": "2028-09-21",
+    "feasibility": "feasible",
+    "minimumUnallocatedCashCents": 20000,
+    "goals": [
+      {
+        "goalId": "sample-laptop",
+        "completionDate": "2026-11-16",
+        "requiredWeeklyCents": 10000
+      }
+    ],
+    "assumptions": [
+      "Independent synthetic scenario: $200 allocated to a $1,000 goal; eight affordable $100 weekly contributions starting September 28.",
+      "Essential payments and a $200 buffer remain funded."
+    ],
+    "warnings": []
   },
   "after": {
-    "asOf": "2026-09-21", "horizonEnd": "2028-09-21", "feasibility": "feasible", "minimumUnallocatedCashCents": 20000,
-    "goals": [{ "goalId": "sample-laptop", "completionDate": "2026-11-16", "requiredWeeklyCents": 10000 }],
-    "assumptions": ["The $150 purchase replaces $150 of the existing $200 discretionary allowance; it is not an additional forecast expense."], "warnings": []
+    "asOf": "2026-09-21",
+    "horizonEnd": "2028-09-21",
+    "feasibility": "feasible",
+    "minimumUnallocatedCashCents": 20000,
+    "goals": [
+      {
+        "goalId": "sample-laptop",
+        "completionDate": "2026-11-16",
+        "requiredWeeklyCents": 10000
+      }
+    ],
+    "assumptions": [
+      "The $150 purchase replaces $150 of the existing $200 discretionary allowance; it is not an additional forecast expense."
+    ],
+    "warnings": []
   },
-  "funding": { "discretionaryCents": 15000, "unallocatedCents": 0, "goalCents": 0 },
-  "goalImpacts": [{ "goalId": "sample-laptop", "originalDate": "2026-11-16", "revisedDate": "2026-11-16", "delayDays": 0, "nextWeekExtraCents": 0, "remainingWeeklyExtraCents": 0 }],
-  "assumptions": ["Synthetic UI fixture, not an output from an implemented engine. This is not the incomplete overview fixture."]
+  "funding": {
+    "discretionaryCents": 15000,
+    "unallocatedCents": 0,
+    "goalCents": 0
+  },
+  "goalImpacts": [
+    {
+      "goalId": "sample-laptop",
+      "originalDate": "2026-11-16",
+      "revisedDate": "2026-11-16",
+      "delayDays": 0,
+      "nextWeekExtraCents": 0,
+      "remainingWeeklyExtraCents": 0,
+      "nextWeekAffordable": null,
+      "remainingWeeklyAffordable": null
+    }
+  ],
+  "assumptions": [
+    "Synthetic UI fixture, not an output from an implemented engine. This is not the incomplete overview fixture."
+  ]
 }

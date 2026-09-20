@@ -14,14 +14,16 @@ This directory is the coordination boundary between the independent frontend and
 { "status": "ok", "service": "student-finance-api", "apiVersion": "v1" }
 ```
 
-It checks backend liveness, not provider readiness. `POST /api/v1/dining-plans` is also live: it validates a dining request, calls VT ARC only when an ARC key is configured, validates the response, and otherwise returns a safe unavailable/provider error. The remaining documented endpoints have `x-implementation-status: planned` and return 404. Guest sessions, authorization, persistence, and the public financial-planning API are not implemented yet.
+It checks backend liveness, not provider readiness. Documented financial endpoints are implemented and require a Supabase bearer token plus configured storage. Chat/dining additionally require presenter permission and enabled AI. Missing provider configuration returns a safe unavailable error, not fabricated data. Endpoint implementation does not mean the hosted environment has been activated; follow [the handoff](../docs/backend-handoff.md).
 
-## Planned interface
+## Financial interface
 
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/api/v1/overview` | Authorized snapshot, plan, and projection |
+| POST | `/api/v1/session/bootstrap` | Explicit, retry-safe fixture initialization |
 | POST | `/api/v1/data/refresh` | Refresh synthetic Nessie data |
+| POST | `/api/v1/data/manual` | Save campus balances and university charges |
 | POST | `/api/v1/plan/preview` | Preview edits to goals and plan inputs |
 | POST | `/api/v1/scenarios` | Hypothetical purchase or extra contribution |
 | POST | `/api/v1/chat` | Clarification, explanation, or comparison |
@@ -31,7 +33,7 @@ Create/edit goals through a proposed plan, then commit only on explicit user act
 
 Money is integer USD cents. Dates use `YYYY-MM-DD` in America/New_York; freshness timestamps include an offset. Unknown dates/amounts are `null`, not zero or made-up values. Negative `delayDays` means an earlier goal date.
 
-## Working before the API is ready
+## Working before hosted activation
 
 Frontend developers may copy fixture data into an explicitly labeled local mock inside `frontend/`. Do not import this directory at runtime or serve fixtures as live banking results. The health check always uses the real API.
 

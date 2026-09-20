@@ -1,6 +1,6 @@
 # Backend workspace
 
-Owned by the two backend teammates. Fastify, TypeScript, Zod, and Vitest are installed. The individual backend task split will be planned later.
+Owned by the two backend teammates. Uses Fastify, TypeScript, Zod, Vitest, and Supabase. See [the integration handoff](../docs/backend-handoff.md) for the teammate split and frontend connection sequence.
 
 ## Run
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Default address: <http://localhost:3001/api/v1/health>. No API keys, Supabase project, or `.env` file are needed for the starter.
+Default address: <http://localhost:3001/api/v1/health>. Startup and health do not need credentials. Private endpoints require Supabase configuration, the migration, and a valid guest access token.
 
 For overrides, copy `.env.example` to `.env`. Node loads it using `--env-file-if-exists`. Set `PORT`, `HOST`, and `CORS_ORIGINS` as needed. Origins are comma-separated exact HTTP(S) origins, with no trailing slash, path, credentials, or wildcard. The default is `http://localhost:3000`.
 
@@ -23,13 +23,13 @@ For overrides, copy `.env.example` to `.env`. Node loads it using `--env-file-if
 - Unimplemented routes return a structured 404, not fabricated financial data.
 - Request bodies are limited to 64 KiB. Internal errors and raw query strings are not exposed in responses/logs.
 
-The health route and ARC-backed `POST /api/v1/dining-plans` route are registered. Dining responses are schema-validated before release. Authentication, rate limits, database access, and the remaining financial/agent endpoints still need implementation before a public release.
+Financial routes verify Supabase bearer tokens and load owner-scoped state. Bootstrap explicitly selects fixture data. Preview/scenarios/chat are non-mutating; commits use snapshot/version checks and an idempotency key. Database-backed limits protect writes and AI calls. AI endpoints default off and require presenter allowlisting when enabled. No public unrestricted ARC proxy is provided.
 
-`src/integrations/nessie.ts` is a tested, read-only sandbox adapter. It is not wired to a public route yet: add `NESSIE_API_KEY` only to ignored backend configuration, use its customer-account and account-purchase reads through an authorized service, then normalize records into immutable snapshots. It converts provider dollars to exact integer cents and rejects unknown/invalid shapes rather than treating them as spendable data.
+`POST /api/v1/data/refresh` uses the read-only Nessie adapter for the server-configured sandbox customer. Add `NESSIE_API_KEY` and `NESSIE_CUSTOMER_ID` only to backend configuration. The adapter converts provider dollars to exact integer cents and validates records before creating immutable snapshots. Provider errors preserve the prior snapshot; they never silently substitute fixtures.
 
-## Internal planning pipeline
+## Planning pipeline
 
-The following backend modules are implemented and tested, but intentionally are **not** public routes until guest authorization, snapshot persistence, and version checks exist:
+Authorized application services connect persisted inputs to pure calculation modules:
 
 ```text
 Nessie read-only adapter + manual entries
@@ -44,7 +44,7 @@ Nessie read-only adapter + manual entries
 - `src/finance/plan-projection.ts` reserves existing goal allocations once and composes the plan-level simulation.
 - `src/services/financial-snapshot.ts`, `eligible-bank-cash.ts`, `plan-preview.ts`, and `purchase-scenario.ts` are pure orchestration layers. They neither read global time nor mutate accounts or plans.
 
-Use these modules from a future authorized `POST /api/v1/plan/preview` or `/api/v1/scenarios` service. Do not make the browser authoritative for balances, selected accounts, or results; load the persisted snapshot/plan server-side and return the calculated output.
+`src/services/planning.ts` composes the public projection/scenario engine, including dated goal reservations, weekly discretionary budgets, tuition funding, and recovery alternatives. `src/application/finance-api.ts` orchestrates preview, commit, refresh, and reconciliation. The browser is never authoritative for balances or calculated totals.
 
 ## Layout
 
@@ -54,11 +54,15 @@ Use these modules from a future authorized `POST /api/v1/plan/preview` or `/api/
 | `src/create-app.ts` | App factory, CORS, and error boundaries; import this in tests |
 | `src/routes/` | Thin HTTP handlers |
 | `src/config/` | Environment validation |
-| `src/services/` | Snapshot normalization, explicit cash selection, and pure plan/scenario previews; future authorized workflows |
+| `src/services/` | Snapshot normalization, cash selection, and pure plan/scenario calculations |
+| `src/application/` | Authorized financial workflows and explicit fixture bootstrap |
+| `src/domain/` | Validated domain schemas and dependency interfaces |
+| `src/auth/`, `src/persistence/`, `src/limits/` | Token verification, owner-scoped storage, database limits |
 | `src/finance/` | Pure deterministic goal, cash-flow, and plan calculations |
 | `src/integrations/` | Server-only Nessie, ARC, and ANS adapters |
-| `src/agents/` | Future coach/planner endpoints |
-| `supabase/migrations/` | Future database migrations |
+| `src/agents/` | Constrained intent parsing, grounded explanations, dining validation |
+| `supabase/migrations/` | Executable schema, RLS, atomic mutation and limit functions |
+| `supabase/tests/` | Isolated PostgreSQL integration/concurrency checks |
 
 There is no database provisioning or provider traffic on startup. Blank integration variables are placeholders, not a claim that integrations exist.
 
@@ -73,9 +77,12 @@ There is no database provisioning or provider traffic on startup. Blank integrat
 | `npm run typecheck` | Source/config/test TypeScript checks |
 | `npm test` | HTTP, CORS, configuration, and contract tests |
 | `npm run check` | All checks and build |
+| `npm run test:db` | PostgreSQL RLS, atomic saves, idempotency, and limits; requires Docker |
+| `npm run contracts:sync` | Regenerate coordinated JSON schemas and API examples |
+| `npm run nessie:status` | Read-only sandbox customer-ID discovery; no credentials printed |
 
 Add dependencies here only. Coordinate any shared API shape changes through `../contracts/`. Preserve the financial invariants in `../docs/architecture.md`.
 
 ## Deployment
 
-Use a separate Vercel project rooted at `backend`, framework Fastify, and Node 24. `src/index.ts` uses the documented listening-server entrypoint. Set `HOST=0.0.0.0` and explicitly allow the deployed frontend origin. Runtime builds do not depend on sibling files. See `../docs/deployment.md` for the integration milestones; this starter has not been deployed.
+Use a separate Vercel project rooted at `backend`, framework Fastify, and Node 24. `src/index.ts` is the listening-server entrypoint. Set `HOST=0.0.0.0` and explicitly allow the deployed frontend origin. Runtime builds do not depend on sibling files. Apply the migration and configure anonymous auth/CAPTCHA before connecting the frontend. See [deployment](../docs/deployment.md) and [handoff](../docs/backend-handoff.md); hosted integration remains a separate verification step.

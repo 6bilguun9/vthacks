@@ -2,18 +2,20 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
+import { ArrowLeftRight, LayoutDashboard, Sparkles, Target, Utensils } from "lucide-react";
 import {
   AccessibilityControls,
   useAccessibilityPreferences,
 } from "@/features/dashboard/accessibility-controls";
+import { getInterfaceCopy, isRtlLanguage } from "@/features/dashboard/interface-language";
 import { useDashboardTheme } from "@/features/dashboard/theme-preference";
 import "@/features/dashboard/dashboard.css";
 
 const navigation = [
-  { href: "/#main", icon: "◫", label: "Overview" },
-  { href: "/#activity", icon: "⇄", label: "Recent activity" },
-  { href: "/#savings", icon: "◎", label: "Savings goal" },
-  { href: "/#finbot", icon: "✧", label: "Ask FinBot" },
+  { href: "/#main", icon: LayoutDashboard, key: "main" },
+  { href: "/#activity", icon: ArrowLeftRight, key: "activity" },
+  { href: "/#savings", icon: Target, key: "savings" },
+  { href: "/#finbot", icon: Sparkles, key: "finbot" },
 ] as const;
 
 const diningSummary = "Dining planner. Build a sample weekly meal rhythm around your Virginia Tech dining plan, schedule, preferences, and campus balances. The form includes dining plan, student status, balances, weeks remaining, dietary needs, and an option to use Hokie Passport funds as a fallback.";
@@ -21,10 +23,14 @@ const diningSummary = "Dining planner. Build a sample weekly meal rhythm around 
 export function DiningShell({ children }: { children: ReactNode }) {
   const { preferences, updatePreference } = useAccessibilityPreferences();
   const { theme, toggleTheme } = useDashboardTheme();
+  const copy = getInterfaceCopy(preferences.language);
+  const readText = preferences.language === "en" ? diningSummary : `${copy.diningTitle} ${copy.diningDescription}`;
 
   return (
     <div
       className="dashboard dining-dashboard"
+      dir={isRtlLanguage(preferences.language) ? "rtl" : "ltr"}
+      lang={preferences.language}
       data-theme={theme}
       data-view="dining"
       data-color-palette={preferences.colorPalette}
@@ -40,13 +46,18 @@ export function DiningShell({ children }: { children: ReactNode }) {
         </Link>
         <p className="nav-label">YOUR MONEY, SIMPLIFIED</p>
         <nav aria-label="Main navigation">
-          {navigation.map((item) => (
-            <Link key={item.href} href={item.href}>
-              <span aria-hidden="true">{item.icon}</span> {item.label}
-            </Link>
-          ))}
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <span className="nav-icon" aria-hidden="true"><Icon /></span>
+                <span className="nav-text">{copy.nav[item.key]}</span>
+              </Link>
+            );
+          })}
           <Link className="nav-active" href="/dining" aria-current="page">
-            <span aria-hidden="true">♨</span> Dining planner
+            <span className="nav-icon" aria-hidden="true"><Utensils /></span>
+            <span className="nav-text">{copy.nav.dining}</span>
           </Link>
         </nav>
         <div className="sidebar-note">
@@ -59,17 +70,24 @@ export function DiningShell({ children }: { children: ReactNode }) {
       </aside>
       <main id="main">
         <header className="topbar">
-          <span>My workspace <span className="breadcrumb">/ Dining planner</span></span>
+          <span>{copy.workspace} <span className="breadcrumb">/ {copy.nav.dining}</span></span>
           <div className="topbar-actions">
-            <AccessibilityControls preferences={preferences} readText={diningSummary} updatePreference={updatePreference} />
-            <button className="theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
-              <span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? "Dark mode" : "Light mode"}
+            <AccessibilityControls preferences={preferences} readText={readText} updatePreference={updatePreference} />
+            <button className="theme-toggle" onClick={toggleTheme} aria-label={theme === "light" ? copy.darkMode : copy.lightMode}>
+              <span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span> {theme === "light" ? copy.darkMode : copy.lightMode}
             </button>
-            <span className="demo-badge"><span /> Planner · Sample inputs</span>
+            <span className="demo-badge"><span /> {copy.plannerSample}</span>
           </div>
         </header>
         <div className="content dining-content">
-          {children}
+          <div className="dining-view view-panel">
+            <section className="dining-hero">
+              <p className="eyebrow">{copy.diningKicker}</p>
+              <h1>{copy.diningTitle}</h1>
+              <p>{copy.diningDescription}</p>
+            </section>
+            {children}
+          </div>
           <footer><span><strong>hokiewallet</strong> · More clarity. Less money stress.</span><span>Built for student life <span aria-hidden="true">↗</span></span></footer>
         </div>
       </main>

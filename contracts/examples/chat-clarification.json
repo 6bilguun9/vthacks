@@ -1,5 +1,6 @@
 {
   "kind": "clarification",
   "text": "How much discretionary money do you have left this week? I need that before checking whether the purchase affects a goal.",
-  "comparison": null
+  "comparison": null,
+  "executionSource": "unavailable"
 }

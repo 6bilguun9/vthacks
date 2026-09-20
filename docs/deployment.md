@@ -1,6 +1,6 @@
 # Deployment and integration runbook
 
-The starter is configured for independent deployments, but this setup does not provision cloud resources, register domains, create Supabase tables, or connect financial/AI services.
+The applications use independent deployments. Backend code and executable migrations are included, but cloud provisioning, applying hosted migrations, registration/DNS, and live provider verification remain operator steps. See [the backend handoff](backend-handoff.md).
 
 ## Two Vercel projects, one repository
 
@@ -22,14 +22,14 @@ Docs: [Next.js on Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs),
 
 ## First integration milestone
 
-1. **Nessie:** obtain the team's sandbox credentials and current HTTPS API base URL. Read a configured sample customer's accounts and transaction resources; validate actual shapes and balance/status semantics. The public portal returned 403 in the planning environment, so live access is not verified. Keep runtime banking calls read-only.
+1. **Nessie:** run `npm run nessie:status` with sandbox credentials, then select/provision a synthetic customer and set `NESSIE_CUSTOMER_ID`. The last development probe authenticated but returned no customers. Verify an authorized refresh with populated sandbox accounts; runtime banking calls are read-only.
 2. **ARC:** create a personal key through the documented VT interface and store it only in backend environment configuration. Test a small `/chat/completions` request and constrained JSON parsing. Default to `gpt-oss-120b` with low reasoning effort; model availability and limits can change. Verify app-mediated public guest usage with ARC; personal access documentation alone does not establish unrestricted proxy permission. Until confirmed, limit AI to the authorized presenter while keeping the deterministic public demo available.
-3. **Supabase:** provision the project, implement migrations and RLS, enable anonymous sessions, and test two-user isolation. No executable migrations ship in this starter. Public signup needs server-verified Turnstile and limits before release.
+3. **Supabase:** provision the project, apply `backend/supabase/migrations/202609190001_private_state.sql`, and configure the backend URL/publishable/secret keys. Enable anonymous sign-ins and Supabase Auth CAPTCHA with Turnstile. Local PostgreSQL tests verify RLS/atomic writes, but two-user isolation and browser signup must also be checked on the hosted project.
 4. **GoDaddy ANS:** establish a domain the team controls and install the ANS CLI. The checked-in wrappers point it at `https://api.godaddy.com/` (production), not the CLI's default OTE environment. Store only the complete `ANS_API_KEY=KEY:SECRET` pair in backend deployment secrets or ignored `backend/.env`; a key without its matching secret cannot authenticate the CLI.
 
 ## ANS topology
 
-Use `coach.<team-domain>` and `planner.<team-domain>` as distinct registered hosts, both attached to the backend deployment. Route both FQDNs to this backend with valid HTTPS before registration. The starter exposes their safe `GET /api/v1/agents/:agentId` descriptors now; request handling intentionally remains unimplemented for the owning backend teammates.
+Use `coach.<team-domain>` and `planner.<team-domain>` as distinct registered hosts, both attached to the backend deployment. Route both FQDNs to this backend with valid HTTPS before registration. Descriptor and invocation routes are implemented. Configure the shared signing secret; the planner requires both the verified guest token and a timestamped, single-use signed request. Descriptors do not certify ACTIVE registration.
 
 From `backend/`, set `ANS_BASE_URL=https://api.godaddy.com/`, `ANS_API_KEY=KEY:SECRET`, `COACH_AGENT_HOST`, and `PLANNER_AGENT_HOST` in ignored `.env`, then run this sequence independently for each identity:
 
@@ -50,6 +50,6 @@ The coach must actually use the resolved planner URL. Restrict destinations to c
 
 ## Public release gate
 
-The financial app should not be described as ready for public use until authorization/RLS, provider handling, signup protection, persistent rate limits, snapshot freshness, explicit saves, and all financial invariants are implemented and checked. These are subsequent feature tasks, not capabilities of this starter.
+The financial app should not be described as ready for public use until authorization/RLS, provider handling, signup protection, persistent rate limits, snapshot freshness, explicit saves, and financial invariants pass in the hosted environment. Keep AI presenter-only until app-mediated ARC usage is approved. Provider-mocked tests and isolated PostgreSQL checks are necessary but do not replace hosted verification.
 
 Environment examples contain placeholders only. No paid service tier or domain purchase is implied; use existing access or sponsor credits and check costs before provisioning. Keep initial deployment small, track request timing/error categories without financial payloads, and retain a clearly labeled offline sample fallback for the demonstration.

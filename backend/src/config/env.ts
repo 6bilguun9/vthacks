@@ -80,6 +80,14 @@ const environmentSchema = z.object({
   ARC_MODEL: z.string().min(1).default("gpt-oss-120b"),
   NESSIE_BASE_URL: nessieBaseUrl.default("https://api.nessieisreal.com"),
   NESSIE_API_KEY: optionalNonEmptyString,
+  NESSIE_CUSTOMER_ID: optionalNonEmptyString,
+  SUPABASE_URL: z.preprocess(value => value === "" ? undefined : value, z.string().url().optional()),
+  SUPABASE_PUBLISHABLE_KEY: optionalNonEmptyString,
+  SUPABASE_SECRET_KEY: optionalNonEmptyString,
+  AI_MODE: z.enum(["off", "presenter"]).default("off"),
+  PRESENTER_USER_IDS: z.string().default("").transform(value => value.split(",").map(item => item.trim()).filter(Boolean)),
+  AGENT_SIGNING_SECRET: z.preprocess(value => value === "" ? undefined : value, z.string().min(32).optional()),
+  PLANNER_ALLOW_LOCAL_FALLBACK: z.enum(["true", "false"]).default("false").transform(value => value === "true"),
 });
 
 export type AppConfig = z.infer<typeof environmentSchema>;

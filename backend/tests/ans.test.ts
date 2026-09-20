@@ -16,7 +16,7 @@ describe("ANS CLI configuration", () => {
 });
 
 describe("agent development endpoints", () => {
-  it("publishes registered agent metadata without claiming that the runtime exists", async () => {
+  it("publishes runtime metadata without claiming verified ANS registration", async () => {
     const app = createApp(readConfig({
       LOG_LEVEL: "silent",
       COACH_AGENT_HOST: "coach.example.com",
@@ -27,12 +27,12 @@ describe("agent development endpoints", () => {
     const descriptor = await app.inject({ method: "GET", url: "/api/v1/agents/coach" });
     expect(descriptor.statusCode).toBe(200);
     expect(descriptor.json()).toMatchObject({
-      implementationStatus: "scaffolded",
+      implementationStatus: "implemented",
       agent: { id: "coach", agentUrl: "https://coach.example.com/api/v1/agents/coach" },
     });
 
     const invocation = await app.inject({ method: "POST", url: "/api/v1/agents/coach" });
-    expect(invocation.statusCode).toBe(501);
-    expect(invocation.json().error.code).toBe("AGENT_NOT_IMPLEMENTED");
+    expect(invocation.statusCode).toBe(503);
+    expect(invocation.json().error.code).toBe("STORAGE_UNAVAILABLE");
   });
 });
