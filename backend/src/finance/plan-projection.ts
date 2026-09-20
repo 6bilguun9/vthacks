@@ -21,6 +21,13 @@ export interface PlanCashFlowInput {
   readonly certainty: "confirmed" | "estimated";
 }
 
+/** A non-persistent outflow used only while comparing a hypothetical decision. */
+export interface AdditionalOutflowInput {
+  readonly id: string;
+  readonly amountCents: number;
+  readonly date: IsoDate;
+}
+
 export interface PlanProjectionInput {
   readonly asOfDate: IsoDate;
   /** Inclusive; the MVP intentionally limits forecasts to two years. */
@@ -30,6 +37,7 @@ export interface PlanProjectionInput {
   readonly cashBufferCents: number;
   readonly goals: readonly PlanGoalInput[];
   readonly cashFlows: readonly PlanCashFlowInput[];
+  readonly additionalOutflows?: readonly AdditionalOutflowInput[];
 }
 
 export interface ProjectedGoal {
@@ -148,7 +156,7 @@ function sumAllocatedCents(goals: readonly PlanGoalInput[]): number {
   return goals.reduce((total, goal) => safeAdd(total, goal.allocatedCents, "combined goal allocations"), 0);
 }
 
-function validateCashFlows(cashFlows: readonly PlanCashFlowInput[]): void {
+function validateCashFlows(cashFlows: readonly PlanCashFlowInput[]): Set<string> {
   const ids = new Set<string>();
   for (const flow of cashFlows) {
     if (flow.id.trim().length === 0) throw new RangeError("cash-flow id cannot be empty.");
@@ -163,6 +171,18 @@ function validateCashFlows(cashFlows: readonly PlanCashFlowInput[]): void {
       parseIsoDate(flow.endDate, `${flow.id}.endDate`);
       if (dayDifference(flow.nextDate, flow.endDate) < 0) throw new RangeError(`${flow.id}.endDate cannot be before nextDate.`);
     }
+  }
+  return ids;
+}
+
+function validateAdditionalOutflows(outflows: readonly AdditionalOutflowInput[], existingIds: ReadonlySet<string>): void {
+  const ids = new Set(existingIds);
+  for (const outflow of outflows) {
+    if (outflow.id.trim().length === 0) throw new RangeError("additional outflow id cannot be empty.");
+    if (ids.has(outflow.id)) throw new RangeError(`cash-flow id ${outflow.id} must be unique.`);
+    ids.add(outflow.id);
+    assertSafeInteger(outflow.amountCents, `${outflow.id}.amountCents`, 1);
+    parseIsoDate(outflow.date, `${outflow.id}.date`);
   }
 }
 
@@ -180,7 +200,8 @@ export function projectPlan(input: PlanProjectionInput): PlanProjection {
   if (horizonDays > 730) throw new RangeError("horizonEndDate cannot be more than two years after asOfDate.");
   assertSafeInteger(input.cashBufferCents, "cashBufferCents");
   if (input.startingEligibleCashCents !== null) assertSafeInteger(input.startingEligibleCashCents, "startingEligibleCashCents");
-  validateCashFlows(input.cashFlows);
+  const cashFlowIds = validateCashFlows(input.cashFlows);
+  validateAdditionalOutflows(input.additionalOutflows ?? [], cashFlowIds);
 
   const goals = projectGoals(input);
   const assumptions = [
@@ -233,12 +254,19 @@ export function projectPlan(input: PlanProjectionInput): PlanProjection {
     nextDate: flow.nextDate,
     ...(flow.endDate ? { endDate: flow.endDate } : {}),
   }));
+  const hypotheticalOutflows: PlannedCashFlow[] = (input.additionalOutflows ?? []).map((outflow) => ({
+    id: outflow.id,
+    kind: "hypothetical_purchase",
+    amountCents: outflow.amountCents,
+    cadence: "once",
+    nextDate: outflow.date,
+  }));
   const cashFlow = simulateCashFlow({
     asOfDate: input.asOfDate,
     horizonEndDate: input.horizonEndDate,
     startingEligibleCashCents: openingUnallocatedCashCents,
     cashBufferCents: input.cashBufferCents,
-    flows: [...knownFlows, ...goalContributionFlows(input.goals, goals)],
+    flows: [...knownFlows, ...hypotheticalOutflows, ...goalContributionFlows(input.goals, goals)],
   });
 
   return {

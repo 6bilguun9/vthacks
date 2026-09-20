@@ -9,3 +9,5 @@ Guest plan access must be authorized on the server. Plan commits must check the 
 `eligible-bank-cash.ts` requires an explicit checking/savings selection before producing a plan-eligible cash total. It rejects credit accounts, never includes campus balances, preserves known overdrafts, and returns `needs_information` when the selection is missing or unsafe.
 
 `plan-preview.ts` composes a frozen snapshot, explicit account selection, and a proposed plan into a pure preview. It does not persist, mutate, fetch, or authorize anything; a future authorized HTTP handler can call it after loading the user's snapshot and plan.
+
+`purchase-scenario.ts` compares an explicit hypothetical funding decision with that preview. Budgeted discretionary spending does not create a duplicate cash outflow; unallocated and goal-funded amounts do. It returns before/after projections, goal-date impact, a buffer shortfall when applicable, or a focused `needs_information` result without saving anything.

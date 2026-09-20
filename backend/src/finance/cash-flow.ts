@@ -1,6 +1,6 @@
 import type { IsoDate } from "./goal-projection.js";
 
-export type CashFlowKind = "income" | "essential_expense" | "goal_contribution";
+export type CashFlowKind = "income" | "essential_expense" | "goal_contribution" | "hypothetical_purchase";
 export type CashFlowCadence = "once" | "weekly" | "biweekly" | "monthly";
 
 export interface PlannedCashFlow {
@@ -167,7 +167,7 @@ function expandEvents(input: CashFlowSimulationInput): Array<Pick<CashFlowEvent,
   return events.sort((left, right) => {
     const dateDifference = compareDates(left.date, right.date);
     if (dateDifference !== 0) return dateDifference;
-    const kindOrder = (kind: CashFlowKind) => kind === "income" ? 0 : kind === "essential_expense" ? 1 : 2;
+    const kindOrder = (kind: CashFlowKind) => kind === "income" ? 0 : kind === "essential_expense" ? 1 : kind === "goal_contribution" ? 2 : 3;
     const kindDifference = kindOrder(left.kind) - kindOrder(right.kind);
     return kindDifference !== 0 ? kindDifference : left.id.localeCompare(right.id);
   });

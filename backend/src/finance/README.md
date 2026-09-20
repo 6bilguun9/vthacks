@@ -27,3 +27,4 @@ It intentionally does not decide whether an unallocated balance is safe to spend
 - Each remaining weekly goal contribution is represented as a dated outflow, with a smaller final contribution when needed.
 - Missing eligible cash yields `needs_information`; it does not produce a discretionary amount or affordability verdict.
 - The horizon is limited to 730 days and estimates stay explicitly labeled as estimates.
+- A caller can supply explicitly labeled `additionalOutflows` for a non-persistent scenario. They are simulated as dated hypothetical purchases; they do not alter a plan or account data.

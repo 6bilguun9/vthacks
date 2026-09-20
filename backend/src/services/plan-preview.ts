@@ -1,5 +1,5 @@
 import type { IsoDate } from "../finance/goal-projection.js";
-import { projectPlan, type PlanCashFlowInput, type PlanGoalInput, type PlanProjection } from "../finance/plan-projection.js";
+import { projectPlan, type AdditionalOutflowInput, type PlanCashFlowInput, type PlanGoalInput, type PlanProjection } from "../finance/plan-projection.js";
 import { deriveEligibleBankCash, type EligibleBankCash } from "./eligible-bank-cash.js";
 import type { FinancialSnapshot } from "./financial-snapshot.js";
 
@@ -15,6 +15,7 @@ export interface PlanPreviewInput {
   readonly asOfDate: IsoDate;
   readonly horizonEndDate: IsoDate;
   readonly proposedPlan: ProposedPlanInput;
+  readonly additionalOutflows?: readonly AdditionalOutflowInput[];
 }
 
 export interface PlanPreview {
@@ -37,6 +38,7 @@ export function previewPlan(input: PlanPreviewInput): PlanPreview {
     cashBufferCents: input.proposedPlan.cashBufferCents,
     goals: input.proposedPlan.goals,
     cashFlows: input.proposedPlan.cashFlows,
+    ...(input.additionalOutflows ? { additionalOutflows: input.additionalOutflows } : {}),
   });
   return { eligibleBankCash, projection };
 }

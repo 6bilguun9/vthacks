@@ -77,6 +77,18 @@ describe("projectPlan", () => {
     })).toThrow("bad-flow.amountCents");
   });
 
+  it("includes a hypothetical one-time purchase in cash-flow feasibility without saving it", () => {
+    const result = projectPlan({
+      ...laptopPlan,
+      startingEligibleCashCents: 125_000,
+      additionalOutflows: [{ id: "scenario-headphones", amountCents: 10_000, date: "2026-09-20" }],
+    });
+
+    expect(result).toMatchObject({ feasibility: "infeasible", minimumUnallocatedCashCents: -5_000 });
+    expect(result.cashFlow!.events.find((event) => event.id === "scenario-headphones"))
+      .toMatchObject({ kind: "hypothetical_purchase", deltaCents: -10_000 });
+  });
+
   it("reports an infeasible plan if allocations already exceed eligible cash", () => {
     const result = projectPlan({ ...laptopPlan, startingEligibleCashCents: 10_000 });
 
