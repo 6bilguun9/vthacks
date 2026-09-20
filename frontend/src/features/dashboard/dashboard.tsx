@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type MouseEvent } from "react";
+import { useSyncExternalStore, type CSSProperties, type MouseEvent } from "react";
 import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
@@ -88,10 +88,10 @@ export default function Dashboard() {
       className="dashboard"
       data-theme={theme}
       data-view={view}
-      data-color-vision={preferences.colorVision}
+      data-color-palette={preferences.colorPalette}
       data-contrast={preferences.contrast}
       data-motion={preferences.motion}
-      data-text-size={preferences.textSize}
+      style={{ "--text-scale": preferences.textScale / 100 } as CSSProperties}
     >
       <a className="skip-link" href="#main">Skip to dashboard</a>
       <aside className="sidebar">
