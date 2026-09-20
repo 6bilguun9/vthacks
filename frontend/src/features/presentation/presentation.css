@@ -326,7 +326,7 @@
 .pc-progress { height: 3px; background: #ede6e2; }
 .pc-progress > span { display: block; height: 100%; background: var(--pc-orange); transition: width .1s linear; }
 .pc-show-controls { position: fixed; bottom: 9px; right: 16px; border: 1px solid #d3c3cc; background: #fffdf7eb; color: var(--pc-plum); border-radius: 20px; display: flex; align-items: center; gap: 6px; padding: 7px 12px; font-size: 10px !important; z-index: 3; }
-.pc-status { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; align-items: center; max-width: 80%; background: #302931; color: white; padding: 15px 20px; border-radius: 8px; font-size: 12px; z-index: 5; box-shadow: 0 6px 25px #30293122; }
+.pc-status { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; align-items: center; max-width: 80%; background: #302931; color: white; padding: 15px 20px; border-radius: 8px; font-size: 12px; z-index: 5; box-shadow: 0 6px 25px #30293122; }
 .pc-status button { background: transparent; border: 0; color: white; }
 .pc-notes { width: min(760px, calc(100% - 40px)); max-height: calc(100svh - 60px); padding: 30px; border: 1px solid #c9b6c4; border-radius: 16px; margin: auto; color: var(--pc-ink); background: var(--pc-paper); }
 .pc-notes::backdrop { background: #251c2bc9; backdrop-filter: blur(5px); }
@@ -353,7 +353,7 @@
   .pitch:not([data-reduced="false"]) .pc-product-crop .pc-product { transform: none; }
 }
 @media (min-width: 1600px) { .pc-stage { padding-top: 40px; padding-bottom: 40px; } .pc-header { height: 90px; flex-basis: 90px; } }
-@media (min-width: 901px) and (min-height: 620px) {
+@media (min-width: 901px) and (min-height: 720px) {
   .pitch[data-scene="dining"] .pc-stage { overflow-y: auto; }
 }
 @media (max-height: 750px) and (min-width: 901px) {
@@ -402,7 +402,7 @@
   .pc-input-stack > div, .pc-mini-ui, .pc-api { padding: 16px; }
   .pc-side-note { padding-right: 0; }
 }
-@media (max-width: 900px), (max-height: 619px) {
+@media (max-width: 900px), (max-height: 719px) {
   .pitch { height: auto; min-height: 100svh; overflow: visible; }
   .pc-header { height: 64px; flex-basis: 64px; }
   .pc-stage { min-height: calc(100svh - 128px); padding-top: 30px; padding-bottom: 35px; }
