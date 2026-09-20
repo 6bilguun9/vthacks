@@ -59,9 +59,9 @@ function Intro() {
 
 function Problem() {
   return <div className="pc-problem pc-enter">
-    <div className="pc-problem-copy"><p className="pc-kicker">The gap between a balance and a decision</p><h1>“Will my dining<br />money last?”</h1><p className="pc-lede">Which benefit should cover lunch?<br />What cash should I protect for later?</p></div>
+    <div className="pc-problem-copy"><p className="pc-kicker">The gap between a balance and a decision</p><h1>“Will my dining<br />money last?”</h1><p className="pc-lede">Which benefit should cover lunch?<br />What cash should I protect for later?</p><Sample /></div>
     <div className="pc-receipt-scene">
-      <div className="pc-receipt"><span className="pc-kicker">Your campus balance</span><strong>{formatMoney(demoData.walletBalanceCents)}</strong><div className="pc-receipt-rule" /><span>Recent activity</span>{demoData.recentTransactions.slice(0, 2).map(t => <p key={t.id}><span>{t.name}</span><span>{formatMoney(t.amountCents)}</span></p>)}<small>Historical preview · Separate example transactions</small><Sample /></div>
+      <div className="pc-receipt"><span className="pc-kicker">Your campus balance</span><strong>{formatMoney(demoData.walletBalanceCents)}</strong><div className="pc-receipt-rule" /><span>Recent activity</span>{demoData.recentTransactions.slice(0, 2).map(t => <p key={t.id}><span>{t.name}</span><span>{formatMoney(t.amountCents)}</span></p>)}<small>Historical preview · Separate example transactions</small></div>
       <div className="pc-question-note"><Utensils /><p>Use a swipe, an exchange,<br />or dining dollars?</p><ArrowDown aria-hidden="true" /></div>
       <div className="pc-question-note pc-question-second"><CircleDollarSign /><p>Will this purchase<br />delay my savings goal?</p></div>
     </div>
