@@ -8,13 +8,13 @@ This directory is the coordination boundary between the independent frontend and
 
 ## What works now
 
-Only `GET /api/v1/health` is live. It requires no authentication and returns:
+`GET /api/v1/health` is live. It requires no authentication and returns:
 
 ```json
 { "status": "ok", "service": "student-finance-api", "apiVersion": "v1" }
 ```
 
-It checks backend liveness, not provider readiness. All other documented endpoints have `x-implementation-status: planned` and return 404 in this starter. Guest sessions, authorization, persistence, and financial calculations are not implemented yet.
+It checks backend liveness, not provider readiness. `POST /api/v1/dining-plans` is also live: it validates a dining request, calls VT ARC only when an ARC key is configured, validates the response, and otherwise returns a safe unavailable/provider error. The remaining documented endpoints have `x-implementation-status: planned` and return 404. Guest sessions, authorization, persistence, and the public financial-planning API are not implemented yet.
 
 ## Planned interface
 

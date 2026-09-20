@@ -66,4 +66,18 @@ describe("configuration", () => {
     expect(readConfig({ CORS_ORIGINS: "http://localhost:3000, https://app.example.com" }).CORS_ORIGINS)
       .toEqual(["http://localhost:3000", "https://app.example.com"]);
   });
+  it("treats blank optional integration template values as unconfigured defaults", () => {
+    expect(readConfig({
+      NESSIE_BASE_URL: "", NESSIE_API_KEY: "", ANS_BASE_URL: "", ANS_API_KEY: "", COACH_AGENT_HOST: "", PLANNER_AGENT_HOST: "", ARC_API_KEY: "", llm_arc_api_key: "",
+    })).toMatchObject({
+      NESSIE_BASE_URL: "https://api.nessieisreal.com",
+      NESSIE_API_KEY: undefined,
+      ANS_BASE_URL: "https://api.godaddy.com/",
+      ANS_API_KEY: undefined,
+      COACH_AGENT_HOST: undefined,
+      PLANNER_AGENT_HOST: undefined,
+      ARC_API_KEY: undefined,
+      llm_arc_api_key: undefined,
+    });
+  });
 });

@@ -25,6 +25,8 @@ For overrides, copy `.env.example` to `.env`. Node loads it using `--env-file-if
 
 The health route and ARC-backed `POST /api/v1/dining-plans` route are registered. Dining responses are schema-validated before release. Authentication, rate limits, database access, and the remaining financial/agent endpoints still need implementation before a public release.
 
+`src/integrations/nessie.ts` is a tested, read-only sandbox adapter. It is not wired to a public route yet: add `NESSIE_API_KEY` only to ignored backend configuration, use its customer-account and account-purchase reads through an authorized service, then normalize records into immutable snapshots. It converts provider dollars to exact integer cents and rejects unknown/invalid shapes rather than treating them as spendable data.
+
 ## Layout
 
 | Location | Responsibility |
