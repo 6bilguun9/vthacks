@@ -9,7 +9,9 @@ afterEach(async () => { await Promise.all(applications.splice(0).map((instance) 
 
 describe("ANS CLI configuration", () => {
   it("defaults CLI wrappers to GoDaddy production and accepts only a complete API-key pair", () => {
-    expect(readConfig({ LOG_LEVEL: "silent" }).ANS_BASE_URL).toBe("https://api.godaddy.com/");
+    const defaults = readConfig({ LOG_LEVEL: "silent" });
+    expect(defaults.ANS_BASE_URL).toBe("https://api.godaddy.com/");
+    expect(defaults.ANS_AGENT_VERSION).toBe("0.1.1");
     expect(readConfig({ ANS_API_KEY: "key:secret" }).ANS_API_KEY).toBe("key:secret");
     expect(() => readConfig({ ANS_API_KEY: "key-only" })).toThrow("KEY:SECRET");
     expect(() => readConfig({ ANS_BASE_URL: "https://api.godaddy.com/v1" })).toThrow("without credentials, a path");

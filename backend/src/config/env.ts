@@ -73,7 +73,7 @@ const environmentSchema = z.object({
   ANS_ORGANIZATION: z.string().trim().min(1).max(64).default("VTHacks"),
   COACH_AGENT_HOST: optionalAgentHost,
   PLANNER_AGENT_HOST: optionalAgentHost,
-  ANS_AGENT_VERSION: semver.default("0.1.0"),
+  ANS_AGENT_VERSION: semver.default("0.1.1"),
   ARC_BASE_URL: z.string().url().default("https://llm-api.arc.vt.edu/api/v1"),
   ARC_API_KEY: optionalNonEmptyString,
   llm_arc_api_key: optionalNonEmptyString,
