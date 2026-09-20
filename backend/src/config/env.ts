@@ -9,15 +9,22 @@ const origin = z.string().url().refine((value) => {
   }
 }, "Use an exact HTTP(S) origin, without a path, credentials, or trailing slash");
 
-const ansBaseUrl = z.string().url().refine((value) => {
-  const url = new URL(value);
-  return url.protocol === "https:"
-    && !url.username
-    && !url.password
-    && url.pathname === "/"
-    && !url.search
-    && !url.hash;
-}, "Use an HTTPS API origin without credentials, a path, query, or fragment");
+const ansBaseUrl = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().url().refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:"
+        && !url.username
+        && !url.password
+        && url.pathname === "/"
+        && !url.search
+        && !url.hash;
+    } catch {
+      return false;
+    }
+  }, "Use an HTTPS API origin without credentials, a path, query, or fragment").default("https://api.godaddy.com/"),
+);
 
 const agentHost = z.string().trim().min(1).max(253).refine((value) => {
   const hostname = value.toLowerCase();
@@ -30,6 +37,18 @@ const agentHost = z.string().trim().min(1).max(253).refine((value) => {
 const semver = z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/, "Use major.minor.patch semantic versioning");
 
 const ansApiKey = z.string().trim().regex(/^[^:\s]+:[^:\s]+$/, "ANS_API_KEY must use the KEY:SECRET format");
+const optionalNonEmptyString = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  z.string().trim().min(1).optional(),
+);
+const optionalAnsApiKey = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  ansApiKey.optional(),
+);
+const optionalAgentHost = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
+  agentHost.optional(),
+);
 const nessieBaseUrl = z.preprocess(
   (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
   z.string().url().refine((value) => {
@@ -41,10 +60,6 @@ const nessieBaseUrl = z.preprocess(
     }
   }, "Use an HTTPS Nessie API origin without credentials, a path, query, or fragment").default("https://api.nessieisreal.com"),
 );
-const optionalNessieApiKey = z.preprocess(
-  (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
-  z.string().trim().min(1).optional(),
-);
 
 const environmentSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
@@ -53,18 +68,18 @@ const environmentSchema = z.object({
     .transform((value) => value.split(",").map((item) => item.trim()).filter(Boolean))
     .pipe(z.array(origin).min(1)),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
-  ANS_BASE_URL: ansBaseUrl.default("https://api.godaddy.com/"),
-  ANS_API_KEY: ansApiKey.optional(),
+  ANS_BASE_URL: ansBaseUrl,
+  ANS_API_KEY: optionalAnsApiKey,
   ANS_ORGANIZATION: z.string().trim().min(1).max(64).default("VTHacks"),
-  COACH_AGENT_HOST: agentHost.optional(),
-  PLANNER_AGENT_HOST: agentHost.optional(),
+  COACH_AGENT_HOST: optionalAgentHost,
+  PLANNER_AGENT_HOST: optionalAgentHost,
   ANS_AGENT_VERSION: semver.default("0.1.0"),
   ARC_BASE_URL: z.string().url().default("https://llm-api.arc.vt.edu/api/v1"),
-  ARC_API_KEY: z.string().optional(),
-  llm_arc_api_key: z.string().optional(),
+  ARC_API_KEY: optionalNonEmptyString,
+  llm_arc_api_key: optionalNonEmptyString,
   ARC_MODEL: z.string().min(1).default("gpt-oss-120b"),
   NESSIE_BASE_URL: nessieBaseUrl.default("https://api.nessieisreal.com"),
-  NESSIE_API_KEY: optionalNessieApiKey,
+  NESSIE_API_KEY: optionalNonEmptyString,
 });
 
 export type AppConfig = z.infer<typeof environmentSchema>;
