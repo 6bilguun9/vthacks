@@ -4,6 +4,7 @@ import { useSyncExternalStore, type CSSProperties, type MouseEvent } from "react
 import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
+import { useDashboardTheme } from "./theme-preference";
 import "./dashboard.css";
 
 import { demoData, demoSummary, formatMoney as money } from "./demo-data";
@@ -46,23 +47,6 @@ function currentView(): View {
   const hash = window.location.hash.slice(1);
   return Object.hasOwn(views, hash) ? hash as View : "main";
 }
-function subscribeTheme(callback: () => void) {
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
-  media.addEventListener("change", callback);
-  window.addEventListener("storage", callback);
-  window.addEventListener("wallet-theme", callback);
-  return () => {
-    media.removeEventListener("change", callback);
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("wallet-theme", callback);
-  };
-}
-let temporaryTheme: string | null = null;
-function currentTheme() {
-  let saved = temporaryTheme;
-  try { saved = localStorage.getItem("hokie-wallet-theme") ?? saved; } catch { /* Storage may be disabled. */ }
-  return saved === "dark" || saved === "light" ? saved : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
 function navigate(event: MouseEvent<HTMLAnchorElement>, view: View) {
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   event.preventDefault();
@@ -75,14 +59,9 @@ function navigate(event: MouseEvent<HTMLAnchorElement>, view: View) {
 
 export default function Dashboard() {
   const view = useSyncExternalStore(subscribeView, currentView, () => "main" as View);
-  const theme = useSyncExternalStore(subscribeTheme, currentTheme, () => "light");
+  const { theme, toggleTheme } = useDashboardTheme();
   const { preferences, updatePreference } = useAccessibilityPreferences();
   const readText = getViewSummary(view);
-  function toggleTheme() {
-    temporaryTheme = theme === "light" ? "dark" : "light";
-    try { localStorage.setItem("hokie-wallet-theme", temporaryTheme); } catch { /* Use an in-memory preference. */ }
-    window.dispatchEvent(new Event("wallet-theme"));
-  }
   return (
     <div
       className="dashboard"
