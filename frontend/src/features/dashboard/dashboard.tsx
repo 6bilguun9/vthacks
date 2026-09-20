@@ -3,6 +3,7 @@
 import { useSyncExternalStore, type CSSProperties, type MouseEvent } from "react";
 import ChatPanel from "@/features/chat/ChatPanel";
 import Link from "next/link";
+import { ArrowLeftRight, LayoutDashboard, Sparkles, Target, Utensils } from "lucide-react";
 import { AccessibilityControls, useAccessibilityPreferences } from "./accessibility-controls";
 import { useDashboardTheme } from "./theme-preference";
 import "./dashboard.css";
@@ -29,10 +30,10 @@ const chartBackground = demoSummary.totalSpentCents > 0
   : "#efeff2";
 
 const views = {
-  main: { label: "Overview", title: "Make room for what matters.", description: "A clearer view of today. A little more confidence for tomorrow.", icon: "◫" },
-  activity: { label: "Recent activity", title: "The little things add up.", description: "A closer look at your latest sample purchases.", icon: "⇄" },
-  savings: { label: "Savings goal", title: "A little closer every day.", description: "Make space for your next chapter, one contribution at a time.", icon: "◎" },
-  finbot: { label: "Ask FinBot", title: "Let’s talk money.", description: "Explore your questions with a sample conversation.", icon: "✧" },
+  main: { label: "Overview", title: "Make room for what matters.", description: "A clearer view of today. A little more confidence for tomorrow.", icon: LayoutDashboard },
+  activity: { label: "Recent activity", title: "The little things add up.", description: "A closer look at your latest sample purchases.", icon: ArrowLeftRight },
+  savings: { label: "Savings goal", title: "A little closer every day.", description: "Make space for your next chapter, one contribution at a time.", icon: Target },
+  finbot: { label: "Ask FinBot", title: "Let’s talk money.", description: "Explore your questions with a sample conversation.", icon: Sparkles },
 };
 type View = keyof typeof views;
 function subscribeView(callback: () => void) {
@@ -77,12 +78,16 @@ export default function Dashboard() {
         <a className="brand" href="#main" onClick={(event) => navigate(event, "main")}><span className="brand-icon">hw<span>•</span></span><span>hokie<span className="brand-light">wallet</span></span></a>
         <p className="nav-label">YOUR MONEY, SIMPLIFIED</p>
         <nav aria-label="Main navigation">
-          {(Object.keys(views) as View[]).map((key) => (
-            <a key={key} className={view === key ? "nav-active" : undefined} href={`#${key}`} onClick={(event) => navigate(event, key)} aria-current={view === key ? "page" : undefined}>
-              <span aria-hidden="true">{views[key].icon}</span> {views[key].label}
-            </a>
-          ))}
-          <Link href="/dining"><span aria-hidden="true">♨</span> Dining planner</Link>
+          {(Object.keys(views) as View[]).map((key) => {
+            const Icon = views[key].icon;
+            return (
+              <a key={key} className={view === key ? "nav-active" : undefined} href={`#${key}`} onClick={(event) => navigate(event, key)} aria-current={view === key ? "page" : undefined}>
+                <span className="nav-icon" aria-hidden="true"><Icon /></span>
+                <span className="nav-text">{views[key].label}</span>
+              </a>
+            );
+          })}
+          <Link href="/dining"><span className="nav-icon" aria-hidden="true"><Utensils /></span><span className="nav-text">Dining planner</span></Link>
         </nav>
         <div className="sidebar-note"><span className="little-star" aria-hidden="true">✳</span><h3>Small steps.<br />Big possibilities.</h3><p>A little clarity goes a long way. Make room for what matters.</p><span className="hokie-tag">MADE FOR HOKIES</span></div>
         <div className="profile"><span className="avatar">H</span><div><strong>Hokie student</strong><small>Personal dashboard</small></div></div>

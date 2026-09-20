@@ -8,10 +8,12 @@
 .brand-light { font-weight: 400; }
 .nav-label { font-size: 9px; letter-spacing: 1.5px; color: var(--dashboard-muted); margin: 45px 8px 18px; }
 nav { display: grid; gap: 9px; }
-nav a { padding: 13px 14px; border-radius: 8px; display: flex; gap: 13px; align-items: center; color: #646872; font-size: 13px; }
+nav a { padding: 13px 14px; border-radius: 8px; display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 12px; align-items: center; color: #646872; font-size: 13px; }
 nav a:hover { background: #f8f1f3; color: var(--maroon); }
 nav .nav-active { color: var(--maroon); font-weight: 700; background: #f7edf1; }
-nav a span { font-size: 20px; line-height: 1; }
+.nav-icon { width: 28px; height: 28px; display: grid; place-items: center; line-height: 0; }
+.nav-icon svg { display: block; width: 20px; height: 20px; stroke-width: 1.8; }
+.nav-text { min-width: 0; line-height: 1.25; }
 .sidebar-note { margin-top: auto; padding: 60px 12px 35px; }
 .little-star { font-size: 39px; color: #e87722; }
 .sidebar-note h3 { font-size: 22px; line-height: 1.35; letter-spacing: -.7px; margin: 14px 0; }
@@ -108,7 +110,7 @@ footer strong { color: #7d828c; font-weight: 500; }
 .skip-link:focus { top: 12px; }
 @media (min-width: 1600px) { .content { padding-top: 55px; } .balance-card { padding: 30px; } .panel { padding: 30px; } }
 @media (max-width: 1200px) { .sidebar { width: 205px; padding-inline: 18px; } .brand { font-size: 19px; } .content { padding-inline: 26px; } .topbar { padding-inline: 26px; } .spending-content { flex-direction: column; gap: 10px; } .legend { width: 100%; } .detail-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 800px) { & { display: block; } .sidebar { width: 100%; padding: 18px 22px 12px; border-right: 0; border-bottom: 1px solid #e9eaee; } .sidebar-note, .profile, .nav-label { display: none; } nav { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 18px; } nav a { font-size: 11px; padding: 9px; gap: 6px; } nav a span { font-size: 16px; } .topbar { height: 58px; padding-inline: 22px; } .content { padding: 28px 22px; } .date-label { display: none; } .balance-grid { gap: 12px; } .balance-card { padding: 17px; } .detail-grid { gap: 16px; } .panel { padding: 20px; } }
+@media (max-width: 800px) { & { display: block; } .sidebar { width: 100%; padding: 18px 22px 12px; border-right: 0; border-bottom: 1px solid #e9eaee; } .sidebar-note, .profile, .nav-label { display: none; } nav { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 18px; } nav a { grid-template-columns: 20px minmax(0, 1fr); font-size: 11px; padding: 9px; column-gap: 6px; } .nav-icon { width: 20px; height: 20px; } .nav-icon svg { width: 16px; height: 16px; } .topbar { height: 58px; padding-inline: 22px; } .content { padding: 28px 22px; } .date-label { display: none; } .balance-grid { gap: 12px; } .balance-card { padding: 17px; } .detail-grid { gap: 16px; } .panel { padding: 20px; } }
 @media (max-width: 580px) { .balance-grid, .detail-grid { grid-template-columns: 1fr; } .balance-card h2 { font-size: 34px; margin: 12px 0; } .balance-card { padding: 20px 22px; } .breadcrumb { display: none; } h1 { font-size: 27px; } .welcome > div > p:last-child { font-size: 12px; line-height: 1.7; } .spending-content { flex-direction: row; gap: 18px; } .donut { width: 128px; height: 128px; } .donut > div { width: 104px; height: 104px; } .donut strong { font-size: 21px; } .legend-row { font-size: 9px; gap: 5px; } footer { flex-direction: column; } }
 @media (max-width: 360px) { .spending-content { flex-direction: column; } .section-heading { flex-wrap: wrap; } }
 

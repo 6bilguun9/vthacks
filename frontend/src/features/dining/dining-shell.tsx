@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
+import { ArrowLeftRight, LayoutDashboard, Sparkles, Target, Utensils } from "lucide-react";
 import {
   AccessibilityControls,
   useAccessibilityPreferences,
@@ -10,10 +11,10 @@ import { useDashboardTheme } from "@/features/dashboard/theme-preference";
 import "@/features/dashboard/dashboard.css";
 
 const navigation = [
-  { href: "/#main", icon: "◫", label: "Overview" },
-  { href: "/#activity", icon: "⇄", label: "Recent activity" },
-  { href: "/#savings", icon: "◎", label: "Savings goal" },
-  { href: "/#finbot", icon: "✧", label: "Ask FinBot" },
+  { href: "/#main", icon: LayoutDashboard, label: "Overview" },
+  { href: "/#activity", icon: ArrowLeftRight, label: "Recent activity" },
+  { href: "/#savings", icon: Target, label: "Savings goal" },
+  { href: "/#finbot", icon: Sparkles, label: "Ask FinBot" },
 ] as const;
 
 const diningSummary = "Dining planner. Build a sample weekly meal rhythm around your Virginia Tech dining plan, schedule, preferences, and campus balances. The form includes dining plan, student status, balances, weeks remaining, dietary needs, and an option to use Hokie Passport funds as a fallback.";
@@ -40,13 +41,18 @@ export function DiningShell({ children }: { children: ReactNode }) {
         </Link>
         <p className="nav-label">YOUR MONEY, SIMPLIFIED</p>
         <nav aria-label="Main navigation">
-          {navigation.map((item) => (
-            <Link key={item.href} href={item.href}>
-              <span aria-hidden="true">{item.icon}</span> {item.label}
-            </Link>
-          ))}
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <span className="nav-icon" aria-hidden="true"><Icon /></span>
+                <span className="nav-text">{item.label}</span>
+              </Link>
+            );
+          })}
           <Link className="nav-active" href="/dining" aria-current="page">
-            <span aria-hidden="true">♨</span> Dining planner
+            <span className="nav-icon" aria-hidden="true"><Utensils /></span>
+            <span className="nav-text">Dining planner</span>
           </Link>
         </nav>
         <div className="sidebar-note">
