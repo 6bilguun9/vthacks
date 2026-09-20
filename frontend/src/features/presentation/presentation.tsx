@@ -12,6 +12,8 @@ import { demoData, demoSummary, demoChatExamples, formatMoney } from "../dashboa
 import { sampleDiningPlan } from "../dining/sample";
 import { presentationScenes, sourceLinks, totalPresentationSeconds, type PresentationSceneId } from "./presentation-content";
 import { initialPlayback, playbackReducer, formatPresentationTime } from "./playback";
+import { presentationMedia, presentationAppUrl } from "./presentation-media";
+import { backendExample, presentationDate } from "./backend-example";
 import "./presentation.css";
 
 function subscribeMotion(listener: () => void) {
@@ -23,17 +25,17 @@ function readMotionPreference() { return window.matchMedia("(prefers-reduced-mot
 function serverMotionPreference() { return false; }
 
 function FinBot({ className = "" }: { className?: string }) {
-  return <span className={`pc-bot ${className}`}><Image src="/finbot/team-logo.png" alt="FinBot, our hand-drawn orange robot" width={445} height={473} /></span>;
+  return <span className={`pc-bot ${className}`}><Image src={presentationMedia.finbot} unoptimized loading="eager" alt="FinBot, our hand-drawn orange robot" width={445} height={473} /></span>;
 }
 
 function Sample({ children = "Sample data" }: { children?: React.ReactNode }) {
   return <span className="pc-sample"><span aria-hidden="true" />{children}</span>;
 }
 
-function ProductImage({ name, alt, className = "" }: { name: string; alt: string; className?: string }) {
+function ProductImage({ name, alt, className = "" }: { name: "overview" | "dining"; alt: string; className?: string }) {
   return <div className={`pc-product ${className}`}>
     <div className="pc-window" aria-hidden="true"><i /><i /><i /><span>hokieWallet / {name === "overview" ? "overview" : name}</span></div>
-    <Image src={`/presentation/${name}.png`} alt={alt} width={1280} height={720} priority={name === "overview"} />
+    <Image src={presentationMedia[name]} unoptimized loading="eager" alt={alt} width={1280} height={720} />
   </div>;
 }
 
@@ -46,7 +48,7 @@ function Intro() {
       <div className="pc-team"><span>sudoWin</span><p>Carlos · Neha · Grant · Bilguun</p></div>
     </div>
     <div className="pc-intro-art">
-      <div className="pc-photo"><Image src="/campus/origami.png" alt="Origami dining at Virginia Tech" fill sizes="(max-width: 700px) 90vw, 45vw" priority /><span>A familiar place. A better plan.</span></div>
+      <div className="pc-photo"><Image src={presentationMedia.campus} unoptimized loading="eager" alt="Origami dining at Virginia Tech" fill sizes="(max-width: 700px) 90vw, 45vw" /><span>A familiar place. A better plan.</span></div>
       <div className="pc-balance-note pc-rise"><Wallet size={24} /><span>Campus funds</span><strong>{formatMoney(demoData.walletBalanceCents)}</strong><Sample /></div>
       <FinBot className="pc-intro-bot" />
       <span className="pc-handwritten">Meet your money’s<br />new study buddy.</span>
@@ -56,13 +58,13 @@ function Intro() {
 
 function Problem() {
   return <div className="pc-problem pc-enter">
-    <div className="pc-problem-copy"><p className="pc-kicker">The gap between a balance and a decision</p><h1>“Will my dining<br />money last?”</h1><p className="pc-lede">Knowing what is left is a start.<br />Knowing what to do next is the goal.</p></div>
+    <div className="pc-problem-copy"><p className="pc-kicker">The gap between a balance and a decision</p><h1>“Will my dining<br />money last?”</h1><p className="pc-lede">Which benefit should cover lunch?<br />What cash should I protect for later?</p></div>
     <div className="pc-receipt-scene">
       <div className="pc-receipt"><span className="pc-kicker">Your campus balance</span><strong>{formatMoney(demoData.walletBalanceCents)}</strong><div className="pc-receipt-rule" /><span>Recent activity</span>{demoData.recentTransactions.slice(0, 2).map(t => <p key={t.id}><span>{t.name}</span><span>{formatMoney(t.amountCents)}</span></p>)}<small>Historical preview · Separate example transactions</small><Sample /></div>
-      <div className="pc-question-note"><Utensils /><p>Which meals should I<br />use my plan for?</p><ArrowDown aria-hidden="true" /></div>
-      <div className="pc-question-note pc-question-second"><CircleDollarSign /><p>What about my<br />other expenses?</p></div>
+      <div className="pc-question-note"><Utensils /><p>Use a swipe, an exchange,<br />or dining dollars?</p><ArrowDown aria-hidden="true" /></div>
+      <div className="pc-question-note pc-question-second"><CircleDollarSign /><p>Will this purchase<br />delay my savings goal?</p></div>
     </div>
-    <p className="pc-footnote">VT already provides balances, transaction history, and financial wellness resources. We bring the next decision into focus.</p>
+    <p className="pc-footnote">VT provides balances, transaction history, a dining-dollar calculator, and financial coaching. Our focus is bringing everyday decisions together.</p>
   </div>;
 }
 
@@ -80,7 +82,7 @@ function Overview({ seconds }: { seconds: number }) {
     <div className="pc-heading-row"><div><p className="pc-kicker">Overview · Activity · Savings</p><h1>See your money<br /><em>in context.</em></h1></div><Sample /></div>
     <div className="pc-overview-grid">
       <div className="pc-product-crop" data-focus={focus}><ProductImage name="overview" alt="Actual Hokie Wallet dashboard, showing bank cash of $1,250.42, restricted campus funds of $347.80, and spending of $289.34." /></div>
-      <div className="pc-overview-details"><div className="pc-focus-tabs" aria-label="Dashboard detail">{overviewDetails.map((detail, i) => <button key={detail.title} aria-pressed={focus === i} onClick={() => setFocus(i)}><span>0{i + 1}</span>{detail.title}</button>)}</div><div className="pc-detail-copy" aria-live="polite" aria-atomic="true"><strong>{detail.value}</strong><p>{detail.text}</p></div><a className="pc-text-link" href="/" target="_blank" rel="noreferrer">Explore the actual dashboard <ArrowRight size={16} /></a></div>
+      <div className="pc-overview-details"><div className="pc-focus-tabs" aria-label="Dashboard detail">{overviewDetails.map((detail, i) => <button key={detail.title} aria-pressed={focus === i} onClick={() => setFocus(i)}><span>0{i + 1}</span>{detail.title}</button>)}</div><div className="pc-detail-copy" aria-live="polite" aria-atomic="true"><strong>{detail.value}</strong><p>{detail.text}</p></div><a className="pc-text-link" href={presentationAppUrl} target="_blank" rel="noreferrer">Explore the actual dashboard <ArrowRight size={16} /></a></div>
     </div>
   </div>;
 }
@@ -89,8 +91,8 @@ function Chat({ seconds }: { seconds: number }) {
   const [selected, setReply] = useState<boolean | null>(null);
   const reply = selected ?? seconds >= 8;
   return <div className="pc-chat-scene pc-enter">
-    <div className="pc-chat-copy"><p className="pc-kicker">Ask FinBot</p><h1>A place to ask.<br /><em>A place to return.</em></h1><p className="pc-lede">Your questions, with context.<br />Your conversations, kept together.</p><div className="pc-chat-features"><span><MessageCircle />Saved conversations</span><span><FileText />Room to explain</span></div><FinBot /></div>
-    <div className="pc-chat-demo"><div className="pc-chat-top"><span><Sparkles size={19} /> FinBot</span><Sample>Scripted example</Sample></div><div className="pc-chat-body" aria-live="polite" aria-atomic="false"><div className="pc-chat-user">{demoChatExamples[2].question}</div>{reply ? <div className="pc-chat-reply pc-rise"><span className="pc-avatar"><Sparkles size={18} /></span><p>{demoChatExamples[2].answer}</p></div> : <div className="pc-chat-placeholder"><MessageCircle size={34} /><p>A simpler starting point<br />for a complicated question.</p></div>}</div><button className="pc-action pc-chat-action" onClick={() => setReply(!reply)}>{reply ? "Replay the question" : "Show FinBot’s example reply"}{reply ? <RotateCcw size={17} /> : <ArrowRight size={17} />}</button><a className="pc-chat-footer" href="/#finbot" target="_blank" rel="noreferrer">Open the full chat experience <ArrowRight size={15} /></a></div>
+    <div className="pc-chat-copy"><p className="pc-kicker">Ask FinBot</p><h1>A place to ask.<br /><em>A place to return.</em></h1><p className="pc-lede">Your questions, with context.<br />Your conversations, kept together.</p><p className="pc-chat-connection">Next connection: the backend Coach turns a supported question into a Planner comparison.</p><div className="pc-chat-features"><span><MessageCircle />Saved conversations</span><span><FileText />Room to explain</span></div><FinBot /></div>
+    <div className="pc-chat-demo"><div className="pc-chat-top"><span><Sparkles size={19} /> FinBot</span><Sample>Scripted example</Sample></div><div className="pc-chat-body" aria-live="polite" aria-atomic="false"><div className="pc-chat-user">{demoChatExamples[2].question}</div>{reply ? <div className="pc-chat-reply pc-rise"><span className="pc-avatar"><Sparkles size={18} /></span><p>{demoChatExamples[2].answer}</p></div> : <div className="pc-chat-placeholder"><MessageCircle size={34} /><p>A simpler starting point<br />for a complicated question.</p></div>}</div><button className="pc-action pc-chat-action" onClick={() => setReply(!reply)}>{reply ? "Replay the question" : "Show FinBot’s example reply"}{reply ? <RotateCcw size={17} /> : <ArrowRight size={17} />}</button><a className="pc-chat-footer" href={`${presentationAppUrl}#finbot`} target="_blank" rel="noreferrer">Open the full chat experience <ArrowRight size={15} /></a></div>
   </div>;
 }
 
@@ -122,26 +124,70 @@ function Dining({ seconds }: { seconds: number }) {
 }
 
 function Backend() {
-  return <div className="pc-backend-scene pc-enter"><div className="pc-heading-row"><div><p className="pc-kicker">How the backend connects</p><h1>The plan<br /><em>behind the screen.</em></h1></div><span className="pc-implementation">Backend workflows implemented<br /><b>Frontend connection in progress</b></span></div><div className="pc-backend-flow"><div className="pc-input-stack"><div><CircleDollarSign /><span>Nessie sandbox<small>Banking context</small></span></div><div><Utensils /><span>Student input<small>Restricted campus balances</small></span></div><div><Layers /><span>Supabase<small>Saved guest state & plans</small></span></div></div><span className="pc-flow-arrow"><ArrowRight /></span><div className="pc-api"><span className="pc-api-icon"><ShieldCheck size={34} /></span><p>Hokie Wallet API</p><strong>Validate.<br />Calculate.<br />Explain.</strong><span>Amounts & identities checked</span></div><div className="pc-pending-connection"><span /><small>Authenticated<br />connection next</small></div><div className="pc-mini-ui"><Wallet /><strong>One student<br />experience.</strong><div><span>Overview</span><span>FinBot</span><span>Dining</span></div><Sample>Current UI uses samples</Sample></div></div><p className="pc-footnote">Dining uses a separate VT ARC planning workflow. This diagram illustrates the architecture; it does not perform network requests.</p></div>;
+  return <div className="pc-backend-scene pc-enter">
+    <div className="pc-heading-row"><div><p className="pc-kicker">Grant + Bilguun · The backend we built</p><h1>Student inputs.<br /><em>A plan you can check.</em></h1></div><span className="pc-implementation">Backend workflows implemented<br /><b>Frontend connection in progress</b></span></div>
+    <div className="pc-backend-flow">
+      <div className="pc-input-stack">
+        <div><CircleDollarSign /><span>Nessie sandbox<small>Read-only accounts & purchases</small></span></div>
+        <div><Utensils /><span>Student input<small>Campus funds, income, bills & goals</small></span></div>
+        <div><Layers /><span>Supabase<small>Guest-owned plans & versioned saves</small></span></div>
+      </div>
+      <span className="pc-flow-arrow"><ArrowRight /></span>
+      <div className="pc-api"><span className="pc-api-icon"><ShieldCheck size={34} /></span><p>Hokie Wallet API</p><strong>Check funds.<br />Compare plans.<br />Return results.</strong><span>Deterministic financial calculations</span></div>
+      <div className="pc-pending-connection"><span /><small>Authenticated<br />connection next</small></div>
+      <div className="pc-mini-ui"><Wallet /><strong>Decide before<br />you spend.</strong><div><span>Cash available</span><span>Goal completion date</span><span>Dining plan estimates</span></div><Sample>Current UI uses samples</Sample></div>
+    </div>
+    <p className="pc-footnote">Previews do not change saved plans. Dining uses a separate VT ARC workflow, with validated meal costs and balance limits.</p>
+  </div>;
 }
 
 const agentStages = [
-  { label: "Understand", title: "A money question becomes a request.", detail: "VT ARC parses a supported intent for the coach.", node: 0 },
-  { label: "Discover", title: "Coach finds the right planner.", detail: "GoDaddy ANS resolves the configured planner identity.", node: 1 },
-  { label: "Authenticate", title: "The request carries a signature.", detail: "The planner verifies the signed message before processing.", node: 2 },
-  { label: "Compare", title: "The math has a dedicated owner.", detail: "Deterministic calculations compare cash flow and savings before and after a purchase.", node: 3 },
-  { label: "Explain", title: "A trade-off comes back in plain language.", detail: "The coach explains the comparison. Previewing never changes the saved plan.", node: 4 },
+  { label: "Understand", title: "“What would a $150 purchase change?”", detail: "The Coach uses VT ARC to turn a supported question into a structured request." },
+  { label: "Discover", title: "Coach discovers Planner through ANS", detail: "GoDaddy ANS resolves the configured Planner identity and endpoint." },
+  { label: "Authenticate", title: "A signed request connects the agents", detail: "The Planner verifies the message before calculating. The student must select any goal funds used." },
+  { label: "Compare", title: "See the cost beyond the price tag", detail: "This independent Laptop scenario moves the goal seven days later. Campus funds stay separate." },
+  { label: "Explain", title: "Understand the trade-off before buying", detail: "The Coach explains the comparison. Catch-up options need their own affordability check; nothing saves automatically." },
 ] as const;
+
+function PurchaseComparison() {
+  const { response, impact, purchaseCents } = backendExample;
+  return <div className="pc-comparison pc-rise">
+    <div className="pc-comparison-context"><span className="pc-kicker">Independent Laptop goal example</span><p><strong>{formatMoney(purchaseCents, 0)} purchase</strong><span>{formatMoney(response.funding.discretionaryCents, 0)} discretionary + {formatMoney(response.funding.goalCents, 0)} from the student-selected goal</span></p></div>
+    <div className="pc-comparison-dates">
+      <div><span>Goal before purchase</span><strong>{presentationDate(impact.originalDate)}</strong><small>Original completion date</small></div>
+      <div className="pc-delay"><ArrowRight /><strong>+{impact.delayDays} days</strong><span>Effect of this purchase</span></div>
+      <div><span>Goal after purchase</span><strong>{presentationDate(impact.revisedDate)}</strong><small>Revised completion date</small></div>
+    </div>
+    <div className="pc-comparison-recovery"><ShieldCheck size={20} /><p>Catch-up alternatives: <strong>{formatMoney(impact.nextWeekExtraCents, 0)} once</strong> or <strong>{formatMoney(impact.remainingWeeklyExtraCents)} extra per week for 8 weeks</strong>.<span>Affordability has not been checked. This preview changes no saved plan.</span></p></div>
+  </div>;
+}
 
 function Agents({ seconds }: { seconds: number }) {
   const [selected, setStep] = useState<number | null>(null);
   const step = selected ?? Math.min(4, Math.floor(seconds / 7));
   const stage = agentStages[step] ?? agentStages[0];
-  return <div className="pc-agents-scene pc-enter"><div className="pc-heading-row"><div><p className="pc-kicker">Coach ↔ Planner</p><h1>Two agents.<br /><em>One clearer trade-off.</em></h1></div><Sample>Illustrated message flow</Sample></div><div className="pc-agent-diagram" data-step={step}><div className={`pc-agent-node pc-coach ${step === 0 || step === 4 ? "pc-agent-active" : ""}`}><FinBot /><strong>Coach</strong><span>Understands & explains</span></div><div className="pc-agent-path"><div className={`pc-discovery ${step === 1 ? "pc-agent-active" : ""}`}><Globe2 size={22} /><span>GoDaddy ANS</span><small>Discover planner identity</small></div><div className="pc-message-track"><span className="pc-message-dot" key={step} /><ArrowRight /><span>Signed request</span></div><div className="pc-return-track"><ArrowLeft /><span>Before / after comparison</span></div></div><div className={`pc-agent-node pc-planner ${step === 2 || step === 3 ? "pc-agent-active" : ""}`}><span className="pc-planner-icon"><Layers size={46} /></span><strong>Planner</strong><span>Calculates the comparison</span><small>Preview only · No saved-plan changes</small></div></div><div className="pc-agent-explainer"><div className="pc-stage-picker" aria-label="Agent flow steps">{agentStages.map((stage, i) => <button key={stage.label} onClick={() => setStep(i)} aria-pressed={step === i} aria-label={`${i + 1}. ${stage.label}`}>{i + 1}</button>)}</div><div className="pc-stage-explanation" aria-live="polite" aria-atomic="true"><strong>{stage.title}</strong><p>{stage.detail}</p></div><button className="pc-round-button" aria-label={step === 4 ? "Replay agent flow" : "Next agent flow step"} onClick={() => setStep((step + 1) % agentStages.length)}>{step === 4 ? <RotateCcw /> : <ArrowRight />}</button></div><p className="pc-footnote">Implemented backend path. Live ANS verification remains pending; fallback resolution is explicitly labeled.</p></div>;
+  return <div className="pc-agents-scene pc-enter">
+    <div className="pc-heading-row"><div><p className="pc-kicker">Bilguun · Coach + Planner</p><h1>Ask a question.<br /><em>See what changes.</em></h1></div><Sample>{step >= 3 ? "Synthetic backend example" : "Illustrated message flow"}</Sample></div>
+    {step >= 3 ? <PurchaseComparison /> : <div className="pc-agent-diagram" data-step={step}>
+      <div className={`pc-agent-node pc-coach ${step === 0 ? "pc-agent-active" : ""}`}><FinBot /><strong>Coach</strong><span>Understands & explains</span><small>VT ARC interprets supported intent</small></div>
+      <div className="pc-agent-path"><div className={`pc-discovery ${step === 1 ? "pc-agent-active" : ""}`}><Globe2 size={22} /><span>GoDaddy ANS</span><small>Discover planner identity</small></div><div className="pc-message-track"><span className="pc-message-dot" key={step} /><ArrowRight /><span>Signed purchase request</span></div><div className="pc-return-track"><ArrowLeft /><span>Before / after comparison</span></div></div>
+      <div className={`pc-agent-node pc-planner ${step === 2 ? "pc-agent-active" : ""}`}><span className="pc-planner-icon"><Layers size={46} /></span><strong>Planner</strong><span>Calculates cash flow & goal dates</span><small>Deterministic math · Preview only</small></div>
+    </div>}
+    <div className="pc-agent-explainer"><div className="pc-stage-picker" aria-label="Agent flow steps">{agentStages.map((stage, i) => <button key={stage.label} onClick={() => setStep(i)} aria-pressed={step === i} aria-label={`${i + 1}. ${stage.label}`}>{i + 1}</button>)}</div><div className="pc-stage-explanation" aria-live="polite" aria-atomic="true"><strong>{stage.title}</strong><p>{stage.detail}</p></div><button className="pc-round-button" aria-label={step === 4 ? "Replay agent flow" : "Next agent flow step"} onClick={() => setStep((step + 1) % agentStages.length)}>{step === 4 ? <RotateCcw /> : <ArrowRight />}</button></div>
+    <p className="pc-footnote">Contract example, not a live account or transaction. Hosted ANS verification and the authenticated frontend connection remain pending.</p>
+  </div>;
 }
 
 function Closing() {
-  return <div className="pc-closing pc-enter"><div className="pc-closing-top"><div><p className="pc-kicker">Money. Meals. A little more peace of mind.</p><h1>Spend with a plan<br /><em>for tomorrow.</em></h1><p className="pc-lede">Hokie Wallet helps make the next decision clearer.</p></div><FinBot /></div><div className="pc-challenges"><div><span>01 / Financial context</span><strong>Capital One</strong><p>Nessie sandbox banking</p></div><div><span>02 / Agent discovery</span><strong>GoDaddy</strong><p>ANS between coach & planner</p></div><div><span>03 / Student experience</span><strong>Deloitte + Databricks</strong><p>Campus dining planning</p></div></div><div className="pc-closing-bottom"><span>Built by Carlos, Neha, Grant & Bilguun.</span><a className="pc-action" href="/" target="_blank" rel="noreferrer">Explore Hokie Wallet <ArrowRight size={18} /></a></div></div>;
+  return <div className="pc-closing pc-enter">
+    <div className="pc-closing-top"><div><p className="pc-kicker">Why it matters for Hokies</p><h1>Use your benefits.<br /><em>Protect your goals.</em></h1><p className="pc-lede">Choose lunch. Understand a purchase. Plan for next week.</p></div><FinBot /></div>
+    <div className="pc-challenges">
+      <div><span>Capital One</span><strong>Best Use of Nessie</strong><p>Read-only sandbox balances and purchases give the plan banking context.</p><small>Know what cash your plan starts with.</small></div>
+      <div><span>GoDaddy</span><strong>Best Use of ANS</strong><p>Coach discovers Planner and sends signed requests for a before-and-after comparison.</p><small>See how spending affects your goal.</small></div>
+      <div><span>Deloitte × Databricks</span><strong>AI Agent for the Virginia Tech Student Experience</strong><p>Campus meal benefits, balances, and preferences guide a week of dining.</p><small>Use the benefits you already paid for.</small></div>
+    </div>
+    <div className="pc-closing-bottom"><span>sudoWin · Carlos & Neha: frontend · Grant & Bilguun: backend</span><a className="pc-action" href={presentationAppUrl} target="_blank" rel="noreferrer">Explore Hokie Wallet <ArrowRight size={18} /></a></div>
+  </div>;
 }
 
 function Scene({ id, seconds }: { id: PresentationSceneId; seconds: number }) {
@@ -171,6 +217,13 @@ export function Presentation() {
   const rootRef = useRef<HTMLDivElement>(null);
   const scene = presentationScenes[playback.index] ?? presentationScenes[0];
   const nextScene = presentationScenes[playback.index + 1];
+
+  useEffect(() => {
+    for (const src of Object.values(presentationMedia)) {
+      const image = new window.Image();
+      image.src = src;
+    }
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 900px), (max-height: 619px)").matches) {
@@ -227,11 +280,11 @@ export function Presentation() {
   const seek = (index: number) => dispatch({ type: "seek", index });
   return <div ref={rootRef} className="pitch" data-reduced={reduced ?? "system"} data-scene={scene.id} data-controls={controls}>
     <a className="pc-skip" href="#pitch-scene">Skip presentation controls</a>
-    <header className="pc-header"><a className="pc-brand" href="/" target="_blank" rel="noreferrer"><Wallet size={24} /><span>hokie<span>Wallet</span></span></a><span className="pc-event">VTHacks 14 <span>/</span> sudoWin</span><div className="pc-scene-label"><span>{scene.speaker}</span><span>{String(playback.index + 1).padStart(2, "0")} / 09</span></div></header>
+    <header className="pc-header"><a className="pc-brand" href={presentationAppUrl} target="_blank" rel="noreferrer"><Wallet size={24} /><span>hokie<span>Wallet</span></span></a><span className="pc-event">VTHacks 14 <span>/</span> sudoWin</span><div className="pc-scene-label"><span>{scene.speaker}</span><span>{String(playback.index + 1).padStart(2, "0")} / 09</span></div></header>
     <main id="pitch-scene" className="pc-stage" tabIndex={-1} aria-label={`${scene.title} Presented by ${scene.speaker}`}><Scene key={scene.id} id={scene.id} seconds={playback.elapsed - scene.startsAt} /></main>
     <div className="pc-sr-only" aria-live="polite" aria-atomic="true">Scene {playback.index + 1}: {scene.title} Speaker: {scene.speaker}.</div>
     {controls ? <footer className="pc-controls"><div className="pc-control-main"><div className="pc-navigation"><button className="pc-icon-button" aria-label="Previous scene" disabled={playback.index === 0} onClick={() => seek(playback.index - 1)}><ChevronLeft /></button><button className="pc-icon-button" aria-label="Next scene" disabled={playback.index === presentationScenes.length - 1} onClick={() => seek(playback.index + 1)}><ChevronRight /></button><button className="pc-play" onClick={togglePlayback}>{playback.running ? <Pause size={15} /> : <Play size={15} />}{playback.running ? "Pause" : playback.elapsed === 0 ? "Start 4-minute talk" : playback.elapsed === 240 ? "Replay talk" : "Resume talk"}</button><span className="pc-timer" aria-label={`${formatPresentationTime(playback.elapsed)} elapsed of 4 minutes`}>{formatPresentationTime(playback.elapsed)}<span> / 4:00</span></span></div><nav className="pc-dots" aria-label="Presentation scenes">{presentationScenes.map((item, i) => <button key={item.id} aria-label={`${i + 1}. ${item.title} ${item.speaker}`} aria-current={playback.index === i ? "step" : undefined} title={item.title} onClick={() => seek(i)}><span /></button>)}</nav><div className="pc-utilities"><button className="pc-icon-button" ref={notesButtonRef} aria-label="Open speaker notes" title="Speaker notes (N)" onClick={openNotes}><BookOpen size={18} /></button><button className="pc-icon-button" aria-label="Toggle reduced motion" aria-pressed={effectiveReduced} title={effectiveReduced ? "Motion reduced — turn animations on" : "Reduce motion"} onClick={() => setReduced(!effectiveReduced)}><Eye size={18} /><span className="pc-utility-text">{reduced === null ? effectiveReduced ? "System: reduced" : "System" : effectiveReduced ? "Reduced" : "Motion on"}</span></button><button className="pc-icon-button" aria-label="Toggle fullscreen" title="Fullscreen (F)" onClick={() => void fullscreen()}><Maximize2 size={18} /></button><button className="pc-icon-button" aria-label="Hide presentation controls" title="Hide controls (H)" onClick={() => setControls(false)}><EyeOff size={18} /></button></div></div><div className="pc-progress" role="progressbar" aria-label="Presentation time" aria-valuemin={0} aria-valuemax={totalPresentationSeconds} aria-valuenow={Math.floor(playback.elapsed)}><span style={{ width: `${playback.elapsed / totalPresentationSeconds * 100}%` }} /></div></footer> : <button className="pc-show-controls" onClick={() => setControls(true)}><Eye size={15} /> Show controls</button>}
     {status && <div className="pc-status" role="status">{status}<button onClick={() => setStatus("")} aria-label="Dismiss message"><X size={16} /></button></div>}
-    <dialog className="pc-notes" ref={dialogRef} onClose={() => { setNotesOpen(false); notesButtonRef.current?.focus(); }} aria-labelledby="pc-notes-title"><div className="pc-notes-heading"><div><p className="pc-kicker">Presenter notes · Playback paused</p><h2 id="pc-notes-title">{scene.speaker} · {formatPresentationTime(scene.startsAt)}–{formatPresentationTime(scene.startsAt + scene.duration)}</h2></div><button className="pc-icon-button" aria-label="Close speaker notes" autoFocus={notesOpen} onClick={closeNotes}><X /></button></div><h3>{scene.title}</h3><p className="pc-notes-script">{scene.notes}</p><div className="pc-notes-next"><span>Up next</span><strong>{nextScene ? `${nextScene.speaker} · ${nextScene.title}` : "Thank the judges. Open the product for questions."}</strong></div><details><summary>Keyboard controls & sources</summary><p>← / → or Space: navigate · P: run / pause · N: notes · F: fullscreen · H: hide controls · Home / End: first / last scene. Text fields and the text-size slider keep their normal keyboard controls. N or Escape closes notes.</p><ul>{sourceLinks.map(source => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label}</a><p>{source.description}</p></li>)}</ul><p>UI screenshots: team frontend, merged in 0c04e56. FinBot artwork and Origami photo: team. HokieBird photo in screenshots: Virginia Tech. The exact 499-word script is also in docs/presentation/speaker-notes.md.</p></details></dialog>
+    <dialog className="pc-notes" ref={dialogRef} onClose={() => { setNotesOpen(false); notesButtonRef.current?.focus(); }} aria-labelledby="pc-notes-title"><div className="pc-notes-heading"><div><p className="pc-kicker">Presenter notes · Playback paused</p><h2 id="pc-notes-title">{scene.speaker} · {formatPresentationTime(scene.startsAt)}–{formatPresentationTime(scene.startsAt + scene.duration)}</h2></div><button className="pc-icon-button" aria-label="Close speaker notes" autoFocus={notesOpen} onClick={closeNotes}><X /></button></div><h3>{scene.title}</h3><p className="pc-notes-script">{scene.notes}</p><div className="pc-notes-next"><span>Up next</span><strong>{nextScene ? `${nextScene.speaker} · ${nextScene.title}` : "Thank the judges. Open the product for questions."}</strong></div><details><summary>Keyboard controls & sources</summary><p>← / → or Space: navigate · P: run / pause · N: notes · F: fullscreen · H: hide controls · Home / End: first / last scene. Text fields and the text-size slider keep their normal keyboard controls. N or Escape closes notes.</p><ul>{sourceLinks.map(source => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label}</a><p>{source.description}</p></li>)}</ul><p>UI screenshots: team frontend, merged in 0c04e56. FinBot artwork and Origami photo: team. HokieBird photo in screenshots: Virginia Tech. The current script is also in docs/presentation/speaker-notes.md. The purchase comparison reproduces a synthetic backend contract example; it makes no live API request.</p></details></dialog>
   </div>;
 }

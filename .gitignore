@@ -17,3 +17,6 @@
 **/*.log
 *.pem
 *.key
+
+# Portable presentation output is generated from the frontend source.
+frontend/presentation-dist/
