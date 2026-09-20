@@ -81,6 +81,18 @@ describe("projectPlan", () => {
     expect(result.warnings[0]).toContain("double-reserves");
   });
 
+  it("reports an overdrawn eligible account as infeasible instead of replacing it with zero", () => {
+    const result = projectPlan({ ...laptopPlan, startingEligibleCashCents: -5_000, goals: [] });
+
+    expect(result).toMatchObject({
+      feasibility: "infeasible",
+      openingUnallocatedCashCents: -5_000,
+      minimumUnallocatedCashCents: -25_000,
+      cashFlow: null,
+    });
+    expect(result.warnings[0]).toContain("below zero");
+  });
+
   it("labels estimates and incomplete goal savings schedules", () => {
     const result = projectPlan({
       ...laptopPlan,

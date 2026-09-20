@@ -51,8 +51,11 @@ export interface PlanProjection {
 
 const millisecondsPerDay = 86_400_000;
 
-function assertSafeInteger(value: number, field: string, minimum = 0): void {
-  if (!Number.isSafeInteger(value) || value < minimum) throw new RangeError(`${field} must be a safe integer of at least ${minimum}.`);
+function assertSafeInteger(value: number, field: string, minimum?: number): void {
+  if (!Number.isSafeInteger(value) || (minimum !== undefined && value < minimum)) {
+    const minimumMessage = minimum === undefined ? "" : ` of at least ${minimum}`;
+    throw new RangeError(`${field} must be a safe integer${minimumMessage}.`);
+  }
 }
 
 function parseIsoDate(value: string, field: string): Date {
@@ -194,7 +197,12 @@ export function projectPlan(input: PlanProjectionInput): PlanProjection {
       goals,
       cashFlow: null,
       assumptions,
-      warnings: ["Existing goal allocations exceed eligible bank cash; the plan double-reserves money.", ...warnings],
+      warnings: [
+        input.startingEligibleCashCents < 0
+          ? "Eligible bank cash is below zero, so the plan cannot fund its cash buffer."
+          : "Existing goal allocations exceed eligible bank cash; the plan double-reserves money.",
+        ...warnings,
+      ],
     };
   }
 
